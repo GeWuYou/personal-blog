@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+ <trees>
+     <tree path="/personal-blog-common/src/main/java/com/gewuyou/blog/common/constant" title="常量"/>
+     <tree path="/personal-blog-common/src/main/java/com/gewuyou/blog/common/dto" title="数据传输对象"/>
+     <tree path="/personal-blog-common/src/main/java/com/gewuyou/blog/common/entity" title="实体对象"/>
+     <tree path="/personal-blog-common/src/main/java/com/gewuyou/blog/common/enums" title="枚举"/>
+     <tree path="/personal-blog-common/src/main/java/com/gewuyou/blog/common/utils" title="工具类"/>
+     <tree path="/personal-blog-common/src/main/java/com/gewuyou/blog/common/vo" title="视图对象"/>
+ </trees>
