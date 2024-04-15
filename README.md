@@ -1,39 +1,40 @@
 # personal-blog
 
-#### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
-Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+## 一、个人博客简介
 
-#### 软件架构
-软件架构说明
+## 二、前端开发
+
+## 三、后端开发
+
+### 3.1、简介
+
+### 3.2、项目架构
+
+1. **personal-blog-common**
+   - 提供通用的工具类、常量、异常处理等功能，供其他模块共享和使用。
+   - 定义公共的数据模型和接口，促进模块间的解耦和协同工作。
+2. **personal-blog-server**
+   - 实现博客的核心业务逻辑和功能，如文章管理、评论系统、用户管理等。
+   - 提供 API 接口，供前端或其他模块调用。
+3. **personal-blog-admin**
+   - 提供管理后台界面，用于博客内容的管理和维护。
+   - 实现用户权限管理、内容审核、数据统计等管理功能。
+4. **personal-blog-search**
+   - 负责博客内容的搜索和检索功能。
+   - 集成搜索引擎，如 Elasticsearch，为用户提供高效、准确的搜索体验。
+5. **personal-blog-eureka**
+   - 作为服务注册中心，管理和维护所有微服务的注册信息。
+   - 实现服务发现和负载均衡，确保微服务间的通信和协同工作。
+6. **personal-blog-extension**
+   - 提供博客的扩展功能和插件支持。
+   - 允许用户自定义和扩展博客的功能，如主题、小工具、第三方集成等。
+7. **personal-blog-encrypt**
+   - 负责博客系统中的数据加密和安全处理。
+   - 实现数据加密、安全传输、数据脱敏、数字签名等安全相关功能。
+8. **personal-blog-gateway**
+   - 作为所有外部请求的入口点，处理请求路由、负载均衡、安全认证、流量控制等。
+   - 将请求转发到相应的后端服务，并处理响应返回给客户端。
 
 
-#### 安装教程
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
 
 
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)

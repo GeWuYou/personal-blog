@@ -1,0 +1,11 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /search
+spring:
+  application:
+    name: personal-blog-search
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:10086/eureka

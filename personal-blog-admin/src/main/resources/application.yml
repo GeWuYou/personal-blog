@@ -1,0 +1,21 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /admin
+spring:
+  application:
+    name: personal-blog-admin
+
+eureka:
+  instance:
+    hostname: ${spring.application.name}
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:10086/eureka
+    fetch-registry: true
+    register-with-eureka: true # fetch-registry 与 register-with-eureka 都为 true 表示即为提供者, 亦为消费者
+
+    # 连接注册中心超时时间, 默认 5, 单位秒, 一般和注册中心服务失效时间配置一致
+    eureka-server-connect-timeout-seconds: 10
+    # 读取服务列表的超时时间, 默认 8, 单位秒
+    eureka-server-read-timeout-seconds: 10
