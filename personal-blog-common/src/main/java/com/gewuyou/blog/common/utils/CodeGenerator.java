@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 
 import java.sql.Types;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * 代码生成器
@@ -28,10 +29,11 @@ public class CodeGenerator {
      * @param outputDir    输出目录
      * @param xmlOutputDir xml输出目录
      * @param moduleName   模块名
+     * @param tableNames   表名列表
      * @apiNote
      * @since 2024/4/13 下午9:37
      */
-    public static void generation(String outputDir, String xmlOutputDir, String moduleName) {
+    public static void generation(String outputDir, String xmlOutputDir, String moduleName, List<String> tableNames) {
         FastAutoGenerator.create(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)
                 // 全局配置
                 .globalConfig(builder ->
@@ -70,12 +72,14 @@ public class CodeGenerator {
                 .strategyConfig(builder -> {
                     // 设置需要生成的表名
                     builder
-                            .addInclude("tb_user")
+                            .addInclude(tableNames)
                             // 设置过滤表前缀
                             .addTablePrefix("tb_")
                             // 实体配置
                             .entityBuilder()
                             .enableFileOverride()
+                            // 开启生成字段注解
+                            .enableTableFieldAnnotation()
                             // 开启lombok插件
                             .enableLombok()
                             // 服务配置
@@ -88,6 +92,7 @@ public class CodeGenerator {
                             .enableFileOverride()
                             .mapperBuilder()
                             .enableFileOverride()
+                            .enableMapperAnnotation()
                     ;
                 })
                 // 模板引擎配置
@@ -100,9 +105,22 @@ public class CodeGenerator {
         String outputDir = "personal-blog-server\\src\\main\\java";
         String xmlOutputDir = "personal-blog-server\\src\\main\\resources\\mapper";
         String moduleName = "server";
-        generation(outputDir, xmlOutputDir, moduleName);
+        generation(outputDir, xmlOutputDir, moduleName, List.of("tb_user", "tb_article", "tb_comment", "tb_tag", "tb_category"));
     }
+
+    private static void adminCodeGeneration() {
+        String outputDir = "personal-blog-admin\\src\\main\\java";
+        String xmlOutputDir = "personal-blog-admin\\src\\main\\resources\\mapper";
+        String moduleName = "admin";
+        generation(outputDir, xmlOutputDir, moduleName, List.of(
+                "tb_user", "tb_role", "tb_resource",
+                "tb_menu", "tb_tag", "tb_operation_log",
+                "tb_category",
+                "tb_role_resource", "tb_role_menu", "tb_user_role"));
+    }
+
     public static void main(String[] args) {
-        serverCodeGeneration();
+        // serverCodeGeneration();
+        adminCodeGeneration();
     }
 }

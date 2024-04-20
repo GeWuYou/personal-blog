@@ -1,0 +1,13 @@
+logging:
+  level:
+    root: info
+  pattern:
+    #    console: '%red(%d{yyyy-MM-dd HH:mm:ss}) %green([%thread]) %highlight(%-5level) %boldMagenta(%logger{10}) - %cyan(%msg%n)'
+    console: '时间:[%red(%d{yyyy-MM-dd HH:mm:ss})] 线程:[%green([%thread])] 日志级别:[%highlight(%-5level)] 调用位置:[%boldMagenta(%logger{50}) 参见:%blue(\(%F:%L\))] 日志信息:[%cyan(%msg%n)]'
+    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger : %msg%n'
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 10
+  file:
+    path: logs/${spring.application.name}.log

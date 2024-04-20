@@ -31,3 +31,5 @@ build/
 
 ### VS Code ###
 .vscode/
+### Project ###
+src/main/resources/application-common-private-mail.yml

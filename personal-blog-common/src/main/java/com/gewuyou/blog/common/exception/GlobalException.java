@@ -1,5 +1,8 @@
 package com.gewuyou.blog.common.exception;
 
+import com.gewuyou.blog.common.enums.ResponseInformation;
+import lombok.Getter;
+
 import java.io.Serial;
 
 /**
@@ -8,30 +11,22 @@ import java.io.Serial;
  * @author gewuyou
  * @since 2024-04-13 下午1:44:14
  */
+@Getter
 public class GlobalException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 1L;
-    /**
-     * 错误码
-     */
-    private final int errorCode;
 
-    /**
-     * 错误信息
-     */
-    private final String errorMessage;
+    private final ResponseInformation responseInformation;
 
-    public GlobalException(int errorCode, String errorMessage) {
-        this.errorMessage = errorMessage;
-        this.errorCode = errorCode;
+    public GlobalException(ResponseInformation responseInformation) {
+        this.responseInformation = responseInformation;
     }
 
-
-    public GlobalException(int errorCode, String errorMessage, Throwable cause) {
+    public GlobalException(ResponseInformation responseInformation, Throwable cause) {
         super(cause);
-        this.errorMessage = errorMessage;
-        this.errorCode = errorCode;
+        this.responseInformation = responseInformation;
     }
+
 
     /**
      * Fills in the execution stack trace. This method records within this
@@ -50,12 +45,12 @@ public class GlobalException extends RuntimeException {
         return this;
     }
 
-    public int getErrorCode() {
-        return errorCode;
+    public String getErrorMessage() {
+        return responseInformation.getMessage();
     }
 
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public int getErrorCode() {
+        return responseInformation.getCode();
     }
 }

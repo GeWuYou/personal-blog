@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.common.annotation.GlobalLogging;
 import com.gewuyou.blog.common.enums.LoggingLevel;
+import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -95,7 +96,7 @@ public class GlobalLoggingAspect {
                 sb.append("，异常信息或者返回值：").append(resultJson);
             }
         } catch (JsonProcessingException e) {
-            throw new GlobalException(500, "日志构建失败", e);
+            throw new GlobalException(ResponseInformation.LOG_BUILD_FAILED, e);
         }
         return sb.toString();
     }

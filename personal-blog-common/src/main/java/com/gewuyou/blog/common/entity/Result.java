@@ -1,6 +1,10 @@
 package com.gewuyou.blog.common.entity;
 
+import com.gewuyou.blog.common.enums.ResponseInformation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 返回结果包装类
@@ -8,65 +12,103 @@ import lombok.Data;
  * @author gewuyou
  * @since 2024-04-13 上午12:24:04
  */
+@Schema(description = "返回结果包装类")
 @Data
-public class Result<T> {
+public class Result<T> implements Serializable {
     /**
      * 结果代码
      */
+    @Schema(description = "结果代码", example = "200")
     private Integer code;
+    /**
+     * 是否成功
+     */
+    @Schema(description = "是否成功")
+    private boolean success;
     /**
      * 响应信息
      */
-
+    @Schema(description = "响应信息")
     private String message;
     /**
      * 结果数据
      */
-    private T data;
+    @Schema(description = "结果数据")
+    private transient T data;
 
-    private Result() {
+    private Result(ResponseInformation responseInformation, boolean success, T data) {
+        this.code = responseInformation.getCode();
+        this.success = success;
+        this.message = responseInformation.getMessage();
+        this.data = data;
     }
 
-    public static Result<Void> ok() {
-        Result<Void> result = new Result<>();
-        result.setCode(200);
-        result.setMessage("操作成功");
-        return result;
+
+    /**
+     * 无数据成功返回
+     *
+     * @return 成功结果
+     */
+    public static <T> Result<T> success() {
+        return new Result<>(ResponseInformation.SUCCESS, true, null);
     }
 
-    public static <T> Result<T> ok(String message) {
-        Result<T> result = new Result<>();
-        result.setCode(200);
-        result.setMessage(message);
-        return result;
+    /**
+     * 设置响应信息成功返回
+     *
+     * @param responseInformation 响应代码枚举
+     * @param <T>                 泛型
+     * @return 成功结果
+     */
+    public static <T> Result<T> success(ResponseInformation responseInformation) {
+        return new Result<>(responseInformation, true, null);
     }
 
-    public static <T> Result<T> ok(String message, T data) {
-        Result<T> result = new Result<>();
-        result.setCode(200);
-        result.setMessage(message);
-        result.setData(data);
-        return result;
+    /**
+     * 有数据成功返回
+     *
+     * @param data 数据
+     * @param <T>  泛型
+     * @return 成功结果
+     */
+
+    public static <T> Result<T> success(T data) {
+        return new Result<>(ResponseInformation.SUCCESS, true, data);
     }
 
-    public static Result<Void> error() {
-        Result<Void> result = new Result<>();
-        result.setCode(500);
-        result.setMessage("操作失败");
-        return result;
+    /**
+     * 有数据设置响应信息成功返回
+     *
+     * @param responseInformation 响应代码枚举
+     * @param data                数据
+     * @param <T>                 泛型
+     * @return 成功结果
+     */
+
+    public static <T> Result<T> success(ResponseInformation responseInformation, T data) {
+        return new Result<>(responseInformation, true, data);
     }
 
-    public static Result<Void> error(String message) {
-        Result<Void> result = new Result<>();
-        result.setCode(500);
-        result.setMessage(message);
-        return result;
+    /**
+     * 失败返回
+     *
+     * @return 失败结果
+     */
+    public static Result<String> failure() {
+        return new Result<>(ResponseInformation.FAIL, false, null);
     }
 
-    public static Result<Void> error(Integer code, String message) {
-        Result<Void> result = new Result<>();
-        result.setCode(code);
-        result.setMessage(message);
-        return result;
+
+    /**
+     * 设置响应信息失败返回
+     *
+     * @param responseInformation 响应代码枚举
+     * @return 失败结果
+     */
+    public static Result<String> failure(ResponseInformation responseInformation) {
+        return new Result<>(responseInformation, false, null);
     }
 }
+
+
+

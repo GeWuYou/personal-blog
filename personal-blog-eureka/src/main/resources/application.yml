@@ -1,6 +1,8 @@
 server:
   port: 10086
 spring:
+  profiles:
+    include: common-log
   application:
     name: personal-blog-eureka-server
 eureka:

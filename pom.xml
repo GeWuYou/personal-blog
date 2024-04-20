@@ -30,12 +30,19 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>2.0.12</slf4j.version>
         <logback.version>1.5.4</logback.version>
-        <jackson.version>2.17.0</jackson.version>
+        <jackson.version>2.15.4</jackson.version>
         <mybatis-plus.version>3.5.6</mybatis-plus.version>
         <freemarker.version>2.3.32</freemarker.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
         <spring.version>6.1.5</spring.version>
         <bcprov-jdk18on.version>1.78</bcprov-jdk18on.version>
+        <springfox-swagger.version>3.0.0</springfox-swagger.version>
+        <swagger-annotations.version>1.6.14</swagger-annotations.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.5.0</springdoc-openapi-starter-webmvc-ui.version>
+        <jjwt.version>0.12.5</jjwt.version>
+        <personal-blog-common.version>0.1.0</personal-blog-common.version>
+        <commons-validator.version>1.8.0</commons-validator.version>
+        <user-agent-utils.version>1.21</user-agent-utils.version>
     </properties>
 
     <build>
@@ -43,13 +50,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.9.0</version>
                 <configuration>
-                    <release>17</release>
+                    <release>${java.version}</release>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
