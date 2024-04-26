@@ -1,6 +1,7 @@
 package com.gewuyou.blog.common.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +17,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author gewuyou
- * @since 2024-04-16
+ * @since 2024-04-21
  */
 @Getter
 @Setter
@@ -24,7 +25,6 @@ import java.io.Serializable;
 @Schema(name = "Category对象", description = "分类表")
 public class Category implements Serializable {
 
-    @Schema(hidden = true)
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -33,8 +33,10 @@ public class Category implements Serializable {
     private Long categoryId;
 
     @Schema(description = "分类名")
+    @TableField("category_name")
     private String categoryName;
 
     @Schema(description = "分类描述")
+    @TableField("description")
     private String description;
 }

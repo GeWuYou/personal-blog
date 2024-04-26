@@ -1,6 +1,7 @@
 package com.gewuyou.blog.common.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author gewuyou
- * @since 2024-04-16
+ * @since 2024-04-21
  */
 @Getter
 @Setter
@@ -25,7 +26,6 @@ import java.time.LocalDateTime;
 @Schema(name = "ArticleViewStatistic对象", description = "文章访问统计表")
 public class ArticleViewStatistic implements Serializable {
 
-    @Schema(hidden = true)
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -34,14 +34,18 @@ public class ArticleViewStatistic implements Serializable {
     private Long articleViewStatisticId;
 
     @Schema(description = "文章Id")
+    @TableField("article_id")
     private Long articleId;
 
     @Schema(description = "用户id")
+    @TableField("user_id")
     private Long userId;
 
     @Schema(description = "文章访问次数")
+    @TableField("count")
     private Integer count;
 
     @Schema(description = "记录时间：每天4点记录一次")
+    @TableField("record_date")
     private LocalDateTime recordDate;
 }

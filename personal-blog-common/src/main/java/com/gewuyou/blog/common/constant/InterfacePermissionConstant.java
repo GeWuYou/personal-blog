@@ -17,5 +17,7 @@ public class InterfacePermissionConstant {
      */
     public static final String VERSION = "v1";
 
-    public static final String BASE_URL = API_PREFIX + "/" + VERSION;
+    public static final String MODULE_NAME = "admin";
+
+    public static final String BASE_URL = API_PREFIX + "/" + VERSION + "/" + MODULE_NAME;
 }

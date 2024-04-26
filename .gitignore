@@ -34,3 +34,6 @@ build/
 
 ### Project ###
 /logs
+/temp
+/personal-blog-aurora-vue/aurora-admin/node_modules
+/personal-blog-aurora-vue/aurora-blog/node_modules

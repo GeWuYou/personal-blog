@@ -1,0 +1,97 @@
+package com.gewuyou.blog.admin.service;
+
+
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.dto.UserAdminDTO;
+import com.gewuyou.blog.common.dto.UserAreaDTO;
+import com.gewuyou.blog.common.dto.UserInfoDTO;
+import com.gewuyou.blog.common.model.UserAuth;
+import com.gewuyou.blog.common.vo.ConditionVO;
+import com.gewuyou.blog.common.vo.LoginVO;
+import com.gewuyou.blog.common.vo.RegisterVO;
+
+import java.util.List;
+
+/**
+ * <p>
+ * 用户认证信息表 服务类
+ * </p>
+ *
+ * @author gewuyou
+ * @since 2024-04-21
+ */
+public interface IUserAuthService extends IService<UserAuth> {
+
+    /**
+     * 获取用户区域分布
+     *
+     * @param conditionVO 条件
+     * @return 用户区域分布
+     */
+    List<UserAreaDTO> listUserAreas(ConditionVO conditionVO);
+
+
+    /**
+     * 发送注册邮件
+     *
+     * @param email      邮件地址
+     * @param sessionId  会话ID
+     * @param isRegister (邮箱)是否注册
+     * @return 是否发送成功
+     */
+    boolean sendEmail(String email, String sessionId, boolean isRegister);
+
+    /**
+     * 验证邮箱并注册
+     *
+     * @param registerVO 注册数据传输类
+     * @param sessionId  会话ID
+     * @return 是否注册成功
+     */
+    boolean verifyEmailAndRegister(RegisterVO registerVO, String sessionId);
+
+    /**
+     * 验证验证码
+     *
+     * @param email      邮箱
+     * @param verifyCode 验证码
+     * @param sessionId  会话ID
+     * @param isRegister (邮箱)是否注册
+     * @return 是否验证成功
+     */
+    boolean verifyCode(String email, String verifyCode, String sessionId, boolean isRegister);
+
+    /**
+     * 重置密码
+     *
+     * @param email    邮箱
+     * @param password 密码
+     * @return 是否重置成功
+     */
+    boolean resetPassword(String email, String password);
+
+    /**
+     * 检查用户名是否存在
+     *
+     * @param username 用户名
+     * @return 是否存在
+     */
+    boolean checkUserName(String username);
+
+    /**
+     * 获取用户列表
+     *
+     * @param conditionVO 条件
+     * @return 用户列表
+     */
+    PageResultDTO<UserAdminDTO> listUsers(ConditionVO conditionVO);
+
+    /**
+     * 登录
+     *
+     * @param loginVO 登录信息
+     * @return 用户信息
+     */
+    UserInfoDTO usernameOrEmailPasswordLogin(LoginVO loginVO);
+}

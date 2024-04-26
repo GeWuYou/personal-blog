@@ -1,6 +1,7 @@
 package com.gewuyou.blog.common.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author gewuyou
- * @since 2024-04-16
+ * @since 2024-04-21
  */
 @Getter
 @Setter
@@ -25,7 +26,6 @@ import java.time.LocalDateTime;
 @Schema(name = "Menu对象", description = "菜单表")
 public class Menu implements Serializable {
 
-    @Schema(hidden = true)
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -33,33 +33,39 @@ public class Menu implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @Schema(description = "父菜单id(默认为0，表示顶级菜单)")
-    private Integer parentId;
-
     @Schema(description = "菜单名")
+    @TableField("name")
     private String name;
 
     @Schema(description = "菜单路径")
+    @TableField("path")
     private String path;
 
     @Schema(description = "菜单组件")
+    @TableField("component")
     private String component;
 
     @Schema(description = "菜单图标")
+    @TableField("icon")
     private String icon;
 
-    @Schema(description = "排序号")
-    private Integer orderNum;
-
-    @Schema(description = "是否禁用 0表示禁用。1表示启用")
-    private Long status;
-
-    @Schema(description = "菜单类型，1表示用户后台菜单，2表示管理员后台菜单")
-    private Byte type;
-
     @Schema(description = "创建时间")
+    @TableField("create_time")
     private LocalDateTime createTime;
 
     @Schema(description = "修改时间")
+    @TableField("update_time")
     private LocalDateTime updateTime;
+
+    @Schema(description = "排序号")
+    @TableField("order_num")
+    private Integer orderNum;
+
+    @Schema(description = "父菜单id(默认为0，表示顶级菜单)")
+    @TableField("parent_id")
+    private Integer parentId;
+
+    @Schema(description = "是否隐藏 0表示否。1表示是")
+    @TableField("is_hidden")
+    private Byte isHidden;
 }

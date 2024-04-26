@@ -1,6 +1,7 @@
 package com.gewuyou.blog.common.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,36 +17,26 @@ import java.io.Serializable;
  * </p>
  *
  * @author gewuyou
- * @since 2024-04-16
+ * @since 2024-04-21
  */
-@Schema(description = "<p> 文章分类中间表 </p>")
 @Getter
 @Setter
 @TableName("tb_article_category")
+@Schema(name = "ArticleCategory对象", description = "文章分类中间表")
 public class ArticleCategory implements Serializable {
 
-
     @Serial
-    @Schema(hidden = true)
     private static final long serialVersionUID = 1L;
 
-
-    /**
-     * 主键id
-     */
-    @Schema(description = "主键id")
+    @Schema(description = "文章分类中间表id")
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    /**
-     * 文章Id
-     */
     @Schema(description = "文章Id")
+    @TableField("article_id")
     private Long articleId;
 
-    /**
-     * 分类Id
-     */
     @Schema(description = "分类Id")
+    @TableField("category_id")
     private Long categoryId;
 }

@@ -43,6 +43,7 @@
         <personal-blog-common.version>0.1.0</personal-blog-common.version>
         <commons-validator.version>1.8.0</commons-validator.version>
         <user-agent-utils.version>1.21</user-agent-utils.version>
+        <ip2region.version>1.7.2</ip2region.version>
     </properties>
 
     <build>

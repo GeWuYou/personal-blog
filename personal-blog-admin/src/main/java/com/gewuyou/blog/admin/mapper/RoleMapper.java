@@ -4,6 +4,7 @@ package com.gewuyou.blog.admin.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.gewuyou.blog.common.model.Role;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
  * </p>
  *
  * @author gewuyou
- * @since 2024-04-16
+ * @since 2024-04-21
  */
 @Mapper
 public interface RoleMapper extends BaseMapper<Role> {
@@ -23,5 +24,5 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @param userId 用户ID
      * @return 角色标签列表
      */
-    List<String> selectRoleLabelByUserId(Long userId);
+    List<String> listRolesByUserInfoId(@Param("userId") Long userId);
 }

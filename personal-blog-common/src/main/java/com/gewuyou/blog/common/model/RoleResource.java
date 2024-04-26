@@ -1,6 +1,7 @@
 package com.gewuyou.blog.common.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +17,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author gewuyou
- * @since 2024-04-16
+ * @since 2024-04-21
  */
 @Getter
 @Setter
@@ -24,7 +25,6 @@ import java.io.Serializable;
 @Schema(name = "RoleResource对象", description = "角色资源中间表")
 public class RoleResource implements Serializable {
 
-    @Schema(hidden = true)
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -33,8 +33,10 @@ public class RoleResource implements Serializable {
     private Long id;
 
     @Schema(description = "角色id")
+    @TableField("role_id")
     private Integer roleId;
 
     @Schema(description = "资源id")
+    @TableField("resource_id")
     private Integer resourceId;
 }

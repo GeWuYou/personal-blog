@@ -10,9 +10,8 @@ import com.gewuyou.blog.common.model.RoleMenu;
  * </p>
  *
  * @author gewuyou
- * @since 2024-04-16
+ * @since 2024-04-21
  */
-
 public interface IRoleMenuService extends IService<RoleMenu> {
 
 }

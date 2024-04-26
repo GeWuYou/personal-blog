@@ -1,22 +1,28 @@
 package com.gewuyou.blog.common.utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gewuyou.blog.common.constant.CommonConstant;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import eu.bitwalker.useragentutils.UserAgent;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.lionsoul.ip2region.DataBlock;
+import org.lionsoul.ip2region.DbConfig;
+import org.lionsoul.ip2region.DbSearcher;
+import org.lionsoul.ip2region.Util;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * ip工具类
@@ -25,7 +31,12 @@ import java.util.Map;
  * @since 2024-04-17 下午8:33:33
  */
 @Slf4j
+@Component
 public class IpUtils {
+    private static DbSearcher searcher;
+
+    private static Method method;
+
     private IpUtils() {
     }
 
@@ -37,7 +48,7 @@ public class IpUtils {
      * @param request 请求
      * @return ip地址
      */
-    public static String getIpAddr(HttpServletRequest request) {
+    public static String getIpAddress(HttpServletRequest request) {
         String ipAddress = request.getHeader("x-forwarded-for");
         if (ipAddress == null || ipAddress.isEmpty() || UNKNOWN.equalsIgnoreCase(ipAddress)) {
             ipAddress = request.getHeader("Proxy-Client-IP");
@@ -113,24 +124,52 @@ public class IpUtils {
      * @return 解析后的ip地址
      */
     public static String getIpSource(String ipAddress) {
-        try {
-            URL url = new URL("http://opendata.baidu.com/api.php?query=" + ipAddress + "&co=&resource_id=6006&oe=utf8");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream(), "utf-8"));
-            String line;
-            StringBuilder result = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                result.append(line);
-            }
-            reader.close();
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> map = objectMapper.readValue(result.toString(), new TypeReference<>() {
-            });
-            String dataJson = objectMapper.writeValueAsString(map.get("data"));
-            List<Map<String, String>> data = objectMapper.readValue(dataJson, new TypeReference<>() {
-            });
-            return data.get(0).get("location");
-        } catch (Exception e) {
-            return UNKNOWN;
+        if (ipAddress == null || !Util.isIpAddress(ipAddress)) {
+            log.error("Error: Invalid ip address");
+            return "";
         }
+        try {
+            DataBlock dataBlock = (DataBlock) method.invoke(searcher, ipAddress);
+            String ipInfo = dataBlock.getRegion();
+            if (!StringUtils.isEmpty(ipInfo)) {
+                ipInfo = ipInfo.replace("|0", "");
+                ipInfo = ipInfo.replace("0|", "");
+                return ipInfo;
+            }
+        } catch (Exception e) {
+            log.error("getCityInfo exception:", e);
+        }
+        return "";
+    }
+
+    /**
+     * 获取ip的省份
+     *
+     * @param ipSource ip地址
+     * @return ip的省份
+     */
+    public static String getIpProvince(String ipSource) {
+        if (StringUtils.isBlank(ipSource)) {
+            return CommonConstant.UNKNOWN;
+        }
+        String[] strings = ipSource.split("\\|");
+        if (strings.length > 1 && strings[1].endsWith("省")) {
+            return StringUtils.substringBefore(strings[1], "省");
+        }
+        return strings[0];
+    }
+
+    /**
+     * 初始化ip2region资源
+     *
+     * @throws Exception 异常
+     */
+    @PostConstruct
+    private void initIp2regionResource() throws Exception {
+        InputStream inputStream = new ClassPathResource("/ip/ip2region.db").getInputStream();
+        byte[] dbBinStr = FileCopyUtils.copyToByteArray(inputStream);
+        DbConfig dbConfig = new DbConfig();
+        searcher = new DbSearcher(dbConfig, dbBinStr);
+        method = searcher.getClass().getMethod("memorySearch", String.class);
     }
 }

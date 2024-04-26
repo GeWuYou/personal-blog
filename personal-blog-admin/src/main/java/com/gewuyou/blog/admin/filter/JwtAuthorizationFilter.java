@@ -2,7 +2,7 @@ package com.gewuyou.blog.admin.filter;
 
 import com.gewuyou.blog.admin.config.entity.SecurityIgnoreUrl;
 import com.gewuyou.blog.admin.security.service.JwtService;
-import com.gewuyou.blog.common.dto.UserDetailDTO;
+import com.gewuyou.blog.common.dto.UserDetailsDTO;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import jakarta.servlet.FilterChain;
@@ -94,10 +94,10 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         String username = jwtService.getUsername(token);
         log.info("解析出用户名：{}", username);
         // 获取当前登录用户UserDetails并强转为UserDetailsDto
-        UserDetailDTO userDetailDTO = (UserDetailDTO) userDetailsService.loadUserByUsername(username);
+        UserDetailsDTO userDetailsDTO = (UserDetailsDTO) userDetailsService.loadUserByUsername(username);
         // 构建认证token
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(userDetailDTO, null, userDetailDTO.getAuthorities());
+                new UsernamePasswordAuthenticationToken(userDetailsDTO, null, userDetailsDTO.getAuthorities());
         // 委托给spring security进行认证
         try {
             authenticationManager.authenticate(authenticationToken);

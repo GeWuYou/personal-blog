@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
 import com.baomidou.mybatisplus.generator.config.rules.DbColumnType;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.sql.Types;
 import java.util.Collections;
@@ -82,17 +83,18 @@ public class CodeGenerator {
                             .enableTableFieldAnnotation()
                             // 开启lombok插件
                             .enableLombok()
+                            .disable()
                             // 服务配置
                             .serviceBuilder()
-                            .enableFileOverride()
+                            // .enableFileOverride()
                             // 控制器配置
                             .controllerBuilder()
                             // 设置rest风格
                             .enableRestStyle()
-                            .enableFileOverride()
+                            // .enableFileOverride()
                             .mapperBuilder()
                             .enableFileOverride()
-                            .enableMapperAnnotation()
+                            .mapperAnnotation(Mapper.class)
                     ;
                 })
                 // 模板引擎配置
@@ -105,7 +107,14 @@ public class CodeGenerator {
         String outputDir = "personal-blog-server\\src\\main\\java";
         String xmlOutputDir = "personal-blog-server\\src\\main\\resources\\mapper";
         String moduleName = "server";
-        generation(outputDir, xmlOutputDir, moduleName, List.of("tb_user", "tb_article", "tb_comment", "tb_tag", "tb_category"));
+        generation(outputDir, xmlOutputDir, moduleName, List.of(
+                "tb_about", "tb_article", "tb_article_category",
+                "tb_article_comment_statistic", "tb_article_like_statistic",
+                "tb_article_tag", "tb_article_view_statistic", "tb_category",
+                "tb_comment", "tb_photo", "tb_photo_album",
+                "tb_tag", "tb_talk", "tb_friend_link",
+                "tb_website_config", "tb_user_info"
+        ));
     }
 
     private static void adminCodeGeneration() {
@@ -113,14 +122,18 @@ public class CodeGenerator {
         String xmlOutputDir = "personal-blog-admin\\src\\main\\resources\\mapper";
         String moduleName = "admin";
         generation(outputDir, xmlOutputDir, moduleName, List.of(
-                "tb_user", "tb_role", "tb_resource",
-                "tb_menu", "tb_tag", "tb_operation_log",
-                "tb_category",
-                "tb_role_resource", "tb_role_menu", "tb_user_role"));
+                "tb_exception_log", "tb_job",
+                "tb_job_log", "tb_menu", "tb_operation_log",
+                "tb_resource", "tb_role", "tb_role_menu",
+                "tb_role_resource", "tb_user_auth", "tb_user_role"
+        ));
     }
 
     public static void main(String[] args) {
-        // serverCodeGeneration();
-        adminCodeGeneration();
+        // String outputDir = "D:\\Project\\JAVA\\personal-blog\\temp";
+        // String xmlOutputDir = "D:\\Project\\JAVA\\personal-blog\\temp\\mapper";
+        // String moduleName = "";
+        // generation(outputDir, xmlOutputDir, moduleName, List.of("^tb_.*"));
+        serverCodeGeneration();
     }
 }

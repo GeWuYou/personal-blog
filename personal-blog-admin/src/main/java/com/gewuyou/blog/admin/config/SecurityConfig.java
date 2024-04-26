@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.admin.config.entity.SecurityIgnoreUrl;
 import com.gewuyou.blog.admin.filter.ExceptionHandlerFilter;
 import com.gewuyou.blog.admin.filter.JwtAuthorizationFilter;
+import com.gewuyou.blog.common.constant.CommonConstant;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.ResponseInformation;
@@ -11,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -114,8 +114,8 @@ public class SecurityConfig {
      * @since 2023/6/11 0:52
      */
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
-        response.setCharacterEncoding("utf-8");
-        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding(CommonConstant.APPLICATION_ENCODE);
+        response.setContentType(CommonConstant.APPLICATION_JSON);
         response.getWriter().write(json.writeValueAsString(Result.failure(ResponseInformation.INSUFFICIENT_PERMISSIONS)));
     }
 
@@ -128,8 +128,8 @@ public class SecurityConfig {
      * @since 2023/6/11 0:49
      */
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        response.setCharacterEncoding("utf-8");
-        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding(CommonConstant.APPLICATION_ENCODE);
+        response.setContentType(CommonConstant.APPLICATION_JSON);
         response.getWriter().write(json.writeValueAsString(Result.success(ResponseInformation.LOGOUT_SUCCESS)));
     }
 
@@ -144,7 +144,7 @@ public class SecurityConfig {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         // 允许http://localhost:8080跨域请求
         corsConfiguration.addAllowedOriginPattern("http://localhost:8080");
-        corsConfiguration.addAllowedOriginPattern("http://localhost:5174");
+        corsConfiguration.addAllowedOriginPattern("http://localhost:8086");
         // 设置携带cookie
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.addAllowedHeader("*");

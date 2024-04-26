@@ -68,7 +68,15 @@ public enum ResponseInformation {
      * 服务错误
      */
     ERR_GET_LOCAL_IP_FAILED(3001, "获取本地IP失败"),
+
+
+    // 工具错误
+    JSON_PARSE_ERROR(500, "JSON解析失败"),
+    JSON_SERIALIZE_ERROR(500, "JSON序列化失败"),
+    JSON_DESERIALIZE_ERROR(500, "JSON反序列化失败"),
+    OBJECT_COPY_FAILED(500, "对象拷贝失败"),
     IO_EXCEPTION(500, "IO异常");
+
 
     /**
      * 代码

@@ -1,6 +1,5 @@
 package com.gewuyou.blog.admin.service;
 
-
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.model.Role;
 
@@ -10,9 +9,8 @@ import com.gewuyou.blog.common.model.Role;
  * </p>
  *
  * @author gewuyou
- * @since 2024-04-16
+ * @since 2024-04-21
  */
-
 public interface IRoleService extends IService<Role> {
 
 }

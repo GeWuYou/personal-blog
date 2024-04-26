@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.admin.mapper.RoleMapper">
-    <select id="selectRoleLabelByUserId" resultType="java.lang.String">
-        select role_label
-        from tb_role role,
-             tb_user_role user_role
-        where role.id = user_role.role_id
-          and user_role.user_id = #{userId}
+    <select id="listRolesByUserInfoId" resultType="java.lang.String">
+        select name
+        from tb_role role
+                 left join tb_user_role ur on role.id = ur.role_id
+        where role.id = ur.role_id
+          and ur.user_id = #{userInfoId}
     </select>
 </mapper>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gewuyou.blog.admin.mapper.UserAuthMapper">
+
+    <update id="updatePasswordByEmail">
+        UPDATE tb_user_auth
+        SET password = #{password}
+        WHERE email = #{email}
+    </update>
+
+    <select id="selectByEmail" resultType="com.gewuyou.blog.common.model.UserAuth">
+        SELECT id,
+               user_info_id,
+               username,
+               email,
+               password,
+               login_type
+        FROM tb_user_auth
+        WHERE email = #{email}
+    </select>
+    <select id="selectByUsername" resultType="com.gewuyou.blog.common.model.UserAuth">
+        SELECT id,
+               user_info_id,
+               username,
+               email,
+               password,
+               login_type
+        FROM tb_user_auth
+        WHERE email = #{userName}
+    </select>
+    <select id="countUsers" resultType="java.lang.Integer">
+        SELECT couunt(1)
+        FROM tb_user_auth ua
+        LEFT JOIN tb_user_info ui ON ua.user_info_id = ui.id
+        <where>
+            # 如果搜索内容不为空则添加搜索条件并模糊查询
+            <if test="conditionVO.keywords != null">
+                nickname LIKE CONCAT('%', #{conditionVo.keywords}, '%')
+            </if>
+            # 如果登录类型不为空则添加登录类型的搜索条件
+            <if test="conditionVO.loginType != null">
+                AND login_type = #{conditionVo.loginType}
+            </if>
+        </where>
+    </select>
+    <resultMap id="UserAdminMap" type="com.gewuyou.blog.common.dto.UserAdminDTO">
+        <id property="id" column="id"/>
+        <result property="userInfoId" column="user_info_id"/>
+        <result property="avatar" column="avatar"/>
+        <result property="nickname" column="nickname"/>
+        <result property="loginType" column="login_type"/>
+        <result property="ipAddress" column="ip_address"/>
+        <result property="ipSource" column="ip_source"/>
+        <result property="createTime" column="create_time"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="isDisable" column="is_disable"/>
+        <collection property="roles" ofType="com.gewuyou.blog.common.dto.UserRoleDTO">
+            <id property="id" column="role_id"/>
+            <result property="roleName" column="role_name"/>
+        </collection>
+    </resultMap>
+    <select id="listUsers" resultMap="UserAdminMap">
+        SELECT
+        ua.id,
+        ua.user_info_id,
+        ua.avatar,
+        ua.nickname,
+        ua.login_type,
+        r.id as role_id,
+        r.role_name,
+        ua.ip_address,
+        ua.ip_source,
+        ua.create_time,
+        ua.last_login_time,
+        ui.is_disable
+        FROM (SELECT
+        id,
+        avatar,
+        nickname,
+        is_disable FROM tb_user_info ui
+        <where>
+            <if test="conditionVO.loginType != null">
+                id IN (
+                SELECT user_info_id FROM tb_user_auth WHERE login_type = #{conditionVO.loginType})
+            </if>
+            <if test="conditionVO.keywords != null">
+                and nickname LIKE CONCAT('%', #{conditionVO.keywords}, '%')
+            </if>
+        </where>
+        )
+        ui
+        LEFT JOIN t_user_auth ua ON ua.user_info_id = ui.id
+        LEFT JOIN t_user_role ur ON ui.id = ur.user_id
+        LEFT JOIN t_role r ON ur.role_id = r.id
+    </select>
+
+</mapper>
