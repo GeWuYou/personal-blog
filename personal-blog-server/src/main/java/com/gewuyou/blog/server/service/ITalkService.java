@@ -1,7 +1,8 @@
 package com.gewuyou.blog.server.service;
 
-import com.gewuyou.blog.server.entity.Talk;
+
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gewuyou.blog.common.model.Talk;
 
 /**
  * <p>
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ITalkService extends IService<Talk> {
 
+    Long selectCount();
 }

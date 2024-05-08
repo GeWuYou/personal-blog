@@ -65,16 +65,22 @@ public enum ResponseInformation {
     USER_EMAIL_NOT_REGISTERED(2008, "邮箱未注册"),
 
     /**
+     * 菜单错误
+     */
+    MENU_HAS_BEEN_ASSOCIATED_WITH_A_ROLE(3001, "菜单已被角色关联，不能修改或删除"),
+    /**
      * 服务错误
      */
-    ERR_GET_LOCAL_IP_FAILED(3001, "获取本地IP失败"),
-
-
+    ERR_GET_LOCAL_IP_FAILED(4001, "获取本地IP失败"),
+    FAILED_TO_UPDATE_WEBSITE_CONFIGURATION(4002, "更新网站配置失败"),
+    IMPORT_ARTICLE_FAILED(4003, "导入文章失败"),
     // 工具错误
     JSON_PARSE_ERROR(500, "JSON解析失败"),
     JSON_SERIALIZE_ERROR(500, "JSON序列化失败"),
     JSON_DESERIALIZE_ERROR(500, "JSON反序列化失败"),
+    RESPONSE_INFORMATION(500, "解析token失败"),
     OBJECT_COPY_FAILED(500, "对象拷贝失败"),
+    FILE_UPLOAD_FAILED(500, "文件上传失败"),
     IO_EXCEPTION(500, "IO异常");
 
 

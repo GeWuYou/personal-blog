@@ -1,16 +1,13 @@
 server:
   port: 8084
-  servlet:
-    context-path: /api
 spring:
+  profiles:
+    include: common-datasource,common-log,common-rabbitmq
   application:
     name: personal-blog-server
-  datasource:
-    url: jdbc:mysql://192.168.200.129:3306/personal_blog?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
 eureka:
   client:
     service-url:
       defaultZone: http://127.0.0.1:10086/eureka
+website:
+  url: http://localhost:8084

@@ -6,6 +6,7 @@ import com.gewuyou.blog.common.exception.GlobalException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -75,14 +76,20 @@ public class JwtService {
     /**
      * token类型与过期时间映射
      */
-    private final Map<TokenType, Long> tokenTypeExpirationDateMapping;
+    private Map<TokenType, Long> tokenTypeExpirationDateMapping;
 
     private JwtService() {
+
+    }
+
+    @PostConstruct
+    private void init() {
         tokenTypeExpirationDateMapping = Map.of(
                 TokenType.AccessToken, accessTokenExpiration,
                 TokenType.RefreshToken, refreshTokenExpirationTime
         );
     }
+
 
     /**
      * 对令牌进行加密
@@ -150,7 +157,7 @@ public class JwtService {
                 // 设置颁发者
                 .issuer(issuer)
                 .issuedAt((Date) claims.get(JWT_CREATE_TIME))
-                .notBefore(generateExpirationTime((Date) claims.get(JWT_CREATE_TIME), extendTime))
+                .expiration(generateExpirationTime((Date) claims.get(JWT_CREATE_TIME), extendTime))
                 .and()
                 .signWith(getKey())
                 .compact();
@@ -173,7 +180,8 @@ public class JwtService {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (Exception e) {
-            throw new GlobalException(ResponseInformation.INSUFFICIENT_PERMISSIONS);
+            log.error("解析token失败：{}", e.getMessage());
+            throw new GlobalException(ResponseInformation.RESPONSE_INFORMATION);
         }
         return claims;
     }
@@ -216,6 +224,7 @@ public class JwtService {
             // 验证颁发者
             return claims.getIssuer().equals(issuer);
         } catch (Exception e) {
+            log.error("验证token失败：{}", e.getMessage());
             return false;
         }
     }
@@ -250,23 +259,6 @@ public class JwtService {
         return claims.getExpiration();
     }
 
-
-    /**
-     * 刷新token，重新构建jwt
-     *
-     * @param token 令牌
-     * @return java.lang.String
-     * @apiNote
-     * @since 2023/7/2 20:46
-     */
-    public String refreshToken(String token) {
-        Claims claims = parseToken(token);
-        if (claims == null) {
-            throw new IllegalArgumentException();
-        }
-        claims.put(JWT_CREATE_TIME, new Date());
-        return createToken(claims, tokenTypeExpirationDateMapping.get(getValue(claims, TOKEN_TYPE)));
-    }
 
     /**
      * 从token中获取用户名

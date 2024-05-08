@@ -5,8 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,9 +21,22 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("tb_photo")
 @Schema(name = "Photo对象", description = "照片")
-public class Photo implements Serializable {
+public class Photo extends BaseModel implements Serializable {
+    @Builder
+    public Photo(LocalDateTime createTime, LocalDateTime updateTime, Integer id, Integer albumId, String photoName, String photoDesc, String photoSrc, Boolean isDelete) {
+        super(createTime, updateTime);
+        this.id = id;
+        this.albumId = albumId;
+        this.photoName = photoName;
+        this.photoDesc = photoDesc;
+        this.photoSrc = photoSrc;
+        this.isDelete = isDelete;
+    }
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -52,12 +64,4 @@ public class Photo implements Serializable {
     @Schema(description = "是否删除")
     @TableField("is_delete")
     private Boolean isDelete;
-
-    @Schema(description = "创建时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 }

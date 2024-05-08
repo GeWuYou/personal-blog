@@ -1,12 +1,12 @@
 package com.gewuyou.blog.common.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,9 +22,26 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("tb_comment")
 @Schema(name = "Comment对象", description = "评论表")
-public class Comment implements Serializable {
+public class Comment extends BaseModel implements Serializable {
+
+    @Builder
+    public Comment(LocalDateTime createTime, LocalDateTime updateTime, Long commentId, Long articleId, Long replyUserId, Long userId, Long topicId, Long parentCommentId, Byte type, Byte isDelete, Byte isReview, String content) {
+        super(createTime, updateTime);
+        this.commentId = commentId;
+        this.articleId = articleId;
+        this.replyUserId = replyUserId;
+        this.userId = userId;
+        this.topicId = topicId;
+        this.parentCommentId = parentCommentId;
+        this.type = type;
+        this.isDelete = isDelete;
+        this.isReview = isReview;
+        this.content = content;
+    }
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -68,12 +85,4 @@ public class Comment implements Serializable {
     @Schema(description = "评论内容")
     @TableField("content")
     private String content;
-
-    @Schema(description = "评论时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @Schema(description = "修改时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 }

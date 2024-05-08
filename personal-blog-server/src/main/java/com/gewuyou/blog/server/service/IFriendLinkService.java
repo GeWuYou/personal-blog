@@ -1,7 +1,8 @@
 package com.gewuyou.blog.server.service;
 
-import com.gewuyou.blog.server.entity.FriendLink;
+
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gewuyou.blog.common.model.FriendLink;
 
 /**
  * <p>

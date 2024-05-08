@@ -1,13 +1,13 @@
 package com.gewuyou.blog.common.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -23,10 +23,23 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("tb_user_info")
 @Schema(name = "UserInfo对象", description = "用户信息表")
-@Builder
-public class UserInfo implements Serializable {
+public class UserInfo extends BaseModel implements Serializable {
+    @Builder
+    public UserInfo(LocalDateTime createTime, LocalDateTime updateTime, Long id, String nickName, String avatar, String intro, String website, Integer isSubscribe, Integer isDisable, String email) {
+        super(createTime, updateTime);
+        this.id = id;
+        this.nickName = nickName;
+        this.avatar = avatar;
+        this.intro = intro;
+        this.website = website;
+        this.isSubscribe = isSubscribe;
+        this.isDisable = isDisable;
+        this.email = email;
+    }
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -38,6 +51,10 @@ public class UserInfo implements Serializable {
     @Schema(description = "昵称")
     @TableField("nick_name")
     private String nickName;
+
+    @Schema(description = "邮箱")
+    @TableField("email")
+    private String email;
 
     @Schema(description = "用户头像")
     @TableField("avatar")
@@ -58,12 +75,4 @@ public class UserInfo implements Serializable {
     @Schema(description = "是否禁用 0 表示否 1表示是")
     @TableField("is_disable")
     private Integer isDisable;
-
-    @Schema(description = "注册时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 }

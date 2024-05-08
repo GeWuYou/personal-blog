@@ -1,9 +1,10 @@
 package com.gewuyou.blog.server.service.impl;
 
-import com.gewuyou.blog.server.entity.Talk;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gewuyou.blog.common.model.Talk;
 import com.gewuyou.blog.server.mapper.TalkMapper;
 import com.gewuyou.blog.server.service.ITalkService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,4 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements ITalkService {
 
+    @Override
+    public Long selectCount() {
+        return baseMapper.selectCount(null);
+    }
 }

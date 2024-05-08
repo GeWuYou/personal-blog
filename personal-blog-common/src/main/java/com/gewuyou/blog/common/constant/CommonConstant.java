@@ -7,6 +7,9 @@ package com.gewuyou.blog.common.constant;
  * @since 2024-04-21 下午11:20:27
  */
 public class CommonConstant {
+    private CommonConstant() {
+    }
+
     public static final String DEFAULT_NICKNAME = "用户";
     public static final int ONE = 1;
 
@@ -18,7 +21,7 @@ public class CommonConstant {
 
     public static final int BLOGGER_ID = 1;
 
-    public static final int DEFAULT_CONFIG_ID = 1;
+    public static final Long DEFAULT_CONFIG_ID = 1L;
 
     public static final int DEFAULT_ABOUT_ID = 1;
 

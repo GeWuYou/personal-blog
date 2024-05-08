@@ -24,8 +24,8 @@ import com.gewuyou.blog.common.model.UserAuth;
 import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.model.UserRole;
 import com.gewuyou.blog.common.service.IRedisService;
-import com.gewuyou.blog.common.utils.EmailSender;
-import com.gewuyou.blog.common.utils.PageUtils;
+import com.gewuyou.blog.common.utils.EmailUtil;
+import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.LoginVO;
 import com.gewuyou.blog.common.vo.RegisterVO;
@@ -55,11 +55,9 @@ import static com.gewuyou.blog.common.constant.RedisConstant.VISITOR_AREA;
 @Slf4j
 public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> implements IUserAuthService {
 
-    private final UserAuthMapper userAuthMapper;
-
     private final UserRoleMapper userRoleMapper;
 
-    private final EmailSender emailSender;
+    private final EmailUtil emailUtil;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -81,17 +79,15 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     @Autowired
     public UserAuthServiceImpl(
             IRedisService redisService,
-            UserAuthMapper userAuthMapper,
             UserRoleMapper userRoleMapper,
-            EmailSender emailSender,
+            EmailUtil emailUtil,
             BCryptPasswordEncoder bCryptPasswordEncoder,
             ServerClient serverClient,
             LoginStrategyContext loginStrategyContext
     ) {
         this.redisService = redisService;
-        this.userAuthMapper = userAuthMapper;
         this.userRoleMapper = userRoleMapper;
-        this.emailSender = emailSender;
+        this.emailUtil = emailUtil;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.serverClient = serverClient;
         this.loginStrategyContext = loginStrategyContext;
@@ -145,7 +141,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     public boolean sendEmail(String email, String sessionId, boolean isRegister) {
         // 判断邮箱是否存在
         // 如果邮箱已注册，但是数据库中没有该邮箱，则抛出异常
-        Optional<UserAuth> optionalUser = userAuthMapper.selectByEmail(email);
+        Optional<UserAuth> optionalUser = baseMapper.selectByEmail(email);
         if (isRegister && optionalUser.isEmpty()) {
             throw new GlobalException(ResponseInformation.USER_EMAIL_NOT_REGISTERED);
         }
@@ -172,7 +168,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
         // 生成对应的验证码
         int code = random.nextInt(899999) + 100000;
         // 发送邮件
-        boolean successfullySent = emailSender.sendSimpleEmail(
+        boolean successfullySent = emailUtil.sendSimpleEmail(
                 email,
                 "验证码",
                 "您的验证码是：" + code + "\n验证码有效期为五分钟\n如果不是您获取的验证码，请忽略该邮件!");
@@ -221,7 +217,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
                 .email(registerVO.getEmail())
                 .createTime(LocalDateTime.now())
                 .build();
-        userAuthMapper.insert(userAuth);
+        baseMapper.insert(userAuth);
         return true;
     }
 
@@ -267,7 +263,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     @Override
     public boolean resetPassword(String email, String password) {
         try {
-            userAuthMapper.updatePasswordByEmail(email, bCryptPasswordEncoder.encode(password));
+            baseMapper.updatePasswordByEmail(email, bCryptPasswordEncoder.encode(password));
         } catch (Exception e) {
             return false;
         }
@@ -282,7 +278,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      */
     @Override
     public boolean checkUserName(String username) {
-        return userAuthMapper.selectByUsername(username).isPresent();
+        return baseMapper.selectByUsername(username).isPresent();
     }
 
     /**
@@ -293,12 +289,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      */
     @Override
     public PageResultDTO<UserAdminDTO> listUsers(ConditionVO conditionVO) {
-        Integer count = userAuthMapper.countUsers(conditionVO);
+        Integer count = baseMapper.countUsers(conditionVO);
         if (count == 0) {
             return new PageResultDTO<>();
         }
-        Page<UserAdminDTO> page = new Page<>(PageUtils.getCurrent(), PageUtils.getSize());
-        List<UserAdminDTO> userAdminDTOS = userAuthMapper.listUsers(page, conditionVO);
+        Page<UserAdminDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
+        List<UserAdminDTO> userAdminDTOS = baseMapper.listUsers(page, conditionVO);
         return new PageResultDTO<>(userAdminDTOS, count);
     }
 

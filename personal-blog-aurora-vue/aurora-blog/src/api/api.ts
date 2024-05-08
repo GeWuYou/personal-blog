@@ -1,5 +1,6 @@
 import axios from 'axios'
 
+
 export default {
   getTopAndFeaturedArticles: () => {
     return axios.get('/api/articles/topAndFeatured')

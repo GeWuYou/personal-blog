@@ -44,6 +44,8 @@
         <commons-validator.version>1.8.0</commons-validator.version>
         <user-agent-utils.version>1.21</user-agent-utils.version>
         <ip2region.version>1.7.2</ip2region.version>
+        <minio.version>8.5.10</minio.version>
+        <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version>
     </properties>
 
     <build>

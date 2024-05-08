@@ -7,6 +7,9 @@ package com.gewuyou.blog.common.constant;
  * @since 2024-04-19 下午7:22:56
  */
 public class InterfacePermissionConstant {
+    private InterfacePermissionConstant() {
+    }
+
     /**
      * 路径前缀
      */
@@ -17,7 +20,11 @@ public class InterfacePermissionConstant {
      */
     public static final String VERSION = "v1";
 
-    public static final String MODULE_NAME = "admin";
+    public static final String ADMIN = "admin";
 
-    public static final String BASE_URL = API_PREFIX + "/" + VERSION + "/" + MODULE_NAME;
+    public static final String SERVER = "server";
+
+    public static final String ADMIN_BASE_URL = API_PREFIX + "/" + VERSION + "/" + ADMIN;
+
+    public static final String SERVER_BASE_URL = API_PREFIX + "/" + VERSION + "/" + SERVER;
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +25,13 @@ import java.time.LocalDateTime;
 @Setter
 @TableName("tb_tag")
 @Schema(name = "Tag对象", description = "标签表")
-public class Tag implements Serializable {
+public class Tag extends BaseModel implements Serializable {
+    @Builder
+    public Tag(LocalDateTime createTime, LocalDateTime updateTime, Long tagId, String tagName) {
+        super(createTime, updateTime);
+        this.tagId = tagId;
+        this.tagName = tagName;
+    }
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -36,12 +43,4 @@ public class Tag implements Serializable {
     @Schema(description = "标签名")
     @TableField("tag_name")
     private String tagName;
-
-    @Schema(description = "创建时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 }

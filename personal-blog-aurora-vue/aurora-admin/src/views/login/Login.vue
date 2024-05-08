@@ -26,6 +26,7 @@
 
 <script>
 import { generaMenu } from '@/assets/js/menu'
+import { _post } from '@/api/api'
 
 export default {
   data: function() {
@@ -35,8 +36,14 @@ export default {
         password: ''
       },
       rules: {
-        username: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
-        password: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
+        username: [
+          { required: true, message: '用户名不能为空', trigger: 'blur' },
+          { pattern: /^[a-zA-Z0-9\u4e00-\u9fa5]+$/, message: '用户名格式不正确', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '密码不能为空', trigger: 'blur' },
+          { min: 6, max: 16, message: '密码长度必须在6到16位之间', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -45,18 +52,17 @@ export default {
       this.$refs.ruleForm.validate((valid) => {
         if (valid) {
           const that = this
-          let param = new URLSearchParams()
-          param.append('username', that.loginForm.username)
-          param.append('password', that.loginForm.password)
-          that.axios.post('/api/users/login', param).then(({ data }) => {
-            if (data.flag) {
-              that.$store.commit('login', data.data)
-              generaMenu()
-              that.$message.success('登录成功')
-              that.$router.push({ path: '/' })
-            } else {
-              that.$message.error(data.message)
-            }
+          const requestData = {
+            username: that.loginForm.username,
+            password: that.loginForm.password
+          }
+          _post('/users/login', requestData, (data, message) => {
+            that.$store.commit('login', data)
+            localStorage.setItem('accessToken', data.accessToken)
+            localStorage.setItem('refreshToken', data.refreshToken)
+            generaMenu()
+            that.$message.success(message)
+            that.$router.push({ path: '/' })
           })
         } else {
           return false
@@ -74,7 +80,7 @@ export default {
   bottom: 0;
   right: 0;
   left: 0;
-  background: url(https://static.linhaojun.top/aurora/photos/765664a8a75211296a9cd89671d6d660.png) center center / cover no-repeat;
+  background: url(../../assets/img/login-background-img.jpeg) center center / cover no-repeat;
 }
 
 .login-card {

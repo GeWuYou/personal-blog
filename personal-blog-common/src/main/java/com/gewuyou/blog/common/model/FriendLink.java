@@ -5,8 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,9 +21,21 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("tb_friend_link")
 @Schema(name = "FriendLink对象", description = "友链表")
-public class FriendLink implements Serializable {
+public class FriendLink extends BaseModel implements Serializable {
+
+    @Builder
+    public FriendLink(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String linkName, String linkAvatar, String linkAddress, String linkIntro) {
+        super(createTime, updateTime);
+        this.id = id;
+        this.linkName = linkName;
+        this.linkAvatar = linkAvatar;
+        this.linkAddress = linkAddress;
+        this.linkIntro = linkIntro;
+    }
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -47,12 +58,4 @@ public class FriendLink implements Serializable {
     @Schema(description = "链接介绍")
     @TableField("link_intro")
     private String linkIntro;
-
-    @Schema(description = "创建时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 }

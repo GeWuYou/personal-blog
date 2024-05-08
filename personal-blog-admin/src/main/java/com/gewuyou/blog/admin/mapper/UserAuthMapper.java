@@ -22,7 +22,7 @@ import java.util.Optional;
  */
 @Mapper
 public interface UserAuthMapper extends BaseMapper<UserAuth> {
-    Optional<UserAuth> selectByUsername(@Param("userName") String userName);
+    Optional<UserAuth> selectByUsername(@Param("username") String username);
 
     Optional<UserAuth> selectByEmail(@Param("email") String email);
 

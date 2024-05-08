@@ -25,10 +25,16 @@ import java.util.stream.Collectors;
 @Builder
 public class UserDetailsDTO implements UserDetails {
     /**
-     * 用户id
+     * 用户认证Id
      */
-    @Schema(description = "用户id")
-    private Long userId;
+    @Schema(description = "用户认证id")
+    private Long userAuthId;
+
+    /**
+     * 用户信息Id
+     */
+    @Schema(description = "用户信息id")
+    private Long userInfoId;
     /**
      * 用户名
      */
@@ -151,7 +157,7 @@ public class UserDetailsDTO implements UserDetails {
      */
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     /**
@@ -192,11 +198,11 @@ public class UserDetailsDTO implements UserDetails {
             return false;
         }
         UserDetailsDTO that = (UserDetailsDTO) o;
-        return Objects.equals(userId, that.userId) && Objects.equals(username, that.username) && Objects.equals(email, that.email);
+        return Objects.equals(userAuthId, that.userAuthId) && Objects.equals(username, that.username) && Objects.equals(email, that.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, username, email);
+        return Objects.hash(userAuthId, username, email);
     }
 }

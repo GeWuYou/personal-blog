@@ -1,9 +1,10 @@
 package com.gewuyou.blog.server.service.impl;
 
-import com.gewuyou.blog.server.entity.FriendLink;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gewuyou.blog.common.model.FriendLink;
 import com.gewuyou.blog.server.mapper.FriendLinkMapper;
 import com.gewuyou.blog.server.service.IFriendLinkService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**

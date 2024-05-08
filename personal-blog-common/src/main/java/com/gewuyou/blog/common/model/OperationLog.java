@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +25,27 @@ import java.time.LocalDateTime;
 @Setter
 @TableName("tb_operation_log")
 @Schema(name = "OperationLog对象", description = "操作日志表")
-public class OperationLog implements Serializable {
+public class OperationLog extends BaseModel implements Serializable {
+
+    @Builder
+    public OperationLog(LocalDateTime createTime, LocalDateTime updateTime, Long id, String optModule, String optUrl, String optType, String optMethod, String optDesc, String requestMethod, String requestParam, String responseData, Long userId, String userName, String ipAddress, String ipSource, String time, Long duration) {
+        super(createTime, updateTime);
+        this.id = id;
+        this.optModule = optModule;
+        this.optUrl = optUrl;
+        this.optType = optType;
+        this.optMethod = optMethod;
+        this.optDesc = optDesc;
+        this.requestMethod = requestMethod;
+        this.requestParam = requestParam;
+        this.responseData = responseData;
+        this.userId = userId;
+        this.userName = userName;
+        this.ipAddress = ipAddress;
+        this.ipSource = ipSource;
+        this.time = time;
+        this.duration = duration;
+    }
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -81,11 +102,18 @@ public class OperationLog implements Serializable {
     @TableField("ip_source")
     private String ipSource;
 
-    @Schema(description = "创建时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
+    /**
+     * 时间
+     */
+    @Schema(description = "时间")
+    @TableField("time")
+    private String time;
 
-    @Schema(description = "修改时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
+    /**
+     * 耗时
+     */
+    @Schema(description = "耗时")
+    @TableField("duration")
+    private Long duration;
+
 }

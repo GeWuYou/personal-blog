@@ -5,7 +5,8 @@ spring:
   security:
     ignore:
       urls:
-        - /api/v1/admin/**
+        - /api/v1/admin/users/login
+        - /api/v1/admin/report
         - /swagger-ui/**
         - /v3/api-docs/**
         - /swagger-resources/**
@@ -16,7 +17,7 @@ spring:
   application:
     name: personal-blog-admin
   profiles:
-    include: common-log,common-private-mail,common-datasource
+    include: common-log,common-private-mail,common-datasource,common-json
   data:
     redis:
       # 数据库设置为0号数据库
@@ -57,6 +58,5 @@ jwt:
   prefix: Bearer
   secret: "dtPhqyaNgQZlFqmTTG9IVKR7923QLmm3R7uAi3OKSeo="
   expirationTime:
-    access: 1800
-    refresh: 86400
-
+    access: 1800000
+    refresh: 86400000

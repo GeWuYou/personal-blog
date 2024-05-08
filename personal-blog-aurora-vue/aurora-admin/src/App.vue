@@ -6,13 +6,16 @@
 
 <script>
 import { generaMenu } from '@/assets/js/menu'
+import { _post } from '@/api/api'
 
 export default {
   created() {
     if (this.$store.state.userInfo != null) {
       generaMenu()
     }
-    this.axios.post('/api/report')
+    _post('/report', {}, () => {
+    })
+    // this.axios.post('/api/report')
   }
 }
 </script>

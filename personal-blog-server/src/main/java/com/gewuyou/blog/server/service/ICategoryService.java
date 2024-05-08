@@ -1,7 +1,9 @@
 package com.gewuyou.blog.server.service;
 
-import com.gewuyou.blog.server.entity.Category;
+
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gewuyou.blog.common.model.Category;
+import com.gewuyou.blog.common.vo.ArticleVO;
 
 /**
  * <p>
@@ -13,4 +15,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ICategoryService extends IService<Category> {
 
+    Long selectCount();
+
+    /**
+     * 根据文章VO保存分类
+     *
+     * @param articleVO 文章VO
+     * @return 分类
+     */
+    Category saveCategoryByArticleVO(ArticleVO articleVO);
 }

@@ -93,7 +93,7 @@ public class CodeGenerator {
                             .enableRestStyle()
                             // .enableFileOverride()
                             .mapperBuilder()
-                            .enableFileOverride()
+                            // .enableFileOverride()
                             .mapperAnnotation(Mapper.class)
                     ;
                 })
@@ -108,12 +108,12 @@ public class CodeGenerator {
         String xmlOutputDir = "personal-blog-server\\src\\main\\resources\\mapper";
         String moduleName = "server";
         generation(outputDir, xmlOutputDir, moduleName, List.of(
-                "tb_about", "tb_article", "tb_article_category",
-                "tb_article_comment_statistic", "tb_article_like_statistic",
-                "tb_article_tag", "tb_article_view_statistic", "tb_category",
+                "tb_article", "tb_article_category",
+                "tb_article_like_statistic",
+                "tb_article_tag", "tb_category",
                 "tb_comment", "tb_photo", "tb_photo_album",
                 "tb_tag", "tb_talk", "tb_friend_link",
-                "tb_website_config", "tb_user_info"
+                "tb_user_info"
         ));
     }
 
@@ -125,7 +125,10 @@ public class CodeGenerator {
                 "tb_exception_log", "tb_job",
                 "tb_job_log", "tb_menu", "tb_operation_log",
                 "tb_resource", "tb_role", "tb_role_menu",
-                "tb_role_resource", "tb_user_auth", "tb_user_role"
+                "tb_role_resource", "tb_user_auth",
+                "tb_about", "tb_website_config",
+                "tb_user_role",
+                "tb_unique_view"
         ));
     }
 
@@ -134,6 +137,7 @@ public class CodeGenerator {
         // String xmlOutputDir = "D:\\Project\\JAVA\\personal-blog\\temp\\mapper";
         // String moduleName = "";
         // generation(outputDir, xmlOutputDir, moduleName, List.of("^tb_.*"));
-        serverCodeGeneration();
+        // serverCodeGeneration();
+        adminCodeGeneration();
     }
 }

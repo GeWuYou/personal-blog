@@ -30,13 +30,7 @@ public class LoginVO {
      * 密码
      */
     @Schema(description = "密码")
-    @Length(min = 6, max = 16)
+    @Length(min = 6, max = 16, message = "密码长度必须在6到16位之间")
     @NotEmpty(message = PASSWORD_CANNOT_BE_EMPTY)
     private String password;
-    /**
-     * 记住我
-     */
-    @Schema(description = "记住我")
-    @NotNull(message = REMEMBER_ME_CANNOT_BE_EMPTY)
-    private boolean rememberMe;
 }

@@ -105,6 +105,7 @@
 
 <script>
 import '@/assets/js/china'
+import { _get } from '@/api/api'
 
 export default {
   created() {
@@ -278,21 +279,21 @@ export default {
   },
   methods: {
     getData() {
-      this.axios.get('/api/admin').then(({ data }) => {
-        this.viewsCount = data.data.viewsCount
-        this.messageCount = data.data.messageCount
-        this.userCount = data.data.userCount
-        this.articleCount = data.data.articleCount
-        this.articleStatisticsDTOs = data.data.articleStatisticsDTOs
-        if (data.data.uniqueViewDTOs != null) {
-          data.data.uniqueViewDTOs.forEach((item) => {
+      _get('', {}, (data) => {
+        this.viewsCount = data.viewsCount
+        this.messageCount = data.messageCount
+        this.userCount = data.userCount
+        this.articleCount = data.articleCount
+        this.articleStatisticsDTOs = data.articleStatisticsDTOs
+        if (data.uniqueViewDTOs != null) {
+          data.uniqueViewDTOs.forEach((item) => {
             this.viewCount.xAxis.data.push(item.day)
             this.viewCount.series[0].data.push(item.viewsCount)
           })
         }
 
-        if (data.data.categoryDTOs != null) {
-          data.data.categoryDTOs.forEach((item) => {
+        if (data.categoryDTOs != null) {
+          data.categoryDTOs.forEach((item) => {
             this.category.series[0].data.push({
               value: item.articleCount,
               name: item.categoryName
@@ -301,15 +302,15 @@ export default {
           })
         }
 
-        if (data.data.articleRankDTOs != null) {
-          data.data.articleRankDTOs.forEach((item) => {
+        if (data.articleRankDTOs != null) {
+          data.articleRankDTOs.forEach((item) => {
             this.ariticleRank.series[0].data.push(item.viewsCount)
             this.ariticleRank.xAxis.data.push(item.articleTitle)
           })
         }
 
-        if (data.data.tagDTOs != null) {
-          data.data.tagDTOs.forEach((item) => {
+        if (data.tagDTOs != null) {
+          data.tagDTOs.forEach((item) => {
             this.tagDTOs.push({
               id: item.id,
               name: item.tagName
@@ -319,17 +320,65 @@ export default {
 
         this.loading = false
       })
+      // this.axios.get('/api/admin').then(({ data }) => {
+      //   this.viewsCount = data.viewsCount
+      //   this.messageCount = data.messageCount
+      //   this.userCount = data.userCount
+      //   this.articleCount = data.articleCount
+      //   this.articleStatisticsDTOs = data.articleStatisticsDTOs
+      //   if (data.uniqueViewDTOs != null) {
+      //     data.uniqueViewDTOs.forEach((item) => {
+      //       this.viewCount.xAxis.data.push(item.day)
+      //       this.viewCount.series[0].data.push(item.viewsCount)
+      //     })
+      //   }
+      //
+      //   if (data.categoryDTOs != null) {
+      //     data.categoryDTOs.forEach((item) => {
+      //       this.category.series[0].data.push({
+      //         value: item.articleCount,
+      //         name: item.categoryName
+      //       })
+      //       this.category.legend.data.push(item.categoryName)
+      //     })
+      //   }
+      //
+      //   if (data.articleRankDTOs != null) {
+      //     data.articleRankDTOs.forEach((item) => {
+      //       this.ariticleRank.series[0].data.push(item.viewsCount)
+      //       this.ariticleRank.xAxis.data.push(item.articleTitle)
+      //     })
+      //   }
+      //
+      //   if (data.tagDTOs != null) {
+      //     data.tagDTOs.forEach((item) => {
+      //       this.tagDTOs.push({
+      //         id: item.id,
+      //         name: item.tagName
+      //       })
+      //     })
+      //   }
+      //
+      //   this.loading = false
+      // })
     },
     listUserArea() {
-      this.axios
-        .get('/api/admin/users/area', {
-          params: {
-            type: this.type
-          }
-        })
-        .then(({ data }) => {
-          this.userAreaMap.series[0].data = data.data
-        })
+      _get('/users/area', {
+        params: {
+          type: this.type
+        }
+      }, (data) => {
+        this.userAreaMap.series[0].data = data
+      })
+      //   this.axios
+      //     .get('/api/admin/users/area', {
+      //       params: {
+      //         type: this.type
+      //       }
+      //     })
+      //     .then(({ data }) => {
+      //       this.userAreaMap.series[0].data = data
+      //     })
     }
   },
   watch: {

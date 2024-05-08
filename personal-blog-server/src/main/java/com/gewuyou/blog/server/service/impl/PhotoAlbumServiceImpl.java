@@ -1,9 +1,10 @@
 package com.gewuyou.blog.server.service.impl;
 
-import com.gewuyou.blog.server.entity.PhotoAlbum;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gewuyou.blog.common.model.PhotoAlbum;
 import com.gewuyou.blog.server.mapper.PhotoAlbumMapper;
 import com.gewuyou.blog.server.service.IPhotoAlbumService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**

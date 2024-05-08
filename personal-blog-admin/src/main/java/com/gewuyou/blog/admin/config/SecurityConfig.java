@@ -90,7 +90,7 @@ public class SecurityConfig {
                 .logout(
                         logout -> logout
                                 // 设置退出接口
-                                .logoutUrl(InterfacePermissionConstant.BASE_URL + "/admin/logout")
+                                .logoutUrl(InterfacePermissionConstant.ADMIN_BASE_URL + "/admin/logout")
                                 .logoutSuccessHandler(this::onAuthenticationSuccess)
                                 // 默认会话失效
                                 .clearAuthentication(true)
@@ -144,6 +144,7 @@ public class SecurityConfig {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         // 允许http://localhost:8080跨域请求
         corsConfiguration.addAllowedOriginPattern("http://localhost:8080");
+        corsConfiguration.addAllowedOriginPattern("http://localhost:8084");
         corsConfiguration.addAllowedOriginPattern("http://localhost:8086");
         // 设置携带cookie
         corsConfiguration.setAllowCredentials(true);

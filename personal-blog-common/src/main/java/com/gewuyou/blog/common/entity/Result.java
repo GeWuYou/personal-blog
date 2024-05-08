@@ -43,6 +43,11 @@ public class Result<T> implements Serializable {
         this.data = data;
     }
 
+    public Result(Integer code, String message) {
+        this.code = code;
+        this.message = message;
+        this.success = false;
+    }
 
     /**
      * 无数据成功返回
@@ -96,6 +101,15 @@ public class Result<T> implements Serializable {
      */
     public static Result<String> failure() {
         return new Result<>(ResponseInformation.FAIL, false, null);
+    }
+
+    /**
+     * 失败返回
+     *
+     * @return 失败结果
+     */
+    public static Result<String> failure(Integer code, String message) {
+        return new Result<>(code, message);
     }
 
 

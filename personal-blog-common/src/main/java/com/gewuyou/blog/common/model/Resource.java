@@ -5,8 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,9 +21,22 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("tb_resource")
 @Schema(name = "Resource对象", description = "资源表")
-public class Resource implements Serializable {
+public class Resource extends BaseModel implements Serializable {
+
+    @Builder
+    public Resource(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String name, String url, String requestMethod, Integer parentId, Byte isAnonymous) {
+        super(createTime, updateTime);
+        this.id = id;
+        this.name = name;
+        this.url = url;
+        this.requestMethod = requestMethod;
+        this.parentId = parentId;
+        this.isAnonymous = isAnonymous;
+    }
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -52,12 +64,4 @@ public class Resource implements Serializable {
     @Schema(description = "是否匿名访问 0表示否 1表示是")
     @TableField("is_anonymous")
     private Byte isAnonymous;
-
-    @Schema(description = "创建时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @Schema(description = "修改时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 }

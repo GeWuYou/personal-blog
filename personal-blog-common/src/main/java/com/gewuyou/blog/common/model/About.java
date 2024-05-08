@@ -5,8 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,9 +21,18 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("tb_about")
 @Schema(name = "About对象", description = "关于表")
-public class About implements Serializable {
+public class About extends BaseModel implements Serializable {
+
+    @Builder
+    public About(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String content) {
+        super(createTime, updateTime);
+        this.id = id;
+        this.content = content;
+    }
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -36,11 +44,4 @@ public class About implements Serializable {
     @TableField("content")
     private String content;
 
-    @Schema(description = "创建时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 }

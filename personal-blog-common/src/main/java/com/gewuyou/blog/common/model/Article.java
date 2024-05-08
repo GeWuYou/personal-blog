@@ -1,12 +1,12 @@
 package com.gewuyou.blog.common.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,9 +22,31 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("tb_article")
 @Schema(name = "Article对象", description = "文章表")
-public class Article implements Serializable {
+public class Article extends BaseModel implements Serializable {
+
+    @Builder
+    public Article(LocalDateTime createTime, LocalDateTime updateTime, Long articleId, Long userId, String cover, String abstractContent, String title, String content, Integer views, Byte status, String type, String password, String originalUrl, Byte isTop, Byte isRecommend, Byte isDelete, LocalDateTime publishTime) {
+        super(createTime, updateTime);
+        this.articleId = articleId;
+        this.userId = userId;
+        this.cover = cover;
+        this.abstractContent = abstractContent;
+        this.title = title;
+        this.content = content;
+        this.views = views;
+        this.status = status;
+        this.type = type;
+        this.password = password;
+        this.originalUrl = originalUrl;
+        this.isTop = isTop;
+        this.isRecommend = isRecommend;
+        this.isDelete = isDelete;
+        this.publishTime = publishTime;
+    }
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -85,15 +107,10 @@ public class Article implements Serializable {
     @TableField("is_delete")
     private Byte isDelete;
 
-    @Schema(description = "创建时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @Schema(description = "修改时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 
     @Schema(description = "发布时间")
     @TableField("publish_time")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime publishTime;
 }

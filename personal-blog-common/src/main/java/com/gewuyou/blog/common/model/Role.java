@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @Setter
 @TableName("tb_role")
 @Schema(name = "Role对象", description = "角色表")
-public class Role implements Serializable {
+public class Role extends BaseModel implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -40,12 +40,4 @@ public class Role implements Serializable {
     @Schema(description = "是否禁用 0否 ：1是")
     @TableField("is_disable")
     private Byte isDisable;
-
-    @Schema(description = "创建时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @Schema(description = "修改时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 }

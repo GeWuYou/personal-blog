@@ -1,7 +1,8 @@
 package com.gewuyou.blog.server.mapper;
 
-import com.gewuyou.blog.server.entity.UserInfo;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.gewuyou.blog.common.model.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

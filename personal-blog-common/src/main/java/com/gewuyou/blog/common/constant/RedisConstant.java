@@ -7,6 +7,8 @@ package com.gewuyou.blog.common.constant;
  * @since 2024-04-23 下午10:04:55
  */
 public class RedisConstant {
+    private RedisConstant() {
+    }
 
     public static final String USER_CODE_KEY = "code:";
 

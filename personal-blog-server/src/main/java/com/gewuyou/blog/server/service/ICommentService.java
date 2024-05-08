@@ -1,7 +1,8 @@
 package com.gewuyou.blog.server.service;
 
-import com.gewuyou.blog.server.entity.Comment;
+
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gewuyou.blog.common.model.Comment;
 
 /**
  * <p>
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ICommentService extends IService<Comment> {
 
+    Long selectCommentCountByType(Byte type);
 }

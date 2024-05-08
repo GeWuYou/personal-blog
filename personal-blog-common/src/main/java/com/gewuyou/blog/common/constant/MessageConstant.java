@@ -71,10 +71,7 @@ public class MessageConstant {
      * 重置密码成功
      */
     public static final String PASSWORD_RESET_WAS_SUCCESSFUL = "重置密码成功!";
-    /**
-     * rememberMe不能为空
-     */
-    public static final String REMEMBER_ME_CANNOT_BE_EMPTY = "rememberMe不能为空!";
+
     /**
      * 邮箱不能为空
      */
@@ -148,4 +145,13 @@ public class MessageConstant {
      * 分配成功
      */
     public static final String ASSIGNMENT_SUCCEEDED = "分配成功!";
+
+    /**
+     * 文章标题不能为空
+     */
+    public static final String ARTICLE_CONTENT_NOT_EMPTY = "文章内容不能为空!";
+
+    public static final String ARTICLE_TITLE_NOT_EMPTY = "文章标题不能为空!";
+    public static final String ARTICLE_CATEGORY_NOT_EMPTY = "文章分类不能为空!";
+    public static final String ARTICLE_TAG_NOT_EMPTY = "文章标签不能为空!";
 }

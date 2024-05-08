@@ -1,7 +1,10 @@
 import Vue from 'vue'
-import VueRouter from 'vue-router'
+import Router from 'vue-router'
 
-Vue.use(VueRouter)
+Vue.use(Router)
+// 解决报错
+const originalPush = Router.prototype.push
+const originalReplace = Router.prototype.replace
 
 const routes = [
   {
@@ -12,7 +15,7 @@ const routes = [
   }
 ]
 const createRouter = () =>
-  new VueRouter({
+  new Router({
     mode: 'history',
     routes: routes
   })
@@ -23,4 +26,14 @@ export function resetRouter() {
   router.matcher = newRouter.matcher
 }
 
+// push
+Router.prototype.push = function push(location, onResolve, onReject) {
+  if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject)
+  return originalPush.call(this, location).catch(err => err)
+}
+// replace
+Router.prototype.replace = function push(location, onResolve, onReject) {
+  if (onResolve || onReject) return originalReplace.call(this, location, onResolve, onReject)
+  return originalReplace.call(this, location).catch(err => err)
+}
 export default router

@@ -74,12 +74,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        log.info("验证路径：{}", request.getRequestURI());
         // 从header中获取token
         String token = request.getHeader(header);
         if (token == null || !token.startsWith(prefix)) {
             log.error("token为空或格式错误：{}", token);
             throw new GlobalException(ResponseInformation.INVALID_TOKEN_REQUEST);
         }
+        token = token.substring(prefix.length() + 1);
         // 校验tokens是否有效
         if (!jwtService.validateToken(token)) {
             log.error("token校验失败：{}", token);
@@ -98,13 +100,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         // 构建认证token
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userDetailsDTO, null, userDetailsDTO.getAuthorities());
-        // 委托给spring security进行认证
-        try {
-            authenticationManager.authenticate(authenticationToken);
-        } catch (AuthenticationException e) {
-            log.error("认证失败：{}", e.getMessage());
-            throw new GlobalException(ResponseInformation.AUTHENTICATION_FAILED);
-        }
         // 设置当前登录用户
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         // 放行

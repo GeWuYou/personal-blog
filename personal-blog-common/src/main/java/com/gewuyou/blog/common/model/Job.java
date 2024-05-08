@@ -5,8 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,9 +21,26 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("tb_job")
 @Schema(name = "Job对象", description = "定时任务调度表")
-public class Job implements Serializable {
+public class Job extends BaseModel implements Serializable {
+    @Builder
+    public Job(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String jobName, String jobGroup, String invokeTarget, String cronExpression, Boolean misfirePolicy, Boolean concurrent, Boolean status, String remark) {
+        super(createTime, updateTime);
+        this.id = id;
+        this.jobName = jobName;
+        this.jobGroup = jobGroup;
+        this.invokeTarget = invokeTarget;
+        this.cronExpression = cronExpression;
+        this.misfirePolicy = misfirePolicy;
+        this.concurrent = concurrent;
+        this.status = status;
+        this.remark = remark;
+    }
+
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -60,14 +76,6 @@ public class Job implements Serializable {
     @Schema(description = "状态（0暂停 1正常）")
     @TableField("status")
     private Boolean status;
-
-    @Schema(description = "创建时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @Schema(description = "更新时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 
     @Schema(description = "备注信息")
     @TableField("remark")

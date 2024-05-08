@@ -5,8 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,9 +21,25 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("tb_menu")
 @Schema(name = "Menu对象", description = "菜单表")
-public class Menu implements Serializable {
+public class Menu extends BaseModel implements Serializable {
+    @Builder
+    public Menu(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String name, String path, String component, String icon, Integer orderNum, Integer parentId, Integer isHidden) {
+        super(createTime, updateTime);
+        this.id = id;
+        this.name = name;
+        this.path = path;
+        this.component = component;
+        this.icon = icon;
+        this.orderNum = orderNum;
+        this.parentId = parentId;
+        this.isHidden = isHidden;
+    }
+
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -49,14 +64,6 @@ public class Menu implements Serializable {
     @TableField("icon")
     private String icon;
 
-    @Schema(description = "创建时间")
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @Schema(description = "修改时间")
-    @TableField("update_time")
-    private LocalDateTime updateTime;
-
     @Schema(description = "排序号")
     @TableField("order_num")
     private Integer orderNum;
@@ -67,5 +74,5 @@ public class Menu implements Serializable {
 
     @Schema(description = "是否隐藏 0表示否。1表示是")
     @TableField("is_hidden")
-    private Byte isHidden;
+    private Integer isHidden;
 }

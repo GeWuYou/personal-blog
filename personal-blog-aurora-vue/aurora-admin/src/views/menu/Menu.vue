@@ -112,6 +112,8 @@
 </template>
 
 <script>
+import { _delete, _get, _post, _put } from '@/api/api'
+
 export default {
   created() {
     this.listMenus()
@@ -150,16 +152,20 @@ export default {
   },
   methods: {
     listMenus() {
-      this.axios
-        .get('/api/admin/menus', {
-          params: {
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.menus = data.data
-          this.loading = false
-        })
+      _get('/menus', { keywords: this.keywords }, (message, code, data) => {
+        this.menus = data
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/menus', {
+      //     params: {
+      //       keywords: this.keywords
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.menus = data.data
+      //     this.loading = false
+      //   })
     },
     openModel(menu, type) {
       if (menu) {
@@ -209,68 +215,108 @@ export default {
         id: menu.id,
         isHidden: menu.isHidden
       }
-      this.axios.put('/api/admin/menus/isHidden', params).then(({ data }) => {
-        if (data.flag) {
+      _put('/menus/isHidden', params,
+        () => {
           this.$notify.success({
             title: '成功',
             message: '修改成功'
           })
-        } else {
+        }, () => {
           this.$notify.error({
             title: '失败',
             message: '修改失败'
           })
         }
-      })
+      )
+// this.axios.put('/api/admin/menus/isHidden', params).then(({ data }) => {
+//   if (data.flag) {
+//     this.$notify.success({
+//       title: '成功',
+//       message: '修改成功'
+//     })
+//   } else {
+//     this.$notify.error({
+//       title: '失败',
+//       message: '修改失败'
+//     })
+//   }
+// })
     },
     saveOrUpdateMenu() {
-      if (this.menuForm.name.trim() == '') {
+      if (this.menuForm.name.trim() === '') {
         this.$message.error('菜单名不能为空')
         return false
       }
-      if (this.menuForm.icon.trim() == '') {
+      if (this.menuForm.icon.trim() === '') {
         this.$message.error('菜单icon不能为空')
         return false
       }
-      if (this.menuForm.component.trim() == '') {
+      if (this.menuForm.component.trim() === '') {
         this.$message.error('菜单组件路径不能为空')
         return false
       }
-      if (this.menuForm.path.trim() == '') {
+      if (this.menuForm.path.trim() === '') {
         this.$message.error('菜单访问路径不能为空')
         return false
       }
-      this.axios.post('/api/admin/menus', this.menuForm).then(({ data }) => {
-        if (data.flag) {
+      _post('/menus', this.menuForm,
+        () => {
           this.$notify.success({
             title: '成功',
             message: '操作成功'
           })
           this.listMenus()
-        } else {
+        }, () => {
           this.$notify.error({
             title: '失败',
             message: '操作失败'
           })
-        }
-        this.addMenu = false
-      })
-    },
+          this.addMenu = false
+        })
+      // this.axios.post('/api/admin/menus', this.menuForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: '操作成功'
+      //     })
+      //     this.listMenus()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: '操作失败'
+      //     })
+      //   }
+      //   this.addMenu = false
+      // })
+    }
+    ,
     deleteMenu(id) {
-      this.axios.delete('/api/admin/menus/' + id).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
-          })
-          this.listMenus()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _delete('/menus', id, () => {
+        this.$notify.success({
+          title: '成功',
+          message: '删除成功'
+        })
+        this.listMenus()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.delete('/api/admin/menus/' + id).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: '删除成功'
+      //     })
+      //     this.listMenus()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
     }
   }
 }
