@@ -2,4 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.server.mapper.TagMapper">
 
+    <select id="listTagNamesByArticleId" resultType="java.lang.String">
+        SELECT tag_name
+        FROM tb_tag t
+                 JOIN tb_article_tag at ON t.tag_id = at.tag_id
+        WHERE at.article_id = #{articleId}
+    </select>
 </mapper>

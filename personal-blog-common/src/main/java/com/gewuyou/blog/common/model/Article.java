@@ -1,6 +1,9 @@
 package com.gewuyou.blog.common.model;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -29,7 +32,7 @@ import java.time.LocalDateTime;
 public class Article extends BaseModel implements Serializable {
 
     @Builder
-    public Article(LocalDateTime createTime, LocalDateTime updateTime, Long articleId, Long userId, String cover, String abstractContent, String title, String content, Integer views, Byte status, String type, String password, String originalUrl, Byte isTop, Byte isRecommend, Byte isDelete, LocalDateTime publishTime) {
+    public Article(LocalDateTime createTime, LocalDateTime updateTime, Long articleId, Long userId, String cover, String abstractContent, String title, String content, Integer views, Byte status, Byte type, String password, String originalUrl, Byte isTop, Byte isFeatured, Byte isDelete, LocalDateTime publishTime) {
         super(createTime, updateTime);
         this.articleId = articleId;
         this.userId = userId;
@@ -43,7 +46,7 @@ public class Article extends BaseModel implements Serializable {
         this.password = password;
         this.originalUrl = originalUrl;
         this.isTop = isTop;
-        this.isRecommend = isRecommend;
+        this.isFeatured = isFeatured;
         this.isDelete = isDelete;
         this.publishTime = publishTime;
     }
@@ -58,6 +61,10 @@ public class Article extends BaseModel implements Serializable {
     @Schema(description = "用户Id")
     @TableField("user_id")
     private Long userId;
+
+    @Schema(description = "分类Id")
+    @TableField("category_id")
+    private Long categoryId;
 
     @Schema(description = "文章缩略图")
     @TableField("cover")
@@ -85,7 +92,7 @@ public class Article extends BaseModel implements Serializable {
 
     @Schema(description = "文章类型  1原创 2转载 3翻译")
     @TableField("type")
-    private String type;
+    private Byte type;
 
     @Schema(description = "访问密码")
     @TableField("password")
@@ -95,15 +102,15 @@ public class Article extends BaseModel implements Serializable {
     @TableField("original_url")
     private String originalUrl;
 
-    @Schema(description = "是否置顶 0 否 1是")
+    @Schema(description = "是否置顶 0 否 1 是")
     @TableField("is_top")
     private Byte isTop;
 
-    @Schema(description = "是否推荐 0 否 1是")
-    @TableField("is_recommend")
-    private Byte isRecommend;
+    @Schema(description = "是否精选 0 否 1 是")
+    @TableField("is_featured")
+    private Byte isFeatured;
 
-    @Schema(description = "是否删除 0 否 1是")
+    @Schema(description = "是否删除 0 否 1 是")
     @TableField("is_delete")
     private Byte isDelete;
 

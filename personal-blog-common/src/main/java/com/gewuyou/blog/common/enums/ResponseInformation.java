@@ -29,6 +29,7 @@ public enum ResponseInformation {
     VERIFICATION_CODE_HAS_BEEN_SENT(200, "验证码已发送,请注意查收!"),
     FAILED(400, "请求失败"),
     VERIFICATION_CODE_ERROR(400, "验证码错误"),
+    ARTICLE_ACCESS_PASSWORD_ERROR(400, "文章访问密码错误"),
     VERIFY_CODE_EXPIRED(400, "验证码已过期"),
     INVALID_TOKEN(401, "无效的token"),
     INVALID_TOKEN_REQUEST(400, "无效的token请求"),
@@ -36,12 +37,21 @@ public enum ResponseInformation {
     AUTHENTICATION_FAILED(401, "身份验证失败"),
     PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST(401, "请先完成邮箱验证"),
     TOO_MANY_REQUESTS(429, "请求过于频繁,请稍后再试"),
+    ARTICLE_NOT_ACCESS(403, "文章不可访问"),
 
 
     NOT_FOUND(404, "未找到"),
     SERVER_ERROR(500, " 服务器内部出错 "),
     ENCRYPTION_FAILED(500, "加密失败"),
     LOG_BUILD_FAILED(500, "日志构建失败"),
+    GET_ARTICLE_ERROR(500, "获取文章失败"),
+    ARTICLE_NOT_EXIST(500, "文章不存在"),
+    FAILED_TO_LOAD_PUBLIC_KEY(500, "加载公钥失败"),
+    FAILED_TO_LOAD_PRIVATE_KEY(500, "加载私钥失败"),
+    FAILED_TO_INITIALIZE_THE_KEY_PAIR(500, "无法初始化加密服务的密钥对"),
+    ERROR_OCCURRED_WHILE_ENCRYPTING_THE_DATA(500, "加密数据时发生错误"),
+    FAILED_TO_GENERATE_THE_DIGITAL_SIGNATURE(500, "生成数字签名时发生错误"),
+    FAILED_TO_VERIFY_THE_DIGITAL_SIGNATURE(500, "验证数字签名时发生错误"),
 
     /**
      * 错误参数
@@ -74,6 +84,7 @@ public enum ResponseInformation {
     ERR_GET_LOCAL_IP_FAILED(4001, "获取本地IP失败"),
     FAILED_TO_UPDATE_WEBSITE_CONFIGURATION(4002, "更新网站配置失败"),
     IMPORT_ARTICLE_FAILED(4003, "导入文章失败"),
+    GET_COUNT_ERROR(4004, "获取计数失败"),
     // 工具错误
     JSON_PARSE_ERROR(500, "JSON解析失败"),
     JSON_SERIALIZE_ERROR(500, "JSON序列化失败"),

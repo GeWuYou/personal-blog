@@ -3,7 +3,7 @@ package com.gewuyou.blog.server.strategy.impl;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.vo.ArticleVO;
-import com.gewuyou.blog.server.service.IArticleService;
+import com.gewuyou.blog.server.service.IArticleTransactionalService;
 import com.gewuyou.blog.server.strategy.interfaces.ArticleImportStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,10 +27,10 @@ import static com.gewuyou.blog.common.enums.ArticleStatusEnum.DRAFT;
 public class NormalArticleImportStrategyImpl implements ArticleImportStrategy {
 
 
-    private final IArticleService articleService;
+    private final IArticleTransactionalService articleTransactionalService;
 
-    public NormalArticleImportStrategyImpl(IArticleService articleService) {
-        this.articleService = articleService;
+    public NormalArticleImportStrategyImpl(IArticleTransactionalService articleTransactionalService) {
+        this.articleTransactionalService = articleTransactionalService;
     }
 
     /**
@@ -56,6 +56,6 @@ public class NormalArticleImportStrategyImpl implements ArticleImportStrategy {
                 .articleContent(articleContent.toString())
                 .status(DRAFT.getStatus())
                 .build();
-        articleService.saveOrUpdateArticle(articleVO);
+        articleTransactionalService.saveOrUpdateArticle(articleVO);
     }
 }

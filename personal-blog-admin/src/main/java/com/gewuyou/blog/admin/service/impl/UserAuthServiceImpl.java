@@ -295,7 +295,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
         }
         Page<UserAdminDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
         List<UserAdminDTO> userAdminDTOS = baseMapper.listUsers(page, conditionVO);
-        return new PageResultDTO<>(userAdminDTOS, count);
+        return new PageResultDTO<>(userAdminDTOS, count.longValue());
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.gewuyou.blog.encrypt.config;
 
+import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +37,7 @@ public class KeyConfig {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePublic(keySpec);
         } catch (Exception e) {
-            throw new GlobalException(500, "Failed to load public key", e);
+            throw new GlobalException(ResponseInformation.FAILED_TO_LOAD_PUBLIC_KEY);
         }
     }
 
@@ -47,7 +48,7 @@ public class KeyConfig {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePrivate(keySpec);
         } catch (Exception e) {
-            throw new GlobalException(500, "Failed to load private key", e);
+            throw new GlobalException(ResponseInformation.FAILED_TO_LOAD_PRIVATE_KEY);
         }
     }
 }

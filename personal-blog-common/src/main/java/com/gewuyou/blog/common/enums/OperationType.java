@@ -27,6 +27,10 @@ public enum OperationType {
      */
     DELETE,
     /**
+     * 上传
+     */
+    UPLOAD,
+    /**
      * 导出
      */
     EXPORT,

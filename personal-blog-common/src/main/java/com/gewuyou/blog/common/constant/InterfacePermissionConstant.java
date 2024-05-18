@@ -24,7 +24,11 @@ public class InterfacePermissionConstant {
 
     public static final String SERVER = "server";
 
+    public static final String SEARCH = "search";
+
     public static final String ADMIN_BASE_URL = API_PREFIX + "/" + VERSION + "/" + ADMIN;
 
     public static final String SERVER_BASE_URL = API_PREFIX + "/" + VERSION + "/" + SERVER;
+
+    public static final String SEARCH_BASE_URL = API_PREFIX + "/" + VERSION + "/" + SEARCH;
 }

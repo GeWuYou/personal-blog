@@ -2,9 +2,9 @@ package com.gewuyou.blog.common.strategy.impl;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
-import com.gewuyou.blog.admin.config.entity.OssConfigProperties;
-import jakarta.annotation.PostConstruct;
+import com.gewuyou.blog.common.config.entity.OssConfigProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -20,21 +20,12 @@ public class OssUploadStrategyImpl extends AbstractUploadStrategyImpl {
 
     private final OssConfigProperties ossConfigProperties;
 
-    private OSS ossClient;
+    @Lazy
+    private volatile OSS ossClient;
 
     @Autowired
     public OssUploadStrategyImpl(OssConfigProperties ossConfigProperties) {
         this.ossConfigProperties = ossConfigProperties;
-    }
-
-    @PostConstruct
-    public void init() {
-        ossClient =
-                new OSSClientBuilder()
-                        .build(
-                                ossConfigProperties.getEndpoint(),
-                                ossConfigProperties.getAccessKeyId(),
-                                ossConfigProperties.getSecretAccessKey());
     }
 
     /**
@@ -45,7 +36,7 @@ public class OssUploadStrategyImpl extends AbstractUploadStrategyImpl {
      */
     @Override
     public Boolean exists(String filePath) {
-        return ossClient.doesObjectExist(ossConfigProperties.getBucketName(), filePath);
+        return getOssClient().doesObjectExist(ossConfigProperties.getBucketName(), filePath);
     }
 
     /**
@@ -57,7 +48,7 @@ public class OssUploadStrategyImpl extends AbstractUploadStrategyImpl {
      */
     @Override
     public void upload(String path, String fileName, InputStream inputStream) {
-        ossClient.putObject(ossConfigProperties.getBucketName(), path + fileName, inputStream);
+        getOssClient().putObject(ossConfigProperties.getBucketName(), path + fileName, inputStream);
     }
 
     /**
@@ -69,5 +60,20 @@ public class OssUploadStrategyImpl extends AbstractUploadStrategyImpl {
     @Override
     public String getFileAccessUrl(String filePath) {
         return ossConfigProperties.getUrl() + filePath;
+    }
+
+    private OSS getOssClient() {
+        if (ossClient == null) {
+            synchronized (this) {
+                if (ossClient == null) {
+                    ossClient = new OSSClientBuilder()
+                            .build(
+                                    ossConfigProperties.getEndpoint(),
+                                    ossConfigProperties.getAccessKeyId(),
+                                    ossConfigProperties.getSecretAccessKey());
+                }
+            }
+        }
+        return ossClient;
     }
 }

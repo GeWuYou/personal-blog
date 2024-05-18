@@ -17,7 +17,7 @@ spring:
   application:
     name: personal-blog-admin
   profiles:
-    include: common-log,common-private-mail,common-datasource,common-json
+    include: common-log,common-private-mail,common-datasource,common-json,common-upload
   data:
     redis:
       # 数据库设置为0号数据库

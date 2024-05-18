@@ -8,7 +8,7 @@
 		<version>0.1.0</version>
 	</parent>
 	<artifactId>personal-blog-server</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<name>personal-blog-server</name>
 	<description>personal-blog-server</description>
 	<properties>
@@ -41,12 +41,12 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>com.gewuyou</groupId>
-            <artifactId>personal-blog-common</artifactId>
-            <version>0.1.0</version>
-            <scope>compile</scope>
-        </dependency>
+		<dependency>
+			<groupId>com.gewuyou</groupId>
+			<artifactId>personal-blog-common</artifactId>
+			<version>${personal-blog-common.version}</version>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>

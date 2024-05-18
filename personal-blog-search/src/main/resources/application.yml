@@ -1,10 +1,13 @@
 server:
   port: 8083
-  servlet:
-    context-path: /search
 spring:
+  profiles:
+    include: common-datasource
   application:
     name: personal-blog-search
+  elasticsearch:
+    uris: http://192.168.200.129:9200
+
 eureka:
   client:
     service-url:

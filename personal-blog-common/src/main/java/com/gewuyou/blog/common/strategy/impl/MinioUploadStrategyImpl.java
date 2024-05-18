@@ -1,11 +1,13 @@
 package com.gewuyou.blog.common.strategy.impl;
 
-import com.gewuyou.blog.admin.config.entity.MinioProperties;
+
+import com.gewuyou.blog.common.config.entity.MinioProperties;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.StatObjectArgs;
-import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,23 +20,18 @@ import java.io.InputStream;
  * @since 2024-05-06 下午6:34:01
  */
 @Service("minioUploadStrategyImpl")
+@Slf4j
+
 public class MinioUploadStrategyImpl extends AbstractUploadStrategyImpl {
 
     private final MinioProperties minioProperties;
 
-    private MinioClient minioClient;
+    @Lazy
+    private volatile MinioClient minioClient;
 
     @Autowired
     public MinioUploadStrategyImpl(MinioProperties minioProperties) {
         this.minioProperties = minioProperties;
-    }
-
-    @PostConstruct
-    public void init() {
-        minioClient = MinioClient.builder()
-                .endpoint(minioProperties.getEndpoint())
-                .credentials(minioProperties.getAccessKey(), minioProperties.getSecretKey())
-                .build();
     }
 
     /**
@@ -46,7 +43,7 @@ public class MinioUploadStrategyImpl extends AbstractUploadStrategyImpl {
     @Override
     public Boolean exists(String filePath) {
         try {
-            minioClient.statObject(StatObjectArgs
+            getMinioClient().statObject(StatObjectArgs
                     .builder()
                     .bucket(minioProperties.getBucketName())
                     .object(filePath)
@@ -67,7 +64,7 @@ public class MinioUploadStrategyImpl extends AbstractUploadStrategyImpl {
      */
     @Override
     public void upload(String path, String fileName, InputStream inputStream) throws Exception {
-        minioClient
+        getMinioClient()
                 .putObject(PutObjectArgs
                         .builder()
                         .bucket(minioProperties.getBucketName())
@@ -86,5 +83,19 @@ public class MinioUploadStrategyImpl extends AbstractUploadStrategyImpl {
     @Override
     public String getFileAccessUrl(String filePath) {
         return minioProperties.getUrl() + "/" + filePath;
+    }
+
+    private MinioClient getMinioClient() {
+        if (minioClient == null) {
+            synchronized (this) {
+                if (minioClient == null) {
+                    minioClient = MinioClient.builder()
+                            .endpoint(minioProperties.getEndpoint())
+                            .credentials(minioProperties.getAccessKey(), minioProperties.getSecretKey())
+                            .build();
+                }
+            }
+        }
+        return minioClient;
     }
 }

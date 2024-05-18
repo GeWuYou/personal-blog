@@ -2,7 +2,7 @@ server:
   port: 8084
 spring:
   profiles:
-    include: common-datasource,common-log,common-rabbitmq
+    include: common-datasource,common-log,common-rabbitmq,common-upload,common-private-mail
   application:
     name: personal-blog-server
 eureka:
@@ -11,3 +11,5 @@ eureka:
       defaultZone: http://127.0.0.1:10086/eureka
 website:
   url: http://localhost:8084
+search:
+  mode: elasticsearch

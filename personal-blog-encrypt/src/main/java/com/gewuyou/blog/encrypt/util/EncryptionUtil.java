@@ -7,6 +7,8 @@ import javax.crypto.Cipher;
 import java.security.*;
 import java.util.Base64;
 
+import static com.gewuyou.blog.common.enums.ResponseInformation.*;
+
 /**
  * RSA加密工具
  *
@@ -35,7 +37,7 @@ public class EncryptionUtil {
         try {
             keyPair = generateKeyPair();
         } catch (Exception e) {
-            throw new GlobalException(500, "无法初始化加密服务的密钥对", e);
+            throw new GlobalException(FAILED_TO_INITIALIZE_THE_KEY_PAIR);
         }
     }
 
@@ -44,7 +46,7 @@ public class EncryptionUtil {
         try {
             keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
         } catch (Exception e) {
-            throw new GlobalException(500, "无法初始化加密服务的密钥对生成器", e);
+            throw new GlobalException(FAILED_TO_INITIALIZE_THE_KEY_PAIR);
         }
         // Key size: 2048 bits
         keyPairGenerator.initialize(2048);
@@ -65,7 +67,7 @@ public class EncryptionUtil {
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             return cipher.doFinal(data);
         } catch (Exception e) {
-            throw new GlobalException(500, "加密数据时发生错误", e);
+            throw new GlobalException(ERROR_OCCURRED_WHILE_ENCRYPTING_THE_DATA);
         }
     }
 
@@ -75,7 +77,7 @@ public class EncryptionUtil {
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             return cipher.doFinal(encryptedData);
         } catch (Exception e) {
-            throw new GlobalException(500, "加密数据时发生错误", e);
+            throw new GlobalException(ERROR_OCCURRED_WHILE_ENCRYPTING_THE_DATA);
         }
     }
 
@@ -86,7 +88,7 @@ public class EncryptionUtil {
             signature.update(data);
             return signature.sign();
         } catch (Exception e) {
-            throw new GlobalException(500, "生成数字签名时发生错误", e);
+            throw new GlobalException(FAILED_TO_GENERATE_THE_DIGITAL_SIGNATURE);
         }
     }
 
@@ -97,7 +99,7 @@ public class EncryptionUtil {
             signature.update(data);
             return signature.verify(signatureBytes);
         } catch (Exception e) {
-            throw new GlobalException(500, "验证数字签名时发生错误", e);
+            throw new GlobalException(FAILED_TO_VERIFY_THE_DIGITAL_SIGNATURE);
         }
     }
 }

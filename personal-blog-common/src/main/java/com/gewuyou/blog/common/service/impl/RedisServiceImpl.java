@@ -332,6 +332,13 @@ public class RedisServiceImpl implements IRedisService {
         return count;
     }
 
+    /**
+     * 判断集合中是否存在指定键值
+     *
+     * @param key   键
+     * @param value 值
+     * @return 是否存在
+     */
     @Override
     public Boolean sIsMember(String key, Object value) {
         return redisTemplate.opsForSet().isMember(key, value);

@@ -14,7 +14,7 @@ import lombok.Getter;
 public enum ArticleStatusEnum {
     PUBLIC(Byte.valueOf("1"), "公开"),
 
-    SECRET(Byte.valueOf("2"), "密码"),
+    PRIVATE(Byte.valueOf("2"), "私密"),
 
     DRAFT(Byte.valueOf("3"), "草稿");
 

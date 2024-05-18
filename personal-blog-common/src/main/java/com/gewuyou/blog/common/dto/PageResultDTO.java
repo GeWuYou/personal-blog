@@ -18,7 +18,13 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class PageResultDTO<T> {
+    /**
+     * 记录
+     */
     private List<T> records;
 
-    private Integer count;
+    /**
+     * 总记录数
+     */
+    private Long count;
 }

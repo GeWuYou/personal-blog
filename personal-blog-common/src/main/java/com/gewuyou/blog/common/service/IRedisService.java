@@ -206,10 +206,26 @@ public interface IRedisService {
 
     Boolean hHasKey(String key, String hashKey);
 
+    /**
+     * 增量并获取指定键名哈希表中字段的值
+     *
+     * @param key     键
+     * @param hashKey 哈希表字段
+     * @param delta   增量
+     * @return 增量后的结果
+     */
     Long hIncr(String key, String hashKey, Long delta);
 
     Long hDecr(String key, String hashKey, Long delta);
 
+    /**
+     * 增量并获取指定键名集合的值的分数
+     *
+     * @param key   集合键
+     * @param value 值
+     * @param score 分数
+     * @return 增量后的结果
+     */
     Double zIncr(String key, Object value, Double score);
 
     Double zDecr(String key, Object value, Double score);
@@ -226,6 +242,13 @@ public interface IRedisService {
 
     Long sAddExpire(String key, long time, Object... values);
 
+    /**
+     * 判断集合中是否存在指定键值
+     *
+     * @param key   键
+     * @param value 值
+     * @return 是否存在
+     */
     Boolean sIsMember(String key, Object value);
 
     Long sSize(String key);
