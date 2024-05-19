@@ -2,14 +2,28 @@ package com.gewuyou.blog.server.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gewuyou.blog.common.dto.CategoryAdminDTO;
+import com.gewuyou.blog.common.dto.CategoryDTO;
+import com.gewuyou.blog.common.dto.CategoryOptionDTO;
+import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.enums.ResponseInformation;
+import com.gewuyou.blog.common.exception.GlobalException;
+import com.gewuyou.blog.common.model.Article;
 import com.gewuyou.blog.common.model.Category;
+import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ArticleVO;
+import com.gewuyou.blog.common.vo.CategoryVO;
+import com.gewuyou.blog.common.vo.ConditionVO;
+import com.gewuyou.blog.server.mapper.ArticleMapper;
 import com.gewuyou.blog.server.mapper.CategoryMapper;
 import com.gewuyou.blog.server.service.ICategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.gewuyou.blog.common.enums.ArticleStatusEnum.DRAFT;
@@ -24,6 +38,12 @@ import static com.gewuyou.blog.common.enums.ArticleStatusEnum.DRAFT;
  */
 @Service
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements ICategoryService {
+
+    private final ArticleMapper articleMapper;
+
+    public CategoryServiceImpl(ArticleMapper articleMapper) {
+        this.articleMapper = articleMapper;
+    }
 
     @Override
     public Long selectCount() {
@@ -51,5 +71,99 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             baseMapper.insert(category);
         }
         return category;
+    }
+
+    /**
+     * 查询分类列表
+     *
+     * @return 分类列表
+     */
+    @Override
+    public List<CategoryDTO> listCategoryDTOs() {
+        return baseMapper.listCategoryDTOs();
+    }
+
+    /**
+     * 查询后台分类列表
+     *
+     * @param conditionVO 条件
+     * @return 后台分类列表
+     */
+    @Override
+    public PageResultDTO<CategoryAdminDTO> listCategoryAdminDTOs(ConditionVO conditionVO) {
+        Long count = baseMapper
+                .selectCount(
+                        new LambdaQueryWrapper<Category>()
+                                .like(
+                                        StringUtils.isNoneBlank(conditionVO.getKeywords()),
+                                        Category::getCategoryName,
+                                        conditionVO.getKeywords()
+                                )
+                );
+        if (count == 0) {
+            return new PageResultDTO<>();
+        }
+        Page<CategoryAdminDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
+        List<CategoryAdminDTO> categoryAdminDTOList = baseMapper.listCategoryAdminDTOs(page, conditionVO);
+        return new PageResultDTO<>(categoryAdminDTOList, count);
+    }
+
+    /**
+     * 查询后台分类选项列表
+     *
+     * @param conditionVO 条件
+     * @return 后台分类选项列表
+     */
+    @Override
+    public List<CategoryOptionDTO> listCategoryOptionDTOsBySearch(ConditionVO conditionVO) {
+        List<Category> categories = baseMapper
+                .selectList(
+                        new LambdaQueryWrapper<Category>()
+                                .like(
+                                        StringUtils.isNoneBlank(conditionVO.getKeywords()),
+                                        Category::getCategoryName,
+                                        conditionVO.getKeywords()
+                                ).orderByAsc(Category::getCategoryId)
+                );
+        return BeanCopyUtil.copyList(categories, CategoryOptionDTO.class);
+    }
+
+    /**
+     * 删除分类
+     *
+     * @param categoryIds 分类ID列表
+     */
+    @Override
+    public void deleteCategories(List<Integer> categoryIds) {
+        Long selectCount = articleMapper.selectCount(
+                new LambdaQueryWrapper<Article>()
+                        .in(Article::getCategoryId, categoryIds)
+        );
+        if (selectCount > 0) {
+            throw new GlobalException(ResponseInformation.NON_EMPTY_CATEGORICAL_DELETION_REQUEST);
+        }
+        baseMapper.deleteBatchIds(categoryIds);
+    }
+
+    /**
+     * 保存或更新分类
+     *
+     * @param categoryVO 分类VO
+     */
+    @Override
+    public void saveOrUpdateCategory(CategoryVO categoryVO) {
+        Category existCategory = baseMapper.selectOne(
+                new LambdaQueryWrapper<Category>()
+                        .select(Category::getCategoryId)
+                        .eq(Category::getCategoryName, categoryVO.getCategoryName())
+        );
+        if (Objects.nonNull(existCategory) && !existCategory.getCategoryId().equals(categoryVO.getId())) {
+            throw new GlobalException(ResponseInformation.CATEGORY_NAME_ALREADY_EXISTS);
+        }
+        Category category = Category
+                .builder()
+                .categoryName(categoryVO.getCategoryName())
+                .build();
+        this.saveOrUpdate(category);
     }
 }

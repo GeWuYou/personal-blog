@@ -154,4 +154,5 @@ public class MessageConstant {
     public static final String ARTICLE_TITLE_NOT_EMPTY = "文章标题不能为空!";
     public static final String ARTICLE_CATEGORY_NOT_EMPTY = "文章分类不能为空!";
     public static final String ARTICLE_TAG_NOT_EMPTY = "文章标签不能为空!";
+    public static final String CATEGORY_NAME_CANNOT_BE_EMPTY = "分类名不能为空!";
 }
