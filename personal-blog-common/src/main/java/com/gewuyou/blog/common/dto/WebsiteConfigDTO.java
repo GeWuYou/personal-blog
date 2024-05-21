@@ -160,19 +160,19 @@ public class WebsiteConfigDTO {
      * 是否开启评论审核
      */
     @Schema(description = "是否开启评论审核")
-    private Integer isCommentReview;
+    private Byte isCommentReview;
 
     /**
      * 是否开启邮件通知
      */
     @Schema(description = "是否开启邮件通知")
-    private Integer isEmailNotice;
+    private Byte isEmailNotice;
 
     /**
      * 是否开启文章打赏
      */
     @Schema(description = "是否开启文章打赏")
-    private Integer isReward;
+    private Byte isReward;
 
     /**
      * 微信二维码

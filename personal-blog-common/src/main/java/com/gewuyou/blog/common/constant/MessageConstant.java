@@ -155,4 +155,8 @@ public class MessageConstant {
     public static final String ARTICLE_CATEGORY_NOT_EMPTY = "文章分类不能为空!";
     public static final String ARTICLE_TAG_NOT_EMPTY = "文章标签不能为空!";
     public static final String CATEGORY_NAME_CANNOT_BE_EMPTY = "分类名不能为空!";
+    public static final String COMMENT_CANNOT_BE_EMPTY = "评论内容不能为空!";
+    public static final String COMMENT_TYPE_CANNOT_BE_EMPTY = "评论类型不能为空!";
+    public static final String ID_CANNOT_BE_EMPTY = "id不能为空!";
+    public static final String REVIEW_STATUS_CANNOT_BE_EMPTY = "审核状态不能为空";
 }

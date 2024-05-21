@@ -38,6 +38,7 @@ public enum ResponseInformation {
     VERIFY_CODE_EXPIRED(400, "验证码已过期"),
     INVALID_TOKEN(401, "无效的token"),
     INVALID_TOKEN_REQUEST(400, "无效的token请求"),
+    PARAMETER_VALIDATION_EXCEPTION(400, "参数校验异常"),
     TOKEN_EXPIRED(401, "token已过期"),
     AUTHENTICATION_FAILED(401, "身份验证失败"),
     PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST(401, "请先完成邮箱验证"),
@@ -57,6 +58,7 @@ public enum ResponseInformation {
     ERROR_OCCURRED_WHILE_ENCRYPTING_THE_DATA(500, "加密数据时发生错误"),
     FAILED_TO_GENERATE_THE_DIGITAL_SIGNATURE(500, "生成数字签名时发生错误"),
     FAILED_TO_VERIFY_THE_DIGITAL_SIGNATURE(500, "验证数字签名时发生错误"),
+    ASYNC_EXCEPTION(500, "异步任务异常"),
 
     /**
      * 错误参数

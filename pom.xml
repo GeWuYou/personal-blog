@@ -46,6 +46,7 @@
         <ip2region.version>1.7.2</ip2region.version>
         <minio.version>8.5.10</minio.version>
         <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version>
+        <sensitive-word.version>0.16.1</sensitive-word.version>
     </properties>
 
     <build>

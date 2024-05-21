@@ -2,4 +2,114 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.server.mapper.CommentMapper">
 
+    <select id="listCommentDTOs" resultType="com.gewuyou.blog.common.dto.CommentDTO">
+        SELECT
+        ui.nick_name AS nickname,
+        ui.avatar AS avatar,
+        ui.website AS website,
+        c.user_id AS userId,
+        c.comment_id AS id,
+        c.content AS commentContent,
+        c.create_time AS createTime,
+        FROM tb_comment c
+        JOIN tb_user_info ui ON c.user_id = ui.id
+        <where>
+            <if test="commentVO.topicId!= null">
+                topic_id = #{commentVO.topicId}
+            </if>
+            AND type = #{commentVO.type}
+            AND c.is_review = 1
+            AND parent_id IS NULL
+        </where>
+        ORDER BY c.comment_id DESC
+    </select>
+    <select id="listReplyDTOs" resultType="com.gewuyou.blog.common.dto.ReplyDTO">
+        SELECT
+        *
+        FROM (
+        SELECT
+        c.user_id AS userId,
+        ui.nick_name AS nickname,
+        ui.avatar AS avatar,
+        ui.website AS website,
+        c.reply_user_id AS replyUserId,
+        r.nick_name AS replyNickname,
+        r.website AS replyWebsite,
+        c.id AS id,
+        c.parent_comment_id AS parentId,
+        c.content AS commentContent,
+        c.create_time AS createTime
+        FROM tb_comment c
+        JOIN tb_user_info ui ON c.user_id = ui.id
+        JOIN tb_user_info r ON c.reply_user_id = r.id
+        WHERE
+        c.is_review = 1
+        AND
+        parent_comment_id IN(
+        <foreach collection="commentIds" item="commentId" separator=",">
+            #{commentId}
+        </foreach>
+        )
+        ORDER BY c.create_time DESC
+        ) t
+    </select>
+    <select id="listTopSixCommentDTOs" resultType="com.gewuyou.blog.common.dto.CommentDTO">
+        SELECT ui.nick_name  AS nickname,
+               ui.avatar     AS avatar,
+               ui.website    AS website,
+               c.user_id     AS userId,
+               c.comment_id  AS id,
+               c.content     AS commentContent,
+               c.create_time AS createTime
+        FROM tb_comment c
+                 JOIN tb_user_info ui ON c.user_id = ui.id
+        WHERE c.is_review = 1
+        ORDER BY c.comment_id DESC
+        LIMIT 0,6
+    </select>
+    <select id="countComments" resultType="java.lang.Long">
+        SELECT
+        COUNT(*)
+        FROM tb_comment c
+        LEFT JOIN tb_user_info ui ON c.user_id = ui.id
+        <where>
+            <if test="conditionVO.type != null">
+                c.type = #{conditionVO.type}
+            </if>
+            <if test="conditionVO.isReview !=null">
+                AND c.is_review = #{conditionVO.isReview}
+            </if>
+            <if test="conditionVO.keywords !=null">
+                AND ui.nick_name like CONCAT('%',#{conditionVO.keywords},'%')
+            </if>
+        </where>
+    </select>
+    <select id="listCommentAdminDTOs" resultType="com.gewuyou.blog.common.dto.CommentAdminDTO">
+        SELECT
+        c.id AS id,
+        ui.avatar AS avatar,
+        ui.nick_name AS nickname,
+        r.nick_name AS replyNickname,
+        a.title AS articleTitle,
+        c.content AS commentContent,
+        c.type AS type,
+        c.is_review AS isReview,
+        c.create_time AS createTime,
+        FROM tb_comment c
+        LEFT JOIN tb_article a ON c.topic_id = a.article_id
+        LEFT JOIN tb_user_info ui ON c.user_id = ui.id
+        LEFT JOIN tb_user_info r ON c.reply_user_id = r.id
+        <where>
+            <if test="conditionVO.type != null">
+                c.type = #{conditionVO.type}
+            </if>
+            <if test="conditionVO.isReview !=null">
+                AND c.is_review = #{conditionVO.isReview}
+            </if>
+            <if test="conditionVO.keywords !=null">
+                AND ui.nick_name like CONCAT('%',#{conditionVO.keywords},'%')
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
 </mapper>

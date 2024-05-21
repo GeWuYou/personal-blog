@@ -26,9 +26,8 @@ import java.time.LocalDateTime;
 @TableName("tb_talk")
 @Schema(name = "Talk对象", description = "说说表")
 public class Talk extends BaseModel implements Serializable {
-
     @Builder
-    public Talk(LocalDateTime createTime, LocalDateTime updateTime, Integer id, Integer userId, String content, String images, Boolean isTop, Boolean status) {
+    public Talk(LocalDateTime createTime, LocalDateTime updateTime, Integer id, Long userId, String content, String images, Byte isTop, Byte status) {
         super(createTime, updateTime);
         this.id = id;
         this.userId = userId;
@@ -47,7 +46,7 @@ public class Talk extends BaseModel implements Serializable {
 
     @Schema(description = "用户id")
     @TableField("user_id")
-    private Integer userId;
+    private Long userId;
 
     @Schema(description = "说说内容")
     @TableField("content")
@@ -59,9 +58,9 @@ public class Talk extends BaseModel implements Serializable {
 
     @Schema(description = "是否置顶")
     @TableField("is_top")
-    private Boolean isTop;
+    private Byte isTop;
 
     @Schema(description = "状态 1.公开 2.私密")
     @TableField("status")
-    private Boolean status;
+    private Byte status;
 }

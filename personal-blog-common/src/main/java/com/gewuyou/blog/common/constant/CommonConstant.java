@@ -15,11 +15,11 @@ public class CommonConstant {
 
     public static final int ZERO = 0;
 
-    public static final int FALSE = 0;
+    public static final Byte FALSE = 0;
 
-    public static final int TRUE = 1;
+    public static final Byte TRUE = 1;
 
-    public static final int BLOGGER_ID = 1;
+    public static final Long BLOGGER_ID = 1L;
 
     public static final Long DEFAULT_CONFIG_ID = 1L;
 

@@ -1,5 +1,6 @@
 package com.gewuyou.blog.common.entity;
 
+import com.gewuyou.blog.common.constant.HttpStatusCode;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -101,6 +102,15 @@ public class Result<T> implements Serializable {
      */
     public static Result<String> failure() {
         return new Result<>(ResponseInformation.FAIL, false, null);
+    }
+
+    /**
+     * 失败返回
+     *
+     * @return 失败结果
+     */
+    public static Result<String> failure(String message) {
+        return new Result<>(HttpStatusCode.BAD_REQUEST, message);
     }
 
     /**
