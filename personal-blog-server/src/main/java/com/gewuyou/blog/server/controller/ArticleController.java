@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -111,7 +112,7 @@ public class ArticleController {
      */
     @Operation(summary = "校验文章访问密码", description = "校验文章访问密码")
     @PostMapping("/verify")
-    public Result<?> verifyArticleAccessPassword(@Validated @RequestBody ArticleAccessPasswordVO articleAccessPasswordVO) {
+    public Result<?> verifyArticleAccessPassword(@Valid @RequestBody ArticleAccessPasswordVO articleAccessPasswordVO) {
         articleService.verifyArticleAccessPassword(articleAccessPasswordVO);
         return Result.success();
     }

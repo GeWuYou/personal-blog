@@ -7,8 +7,18 @@ package com.gewuyou.blog.common.constant;
  * @since 2024-04-17 下午10:41:51
  */
 public class MessageConstant {
+
     private MessageConstant() {
     }
+
+    public static final String ARTICLE_PASSWORD_NOT_NULL = "文章访问密码不能为空!";
+
+    public static final String LINK_ADDRESS_NOT_EMPTY = "链接地址不能为空!";
+    public static final String LINK_INTRO_NOT_EMPTY = "链接介绍不能为空!";
+
+    public static final String LINK_AVATAR_NOT_EMPTY = "链接头像不能为空!";
+
+    public static final String LINK_NAME_NOT_EMPTY = "链接名称不能为空!";
 
     /**
      * 无效的token请求
