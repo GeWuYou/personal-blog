@@ -11,6 +11,8 @@ import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.CategoryVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.server.service.ICategoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,7 @@ import java.util.List;
  * @author gewuyou
  * @since 2024-04-23
  */
+@Tag(name = "<p> 分类表 前端控制器 </p>", description = "<p> 分类表 前端控制器 </p>")
 @RestController
 @RequestMapping(InterfacePermissionConstant.SERVER_BASE_URL + "/category")
 public class CategoryController {
@@ -41,6 +44,7 @@ public class CategoryController {
      *
      * @return 分类列表
      */
+    @Operation(summary = "获取所有分类", description = "获取所有分类")
     @GetMapping("/list")
     public Result<List<CategoryDTO>> listCategories() {
         return Result.success(categoryService.listCategoryDTOs());
@@ -52,6 +56,7 @@ public class CategoryController {
      * @param conditionVO 条件
      * @return 分类列表
      */
+    @Operation(summary = "查看后台分类列表", description = "查看后台分类列表")
     @GetMapping("/admin/list")
     public Result<PageResultDTO<CategoryAdminDTO>> listCategoriesAdmin(ConditionVO conditionVO) {
         return Result.success(categoryService.listCategoryAdminDTOs(conditionVO));
@@ -63,6 +68,7 @@ public class CategoryController {
      * @param conditionVO 条件
      * @return 分类列表
      */
+    @Operation(summary = "搜索后台文章分类", description = "搜索后台文章分类")
     @GetMapping("/admin/search")
     public Result<List<CategoryOptionDTO>> listCategoriesAdminBySearch(ConditionVO conditionVO) {
         return Result.success(categoryService.listCategoryOptionDTOsBySearch(conditionVO));
@@ -74,6 +80,7 @@ public class CategoryController {
      * @param categoryIds 分类id列表
      * @return 成功或失败
      */
+    @Operation(summary = "删除分类", description = "删除分类")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping("/admin/list")
     public Result<?> deleteCategories(@RequestBody List<Integer> categoryIds) {
@@ -87,6 +94,7 @@ public class CategoryController {
      * @param categoryVO 分类信息
      * @return 成功或失败
      */
+    @Operation(summary = "保存或更新后台分类", description = "保存或更新后台分类")
     @OperationLogging(type = OperationType.SAVE_OR_UPDATE)
     @PostMapping("/admin")
     public Result<?> saveOrUpdateCategory(@Validated @RequestBody CategoryVO categoryVO) {
