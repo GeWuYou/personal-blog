@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 // 大坑，当配置了扫描路径后需要显示的指定所有需要扫描的路径
@@ -17,7 +16,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @MapperScan(basePackages = {"com.gewuyou.blog.admin.mapper", "com.gewuyou.blog.common.mapper"})
 @EnableConfigurationProperties({SecurityIgnoreUrl.class, MinioProperties.class, OssConfigProperties.class})
 @EnableFeignClients
-@EnableAsync
 public class PersonalBlogAdminApplication {
 
     public static void main(String[] args) {

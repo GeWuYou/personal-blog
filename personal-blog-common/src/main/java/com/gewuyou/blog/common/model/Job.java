@@ -10,6 +10,7 @@ import lombok.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * <p>
@@ -28,7 +29,7 @@ import java.time.LocalDateTime;
 @Schema(name = "Job对象", description = "定时任务调度表")
 public class Job extends BaseModel implements Serializable {
     @Builder
-    public Job(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String jobName, String jobGroup, String invokeTarget, String cronExpression, Boolean misfirePolicy, Boolean concurrent, Boolean status, String remark) {
+    public Job(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String jobName, String jobGroup, String invokeTarget, String cronExpression, Byte misfirePolicy, Byte concurrent, Byte status, String remark) {
         super(createTime, updateTime);
         this.id = id;
         this.jobName = jobName;
@@ -67,17 +68,20 @@ public class Job extends BaseModel implements Serializable {
 
     @Schema(description = "计划执行错误策略（1立即执行 2执行一次 3放弃执行）")
     @TableField("misfire_policy")
-    private Boolean misfirePolicy;
+    private Byte misfirePolicy;
 
     @Schema(description = "是否并发执行（0禁止 1允许）")
     @TableField("concurrent")
-    private Boolean concurrent;
+    private Byte concurrent;
 
     @Schema(description = "状态（0暂停 1正常）")
     @TableField("status")
-    private Boolean status;
+    private Byte status;
 
     @Schema(description = "备注信息")
     @TableField("remark")
     private String remark;
+
+    @TableField(exist = false)
+    private Date nextValidTime;
 }

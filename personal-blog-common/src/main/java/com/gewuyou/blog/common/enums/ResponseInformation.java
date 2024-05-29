@@ -59,6 +59,8 @@ public enum ResponseInformation {
     FAILED_TO_GENERATE_THE_DIGITAL_SIGNATURE(500, "生成数字签名时发生错误"),
     FAILED_TO_VERIFY_THE_DIGITAL_SIGNATURE(500, "验证数字签名时发生错误"),
     ASYNC_EXCEPTION(500, "异步任务异常"),
+    CREATE_TASK_FAILED(500, "创建任务失败"),
+    DELETE_TASK_FAILED(500, "删除任务失败"),
 
     /**
      * 错误参数

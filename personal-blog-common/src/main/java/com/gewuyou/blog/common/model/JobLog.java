@@ -11,6 +11,7 @@ import lombok.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * <p>
@@ -58,7 +59,7 @@ public class JobLog implements Serializable {
 
     @Schema(description = "执行状态（0正常 1失败）")
     @TableField("status")
-    private Boolean status;
+    private Byte status;
 
     @Schema(description = "异常信息")
     @TableField("exception_info")
@@ -72,13 +73,9 @@ public class JobLog implements Serializable {
 
     @Schema(description = "开始时间")
     @TableField("start_time")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime startTime;
+    private Date startTime;
 
     @Schema(description = "结束时间")
     @TableField("end_time")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime endTime;
+    private Date endTime;
 }

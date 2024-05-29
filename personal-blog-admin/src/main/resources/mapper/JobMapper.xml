@@ -2,4 +2,51 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.admin.mapper.JobMapper">
 
+    <select id="countJobs" resultType="java.lang.Long">
+        SELECT COUNT(DISTINCT j.id)
+        FROM tb_job j
+        <where>
+            <if test="jobSearchVO.jobName!=null">
+                AND j.job_name LIKE CONCAT('%', #{jobSearchVO.jobName}, '%')
+            </if>
+            <if test="jobSearchVO.jobGroup!=null">
+                AND j.job_group = #{jobSearchVO.jobGroup}
+            </if>
+            <if test="jobSearchVO.jobStatus!=null">
+                AND j.job_status = #{jobSearchVO.jobStatus}
+            </if>
+        </where>
+    </select>
+    <select id="listJobs" resultType="com.gewuyou.blog.common.dto.JobDTO">
+        SELECT
+        id AS id,
+        job_name AS jobName,
+        job_group AS jobGroup,
+        invoke_target AS invokeTarget,
+        cron_expression AS cronExpression,
+        misfire_policy AS misfirePolicy,
+        concurrent AS concurrent,
+        status,
+        create_time AS createTime,
+        remark
+        FROM tb_job j
+        <where>
+            <if test="jobSearchVO.jobName!=null">
+                <if test="jobSearchVO.jobName!=null">
+                    AND j.job_name LIKE CONCAT('%', #{jobSearchVO.jobName}, '%')
+                </if>
+                <if test="jobSearchVO.jobGroup!=null">
+                    AND j.job_group = #{jobSearchVO.jobGroup}
+                </if>
+                <if test="jobSearchVO.jobStatus!=null">
+                    AND j.job_status = #{jobSearchVO.jobStatus}
+                </if>
+            </if>
+        </where>
+        ORDER BY j.status DESC
+    </select>
+    <select id="listJobGroups" resultType="java.lang.String">
+        SELECT DISTINCT job_group
+        FROM tb_job
+    </select>
 </mapper>

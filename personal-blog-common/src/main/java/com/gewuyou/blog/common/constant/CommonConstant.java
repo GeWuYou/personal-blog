@@ -11,9 +11,9 @@ public class CommonConstant {
     }
 
     public static final String DEFAULT_NICKNAME = "用户";
-    public static final int ONE = 1;
+    public static final Byte ONE = 1;
 
-    public static final int ZERO = 0;
+    public static final Byte ZERO = 0;
 
     public static final Byte FALSE = 0;
 
