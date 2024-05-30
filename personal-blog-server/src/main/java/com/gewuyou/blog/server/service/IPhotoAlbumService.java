@@ -2,7 +2,10 @@ package com.gewuyou.blog.server.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gewuyou.blog.common.dto.PhotoAlbumDTO;
 import com.gewuyou.blog.common.model.PhotoAlbum;
+
+import java.util.List;
 
 /**
  * <p>
@@ -14,4 +17,11 @@ import com.gewuyou.blog.common.model.PhotoAlbum;
  */
 public interface IPhotoAlbumService extends IService<PhotoAlbum> {
 
+
+    /**
+     * 获取相册列表
+     *
+     * @return 相册列表
+     */
+    List<PhotoAlbumDTO> listPhotoAlbumDTOs();
 }

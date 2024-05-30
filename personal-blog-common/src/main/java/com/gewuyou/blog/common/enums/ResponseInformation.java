@@ -34,6 +34,7 @@ public enum ResponseInformation {
     NON_EMPTY_TAG_DELETION_REQUEST(400, "该标签下存在文章，不能删除"),
     CATEGORY_NAME_ALREADY_EXISTS(400, "分类名称已存在"),
     TAG_NAME_ALREADY_EXISTS(400, "标签名称已存在"),
+    ALBUM_NAME_EXIST(400, "相册名称已存在"),
     CATEGORY_NOT_EXISTS(400, "分类不存在"),
     VERIFY_CODE_EXPIRED(400, "验证码已过期"),
     INVALID_TOKEN(401, "无效的token"),

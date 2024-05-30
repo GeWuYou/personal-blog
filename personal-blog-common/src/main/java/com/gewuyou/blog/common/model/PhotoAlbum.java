@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 @Schema(name = "PhotoAlbum对象", description = "相册")
 public class PhotoAlbum extends BaseModel implements Serializable {
     @Builder
-    public PhotoAlbum(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String albumName, String albumDesc, String albumCover, Boolean isDelete, Boolean status) {
+    public PhotoAlbum(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String albumName, String albumDesc, String albumCover, Byte isDelete, Byte status) {
         super(createTime, updateTime);
         this.id = id;
         this.albumName = albumName;
@@ -58,9 +58,9 @@ public class PhotoAlbum extends BaseModel implements Serializable {
 
     @Schema(description = "是否删除")
     @TableField("is_delete")
-    private Boolean isDelete;
+    private Byte isDelete;
 
     @Schema(description = "状态值 1公开 2私密")
     @TableField("status")
-    private Boolean status;
+    private Byte status;
 }
