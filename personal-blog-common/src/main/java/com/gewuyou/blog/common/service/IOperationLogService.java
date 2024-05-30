@@ -2,7 +2,10 @@ package com.gewuyou.blog.common.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gewuyou.blog.common.dto.OperationLogDTO;
+import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.model.OperationLog;
+import com.gewuyou.blog.common.vo.ConditionVO;
 
 /**
  * <p>
@@ -14,4 +17,11 @@ import com.gewuyou.blog.common.model.OperationLog;
  */
 public interface IOperationLogService extends IService<OperationLog> {
 
+    /**
+     * 分页查询操作日志
+     *
+     * @param conditionVO 条件
+     * @return 分页结果
+     */
+    PageResultDTO<OperationLogDTO> listOperationLogDTOs(ConditionVO conditionVO);
 }
