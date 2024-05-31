@@ -46,7 +46,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @param capacityId 分类ID
      * @return 文章卡片列表DTO
      */
-    List<ArticleCardDTO> listArticleCardDTOsByCategoryId(Page<ArticleCardDTO> page, @Param("categoryId") Long capacityId);
+    List<ArticleCardDTO> listArticleCardDTOsByCategoryId(Page<ArticleCardDTO> page, @Param("id") Long capacityId);
 
     /**
      * 根据文章ID查询文章卡片DTO

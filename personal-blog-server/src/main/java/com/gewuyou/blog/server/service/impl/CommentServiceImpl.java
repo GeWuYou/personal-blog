@@ -118,8 +118,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 .userId(UserUtil.getUserDetailsDTO().getUserInfoId())
                 .replyUserId(commentVO.getReplyUserId())
                 .topicId(commentVO.getTopicId())
-                .content(commentVO.getCommentContent())
-                .parentCommentId(commentVO.getParentId())
+                .commentContent(commentVO.getCommentContent())
+                .parentId(commentVO.getParentId())
                 .type(commentVO.getType())
                 .isReview(isCommentReview)
                 .build();
@@ -141,7 +141,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         Long commentCount = baseMapper.selectCount(new LambdaQueryWrapper<Comment>()
                 .eq(Objects.nonNull(commentVO.getTopicId()), Comment::getTopicId, commentVO.getTopicId())
                 .eq(Comment::getType, commentVO.getType())
-                .isNull(Comment::getParentCommentId)
+                .isNull(Comment::getParentId)
                 .eq(Comment::getIsReview, TRUE));
         if (commentCount == 0) {
             return new PageResultDTO<>();
@@ -214,7 +214,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 .stream()
                 .map(id -> Comment
                         .builder()
-                        .commentId(id)
+                        .id(id)
                         .isReview(reviewVO.getIsReview())
                         .build()
                 )
@@ -229,10 +229,10 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
      * @param fromNickname 发起者昵称
      */
     private void notice(Comment comment, String fromNickname) {
-        if (Objects.isNull(comment.getParentCommentId())) {
+        if (Objects.isNull(comment.getParentId())) {
             return;
         }
-        Comment parentComment = baseMapper.selectById(comment.getParentCommentId());
+        Comment parentComment = baseMapper.selectById(comment.getParentId());
         // 判断用户是否自己回复自己,防止套娃
         if (comment.getUserId().equals(comment.getReplyUserId()) && parentComment.getUserId().equals(comment.getUserId())) {
             return;
@@ -288,7 +288,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
             }
         }
         if (Objects.requireNonNull(CommentTypeEnum.getCommentEnum(comment.getType())).equals(ARTICLE)) {
-            title = articleMapper.selectById(comment.getTopicId()).getTitle();
+            title = articleMapper.selectById(comment.getTopicId()).getArticleTitle();
         } else {
             title = Objects.requireNonNull(CommentTypeEnum.getCommentEnum(comment.getType())).getDesc();
         }
@@ -327,8 +327,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 Article article = articleMapper
                         .selectOne(
                                 new LambdaQueryWrapper<Article>()
-                                        .select(Article::getArticleId, Article::getUserId)
-                                        .eq(Article::getArticleId, commentVO.getTopicId())
+                                        .select(Article::getId, Article::getUserId)
+                                        .eq(Article::getId, commentVO.getTopicId())
                         );
                 if (Objects.isNull(article)) {
                     throw new GlobalException(ResponseInformation.PARAMETER_VALIDATION_EXCEPTION);
@@ -366,15 +366,15 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
             Comment parentComment = baseMapper
                     .selectOne(
                             new LambdaQueryWrapper<Comment>()
-                                    .select(Comment::getCommentId, Comment::getParentCommentId, Comment::getType)
-                                    .eq(Comment::getCommentId, commentVO.getParentId())
+                                    .select(Comment::getId, Comment::getParentId, Comment::getType)
+                                    .eq(Comment::getId, commentVO.getParentId())
                     );
             // 父评论不存在
             if (Objects.isNull(parentComment)) {
                 throw new GlobalException(ResponseInformation.PARAMETER_VALIDATION_EXCEPTION);
             }
             // 不允许套娃
-            if (Objects.nonNull(parentComment.getParentCommentId())) {
+            if (Objects.nonNull(parentComment.getParentId())) {
                 throw new GlobalException(ResponseInformation.PARAMETER_VALIDATION_EXCEPTION);
             }
             // 评论类型必须一致
@@ -413,7 +413,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         Map<String, Object> map = new HashMap<>();
         if (comment.getIsReview().equals(TRUE)) {
             String url = websiteUrl + CommentTypeEnum.getCommentPath(comment.getType()) + topicId;
-            if (Objects.isNull(comment.getParentCommentId())) {
+            if (Objects.isNull(comment.getParentId())) {
                 emailDTO.setEmail(userInfo.getEmail());
                 emailDTO.setSubject(COMMENT_REMIND);
                 emailDTO.setTemplate("owner.html");
@@ -422,12 +422,12 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 map.put("url", url);
                 map.put("title", title);
                 map.put("nickname", fromNickname);
-                map.put("content", comment.getContent());
+                map.put("content", comment.getCommentContent());
             } else {
                 Comment parentComment = baseMapper.selectOne(
                         new LambdaQueryWrapper<Comment>()
-                                .select(Comment::getUserId, Comment::getContent, Comment::getCreateTime)
-                                .eq(Comment::getCommentId, comment.getParentCommentId()));
+                                .select(Comment::getUserId, Comment::getCommentContent, Comment::getCreateTime)
+                                .eq(Comment::getId, comment.getParentId()));
                 if (!userInfo.getId().equals(parentComment.getUserId())) {
                     userInfo = userInfoMapper.selectById(parentComment.getUserId());
                 }
@@ -440,18 +440,18 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 map.put("time", createTime);
                 map.put("toUser", userInfo.getNickName());
                 map.put("fromUser", fromNickname);
-                map.put("parentComment", parentComment.getContent());
+                map.put("parentComment", parentComment.getCommentContent());
                 if (!comment.getReplyUserId().equals(parentComment.getUserId())) {
                     UserInfo mentionUserInfo = userInfoMapper.selectById(comment.getReplyUserId());
                     if (Objects.nonNull(mentionUserInfo.getWebsite())) {
                         map.put("replyComment", "<a style=\"text-decoration:none;color:#12addb\" href=\""
                                 + mentionUserInfo.getWebsite()
-                                + "\">@" + mentionUserInfo.getNickName() + " " + "</a>" + parentComment.getContent());
+                                + "\">@" + mentionUserInfo.getNickName() + " " + "</a>" + parentComment.getCommentContent());
                     } else {
-                        map.put("replyComment", "@" + mentionUserInfo.getNickName() + " " + parentComment.getContent());
+                        map.put("replyComment", "@" + mentionUserInfo.getNickName() + " " + parentComment.getCommentContent());
                     }
                 } else {
-                    map.put("replyComment", comment.getContent());
+                    map.put("replyComment", comment.getCommentContent());
                 }
             }
         } else {

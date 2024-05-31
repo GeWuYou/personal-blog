@@ -29,7 +29,7 @@ public class ConditionVO {
     @Schema(name = "keywords", description = "搜索内容", type = "String")
     private String keywords;
 
-    @Schema(name = "categoryId", description = "分类id", type = "Integer")
+    @Schema(name = "id", description = "分类id", type = "Integer")
     private Integer categoryId;
 
     @Schema(name = "tagId", description = "标签id", type = "Integer")

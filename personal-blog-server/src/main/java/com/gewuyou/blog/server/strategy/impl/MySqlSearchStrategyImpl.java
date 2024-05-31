@@ -44,9 +44,9 @@ public class MySqlSearchStrategyImpl implements SearchStrategy {
                         .eq(Article::getStatus, PUBLIC.getStatus())
                         .and(
                                 i ->
-                                        i.like(Article::getTitle, keywords)
+                                        i.like(Article::getArticleTitle, keywords)
                                                 .or()
-                                                .like(Article::getContent, keywords)
+                                                .like(Article::getArticleContent, keywords)
 
                         )
         );
@@ -57,20 +57,20 @@ public class MySqlSearchStrategyImpl implements SearchStrategy {
                             boolean isLowercase = true;
                             // 文章内容高亮
                             String articleContent;
-                            int contentIndex = article.getContent().indexOf(keywords.toLowerCase());
+                            int contentIndex = article.getArticleContent().indexOf(keywords.toLowerCase());
                             if (contentIndex == -1) {
-                                contentIndex = article.getContent().indexOf(keywords.toUpperCase());
+                                contentIndex = article.getArticleContent().indexOf(keywords.toUpperCase());
                                 if (contentIndex != -1) {
                                     isLowercase = false;
                                 }
                             }
                             if (contentIndex != -1) {
                                 int preIndex = contentIndex > 15 ? contentIndex - 15 : 0;
-                                String preText = article.getContent().substring(preIndex, contentIndex);
+                                String preText = article.getArticleContent().substring(preIndex, contentIndex);
                                 int last = contentIndex + keywords.length();
-                                int postLength = article.getContent().length() - last;
+                                int postLength = article.getArticleContent().length() - last;
                                 int postIndex = postLength > 35 ? last + 35 : last + postLength;
-                                String postText = article.getContent().substring(contentIndex, postIndex);
+                                String postText = article.getArticleContent().substring(contentIndex, postIndex);
                                 if (isLowercase) {
                                     articleContent = (preText + postText).replaceAll(keywords.toLowerCase(),
                                             PRE_TAG + keywords.toLowerCase() + POST_TAG);
@@ -82,9 +82,9 @@ public class MySqlSearchStrategyImpl implements SearchStrategy {
                                 return null;
                             }
                             isLowercase = true;
-                            int titleIndex = article.getTitle().indexOf(keywords.toLowerCase());
+                            int titleIndex = article.getArticleTitle().indexOf(keywords.toLowerCase());
                             if (titleIndex == -1) {
-                                titleIndex = article.getTitle().indexOf(keywords.toUpperCase());
+                                titleIndex = article.getArticleTitle().indexOf(keywords.toUpperCase());
                                 if (titleIndex == -1) {
                                     isLowercase = false;
                                 }
@@ -94,7 +94,7 @@ public class MySqlSearchStrategyImpl implements SearchStrategy {
 
                             return EsArticleDTO
                                     .builder()
-                                    .id(article.getArticleId())
+                                    .id(article.getId())
                                     .articleTitle(articleTitle)
                                     .articleContent(articleContent)
                                     .build();
@@ -105,10 +105,10 @@ public class MySqlSearchStrategyImpl implements SearchStrategy {
     private static @NotNull String getArticleTitle(String keywords, Article article, boolean isLowercase) {
         String articleTitle;
         if (isLowercase) {
-            articleTitle = article.getTitle().replaceAll(keywords.toLowerCase(),
+            articleTitle = article.getArticleTitle().replaceAll(keywords.toLowerCase(),
                     PRE_TAG + keywords.toLowerCase() + POST_TAG);
         } else {
-            articleTitle = article.getTitle().replaceAll(keywords.toUpperCase(),
+            articleTitle = article.getArticleTitle().replaceAll(keywords.toUpperCase(),
                     PRE_TAG + keywords.toUpperCase() + POST_TAG);
         }
         return articleTitle;

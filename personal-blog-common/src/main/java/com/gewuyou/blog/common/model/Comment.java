@@ -1,10 +1,9 @@
 package com.gewuyou.blog.common.model;
 
-import com.baomidou.mybatisplus.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -29,30 +28,25 @@ import java.time.LocalDateTime;
 public class Comment extends BaseModel implements Serializable {
 
     @Builder
-    public Comment(LocalDateTime createTime, LocalDateTime updateTime, Long commentId, Long articleId, Long replyUserId, Long userId, Long topicId, Long parentCommentId, Byte type, Byte isDelete, Byte isReview, String content) {
+    public Comment(LocalDateTime createTime, LocalDateTime updateTime, Long id, Long replyUserId, Long userId, Long topicId, Long parentId, Byte type, Byte isDelete, Byte isReview, String commentContent) {
         super(createTime, updateTime);
-        this.commentId = commentId;
-        this.articleId = articleId;
+        this.id = id;
         this.replyUserId = replyUserId;
         this.userId = userId;
         this.topicId = topicId;
-        this.parentCommentId = parentCommentId;
+        this.parentId = parentId;
         this.type = type;
         this.isDelete = isDelete;
         this.isReview = isReview;
-        this.content = content;
+        this.commentContent = commentContent;
     }
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "评论Id")
-    @TableId(value = "comment_id", type = IdType.AUTO)
-    private Long commentId;
-
-    @Schema(description = "文章Id")
-    @TableField("article_id")
-    private Long articleId;
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
 
     @Schema(description = "回复用户id")
     @TableField("reply_user_id")
@@ -67,8 +61,8 @@ public class Comment extends BaseModel implements Serializable {
     private Long topicId;
 
     @Schema(description = "父评论id")
-    @TableField("parent_comment_id")
-    private Long parentCommentId;
+    @TableField("parent_id")
+    private Long parentId;
 
     @Schema(description = "评论类型 1.文章 2.留言 3.关于我 4.友链 5.说说")
     @TableField("type")
@@ -83,6 +77,6 @@ public class Comment extends BaseModel implements Serializable {
     private Byte isReview;
 
     @Schema(description = "评论内容")
-    @TableField("content")
-    private String content;
+    @TableField("comment_content")
+    private String commentContent;
 }

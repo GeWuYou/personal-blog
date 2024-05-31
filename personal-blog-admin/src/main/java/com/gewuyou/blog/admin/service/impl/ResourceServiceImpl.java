@@ -54,7 +54,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     public List<ResourceDTO> listResourceDTOs(ConditionVO conditionVO) {
         // 获取所有资源列表
         List<Resource> resources = baseMapper.selectList(new LambdaQueryWrapper<Resource>()
-                .like(StringUtils.isNotBlank(conditionVO.getKeywords()), Resource::getName,
+                .like(StringUtils.isNotBlank(conditionVO.getKeywords()), Resource::getResourceName,
                         conditionVO.getKeywords()));
         // 筛选出顶级资源列表
         List<Resource> parents = listTopResource(resources);
@@ -120,7 +120,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     @Override
     public List<LabelOptionDTO> listResourceOptionDTO() {
         List<Resource> resources = baseMapper.selectList(new LambdaQueryWrapper<Resource>()
-                .select(Resource::getId, Resource::getName, Resource::getParentId)
+                .select(Resource::getId, Resource::getResourceName, Resource::getParentId)
                 .eq(Resource::getIsAnonymous, FALSE));
         List<Resource> parents = listTopResource(resources);
         Map<Integer, List<Resource>> childrenMap = listResourceChildren(resources);
@@ -131,13 +131,13 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
                 list = children.stream()
                         .map(resource -> LabelOptionDTO.builder()
                                 .id(resource.getId())
-                                .label(resource.getName())
+                                .label(resource.getResourceName())
                                 .build())
                         .collect(Collectors.toList());
             }
             return LabelOptionDTO.builder()
                     .id(item.getId())
-                    .label(item.getName())
+                    .label(item.getResourceName())
                     .children(list)
                     .build();
         }).toList();

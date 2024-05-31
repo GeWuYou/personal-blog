@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.gewuyou.blog.common.constant.RabbitMQConstant.SUBSCRIBE_EXCHANGE;
 import static com.gewuyou.blog.common.enums.ArticleStatusEnum.PUBLIC;
@@ -71,10 +70,10 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
     public void updateArticleDelete(DeleteVO deleteVO) {
         List<Article> articles = deleteVO.getIds().stream()
                 .map(id -> Article.builder()
-                        .articleId(id)
+                        .id(id)
                         .isDelete(deleteVO.getIsDelete())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
         updateBatchById(articles);
     }
 
@@ -94,7 +93,7 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
         // 保存
         this.saveOrUpdate(article);
         // 保存文章标签
-        articleTagService.saveByArticleVOAndId(articleVO, article.getArticleId());
+        articleTagService.saveByArticleVOAndId(articleVO, article.getId());
         // 判断文章是否公开
         if (article.getStatus().equals(PUBLIC.getStatus())) {
             try {
@@ -102,7 +101,7 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
                 rabbitTemplate.convertAndSend(SUBSCRIBE_EXCHANGE, "*",
                         new Message(
                                 objectMapper.writeValueAsBytes(
-                                        article.getArticleId()), new MessageProperties()));
+                                        article.getId()), new MessageProperties()));
             } catch (JsonProcessingException e) {
                 throw new GlobalException(ResponseInformation.JSON_SERIALIZE_ERROR);
             }

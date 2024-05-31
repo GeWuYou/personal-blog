@@ -4,10 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -32,15 +28,14 @@ import java.time.LocalDateTime;
 public class Article extends BaseModel implements Serializable {
 
     @Builder
-    public Article(LocalDateTime createTime, LocalDateTime updateTime, Long articleId, Long userId, String cover, String abstractContent, String title, String content, Integer views, Byte status, Byte type, String password, String originalUrl, Byte isTop, Byte isFeatured, Byte isDelete, LocalDateTime publishTime) {
+    public Article(LocalDateTime createTime, LocalDateTime updateTime, Long id, Long userId, String articleCover, String articleAbstract, String articleTitle, String articleContent, Byte status, Byte type, String password, String originalUrl, Byte isTop, Byte isFeatured, Byte isDelete) {
         super(createTime, updateTime);
-        this.articleId = articleId;
+        this.id = id;
         this.userId = userId;
-        this.cover = cover;
-        this.abstractContent = abstractContent;
-        this.title = title;
-        this.content = content;
-        this.views = views;
+        this.articleCover = articleCover;
+        this.articleAbstract = articleAbstract;
+        this.articleTitle = articleTitle;
+        this.articleContent = articleContent;
         this.status = status;
         this.type = type;
         this.password = password;
@@ -48,15 +43,14 @@ public class Article extends BaseModel implements Serializable {
         this.isTop = isTop;
         this.isFeatured = isFeatured;
         this.isDelete = isDelete;
-        this.publishTime = publishTime;
     }
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "文章id")
-    @TableId(value = "article_id", type = IdType.AUTO)
-    private Long articleId;
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
 
     @Schema(description = "用户Id")
     @TableField("user_id")
@@ -67,24 +61,20 @@ public class Article extends BaseModel implements Serializable {
     private Long categoryId;
 
     @Schema(description = "文章缩略图")
-    @TableField("cover")
-    private String cover;
+    @TableField("article_cover")
+    private String articleCover;
 
     @Schema(description = "文章摘要，如果该字段为空，默认取文章前500个字符作为摘要")
-    @TableField("abstract_content")
-    private String abstractContent;
+    @TableField("article_abstract")
+    private String articleAbstract;
 
     @Schema(description = "文章标题")
-    @TableField("title")
-    private String title;
+    @TableField("article_title")
+    private String articleTitle;
 
     @Schema(description = "文章内容")
-    @TableField("content")
-    private String content;
-
-    @Schema(description = "浏览次数")
-    @TableField("views")
-    private Integer views;
+    @TableField("article_content")
+    private String articleContent;
 
     @Schema(description = "文章状态 1公开 2 私密 3草稿")
     @TableField("status")
@@ -113,11 +103,4 @@ public class Article extends BaseModel implements Serializable {
     @Schema(description = "是否删除 0 否 1 是")
     @TableField("is_delete")
     private Byte isDelete;
-
-
-    @Schema(description = "发布时间")
-    @TableField("publish_time")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime publishTime;
 }

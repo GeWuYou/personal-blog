@@ -105,13 +105,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return baseMapper
                 .selectList(
                         new LambdaQueryWrapper<Article>()
-                                .select(Article::getArticleId, Article::getTitle)
-                                .in(Article::getArticleId, articleIds))
+                                .select(Article::getId, Article::getArticleTitle)
+                                .in(Article::getId, articleIds))
                 .stream()
                 .map(
                         article -> ArticleRankDTO.builder()
-                                .articleTitle(article.getTitle())
-                                .viewsCount(articleMap.get(article.getArticleId()).longValue())
+                                .articleTitle(article.getArticleTitle())
+                                .viewsCount(articleMap.get(article.getId()).longValue())
                                 .build())
                 .sorted(Comparator.comparing(ArticleRankDTO::getViewsCount).reversed())
                 .toList();
@@ -199,7 +199,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public ArticleDTO getArticleDTOById(Long articleId) {
         Article article = baseMapper.selectOne(
                 new LambdaQueryWrapper<Article>()
-                        .eq(Article::getArticleId, articleId)
+                        .eq(Article::getId, articleId)
         );
         if (Objects.isNull(article)) {
             return null;
@@ -257,14 +257,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public void verifyArticleAccessPassword(ArticleAccessPasswordVO articleAccessPasswordVO) {
         Article article = baseMapper.selectOne(
                 new LambdaQueryWrapper<Article>()
-                        .eq(Article::getArticleId, articleAccessPasswordVO.getArticleId())
+                        .eq(Article::getId, articleAccessPasswordVO.getArticleId())
         );
         if (Objects.isNull(article)) {
             throw new GlobalException(ResponseInformation.ARTICLE_NOT_EXIST);
         }
         if (article.getPassword().equals(articleAccessPasswordVO.getArticlePassword())) {
             // 验证通过将文章id加入到redis中作为已访问文章
-            redisService.sAdd(ARTICLE_ACCESS + UserUtil.getUserDetailsDTO().getUserAuthId(), article.getArticleId());
+            redisService.sAdd(ARTICLE_ACCESS + UserUtil.getUserDetailsDTO().getUserAuthId(), article.getId());
         } else {
             throw new GlobalException(ResponseInformation.ARTICLE_ACCESS_PASSWORD_ERROR);
         }
@@ -394,7 +394,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public void updateArticleTopAndFeatured(ArticleTopFeaturedVO articleTopFeaturedVO) {
         Article article = Article.builder()
-                .articleId(articleTopFeaturedVO.getId())
+                .id(articleTopFeaturedVO.getId())
                 .isTop(articleTopFeaturedVO.getIsTop())
                 .isFeatured(articleTopFeaturedVO.getIsFeatured())
                 .build();
@@ -430,15 +430,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         // 查询文章列表
         List<Article> articles = baseMapper.selectList(
                 new LambdaQueryWrapper<Article>()
-                        .select(Article::getTitle, Article::getContent)
-                        .in(Article::getArticleId, articleIds)
+                        .select(Article::getArticleTitle, Article::getArticleContent)
+                        .in(Article::getId, articleIds)
         );
         List<String> urls = new ArrayList<>();
         // 调用上传策略上传到指定路径
         articles.forEach(article -> {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(article.getContent().getBytes(StandardCharsets.UTF_8));
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(article.getArticleContent().getBytes(StandardCharsets.UTF_8));
             String url = uploadStrategyContext.executeUploadStrategy(
-                    article.getTitle() + FileTypeEnum.MD.getTypeName(), inputStream, FilePathEnum.MD.getPath());
+                    article.getArticleTitle() + FileTypeEnum.MD.getTypeName(), inputStream, FilePathEnum.MD.getPath());
             urls.add(url);
         });
         // 返回上传的文件名集合

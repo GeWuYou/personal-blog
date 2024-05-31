@@ -25,20 +25,17 @@ import java.io.Serializable;
 @NoArgsConstructor
 @TableName("tb_category")
 @Schema(name = "Category对象", description = "分类表")
-public class Category implements Serializable {
+public class Category extends BaseModel implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "分类Id")
-    @TableId(value = "category_id", type = IdType.AUTO)
-    private Long categoryId;
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
 
     @Schema(description = "分类名")
     @TableField("category_name")
     private String categoryName;
 
-    @Schema(description = "分类描述")
-    @TableField("description")
-    private String description;
 }

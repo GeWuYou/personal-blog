@@ -31,7 +31,7 @@ public class Resource extends BaseModel implements Serializable {
     public Resource(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String name, String url, String requestMethod, Integer parentId, Byte isAnonymous) {
         super(createTime, updateTime);
         this.id = id;
-        this.name = name;
+        this.resourceName = name;
         this.url = url;
         this.requestMethod = requestMethod;
         this.parentId = parentId;
@@ -46,8 +46,8 @@ public class Resource extends BaseModel implements Serializable {
     private Integer id;
 
     @Schema(description = "资源名称")
-    @TableField("name")
-    private String name;
+    @TableField("resource_name")
+    private String resourceName;
 
     @Schema(description = "权限路径")
     @TableField("url")

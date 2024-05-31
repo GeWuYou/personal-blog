@@ -8,8 +8,8 @@
         ui.avatar AS avatar,
         ui.website AS website,
         c.user_id AS userId,
-        c.comment_id AS id,
-        c.content AS commentContent,
+        c.id AS id,
+        c.comment_content AS commentContent,
         c.create_time AS createTime,
         FROM tb_comment c
         JOIN tb_user_info ui ON c.user_id = ui.id
@@ -21,7 +21,7 @@
             AND c.is_review = 1
             AND parent_id IS NULL
         </where>
-        ORDER BY c.comment_id DESC
+        ORDER BY c.id DESC
     </select>
     <select id="listReplyDTOs" resultType="com.gewuyou.blog.common.dto.ReplyDTO">
         SELECT
@@ -36,8 +36,8 @@
         r.nick_name AS replyNickname,
         r.website AS replyWebsite,
         c.id AS id,
-        c.parent_comment_id AS parentId,
-        c.content AS commentContent,
+        c.parent_id AS parentId,
+        c.comment_content AS commentContent,
         c.create_time AS createTime
         FROM tb_comment c
         JOIN tb_user_info ui ON c.user_id = ui.id
@@ -45,7 +45,7 @@
         WHERE
         c.is_review = 1
         AND
-        parent_comment_id IN(
+        parent_id IN(
         <foreach collection="commentIds" item="commentId" separator=",">
             #{commentId}
         </foreach>
@@ -58,13 +58,13 @@
                ui.avatar     AS avatar,
                ui.website    AS website,
                c.user_id     AS userId,
-               c.comment_id  AS id,
-               c.content     AS commentContent,
+               c.id              AS id,
+               c.comment_content AS commentContent,
                c.create_time AS createTime
         FROM tb_comment c
                  JOIN tb_user_info ui ON c.user_id = ui.id
         WHERE c.is_review = 1
-        ORDER BY c.comment_id DESC
+        ORDER BY c.id DESC
         LIMIT 0,6
     </select>
     <select id="countComments" resultType="java.lang.Long">
@@ -91,7 +91,7 @@
         ui.nick_name AS nickname,
         r.nick_name AS replyNickname,
         a.title AS articleTitle,
-        c.content AS commentContent,
+        c.comment_content AS commentContent,
         c.type AS type,
         c.is_review AS isReview,
         c.create_time AS createTime,

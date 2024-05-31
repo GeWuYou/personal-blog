@@ -64,7 +64,7 @@ public class SubscribeConsumer {
             Long articleId = objectMapper.readValue(message, Long.class);
             Article article = articleService.getOne(
                     new LambdaQueryWrapper<Article>()
-                            .eq(Article::getArticleId, articleId)
+                            .eq(Article::getId, articleId)
             );
             List<UserInfo> userInfos = userInfoService.list(
                     new LambdaQueryWrapper<UserInfo>()
@@ -91,12 +91,12 @@ public class SubscribeConsumer {
         emailDTO.setEmail(email);
         emailDTO.setSubject("文章订阅");
         emailDTO.setTemplate("content.html");
-        String url = websiteUrl + "/article/" + article.getArticleId();
+        String url = websiteUrl + "/article/" + article.getId();
         if (article.getUpdateTime() == null) {
             map.put("content", "gewuyou的个人博客发布了新的文章，"
                     + "<a style=\"text-decoration:none;color:#12addb\" href=\"" + url + "\">点击查看</a>");
         } else {
-            map.put("content", "gewuyou的个人博客对《" + article.getTitle() + "》进行了更新，"
+            map.put("content", "gewuyou的个人博客对《" + article.getArticleTitle() + "》进行了更新，"
                     + "<a style=\"text-decoration:none;color:#12addb\" href=\"" + url + "\">点击查看</a>");
         }
         emailDTO.setContentMap(map);

@@ -10,7 +10,6 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -34,8 +33,8 @@ public class Role extends BaseModel implements Serializable {
     private Integer id;
 
     @Schema(description = "角色名称")
-    @TableField("name")
-    private String name;
+    @TableField("role_name")
+    private String roleName;
 
     @Schema(description = "是否禁用 0否 ：1是")
     @TableField("is_disable")

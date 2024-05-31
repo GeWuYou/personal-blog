@@ -123,7 +123,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                                         StringUtils.isNoneBlank(conditionVO.getKeywords()),
                                         Category::getCategoryName,
                                         conditionVO.getKeywords()
-                                ).orderByAsc(Category::getCategoryId)
+                                ).orderByAsc(Category::getId)
                 );
         return BeanCopyUtil.copyList(categories, CategoryOptionDTO.class);
     }
@@ -154,10 +154,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     public void saveOrUpdateCategory(CategoryVO categoryVO) {
         Category existCategory = baseMapper.selectOne(
                 new LambdaQueryWrapper<Category>()
-                        .select(Category::getCategoryId)
+                        .select(Category::getId)
                         .eq(Category::getCategoryName, categoryVO.getCategoryName())
         );
-        if (Objects.nonNull(existCategory) && !existCategory.getCategoryId().equals(categoryVO.getId())) {
+        if (Objects.nonNull(existCategory) && !existCategory.getId().equals(categoryVO.getId())) {
             throw new GlobalException(ResponseInformation.CATEGORY_NAME_ALREADY_EXISTS);
         }
         Category category = Category

@@ -3,31 +3,31 @@
 <mapper namespace="com.gewuyou.blog.server.mapper.CategoryMapper">
 
     <select id="listCategoryDTOs" resultType="com.gewuyou.blog.common.dto.CategoryDTO">
-        SELECT c.category_id       AS id,
+        SELECT c.id        AS id,
                c.category_name     AS categoryName,
-               COUNT(a.article_id) AS articleCount
+               COUNT(a.id) AS articleCount
         FROM tb_category c
                  LEFT JOIN (SELECT *
                             FROM tb_article a
                             WHERE is_delete = 0
-                              AND status in (1, 2)) a ON c.category_id = a.category_id
-        GROUP BY c.category_id
+                              AND status in (1, 2)) a ON c.id = a.id
+        GROUP BY c.id
     </select>
     <select id="listCategoryAdminDTOs" resultType="com.gewuyou.blog.common.dto.CategoryAdminDTO">
         SELECT
-        c.category_id AS id,
-        COUNT(a.article_id) AS articleCount,
+        c.id AS id,
+        COUNT(a.id) AS articleCount,
         c.category_name AS categoryName,
         c.create_time AS createTime,
         FROM
         tb_category c
-        LEFT JOIN tb_article a ON c.category_id = a.category_id
+        LEFT JOIN tb_article a ON c.id = a.id
         <where>
             <if test="conditionVO.keywords!=null">
                 category_name LIKE CONCAT('%', #{conditionVO.keywords}, '%')
             </if>
         </where>
         ORDER BY
-        c.category_id
+        c.id
     </select>
 </mapper>
