@@ -32,6 +32,7 @@ public enum ResponseInformation {
     ARTICLE_ACCESS_PASSWORD_ERROR(400, "文章访问密码错误"),
     NON_EMPTY_CATEGORICAL_DELETION_REQUEST(400, "该分类下存在文章，不能删除"),
     NON_EMPTY_TAG_DELETION_REQUEST(400, "该标签下存在文章，不能删除"),
+    NON_EMPTY_ROLE_DELETION_REQUEST(400, "该资源下存在角色关联，不能删除"),
     CATEGORY_NAME_ALREADY_EXISTS(400, "分类名称已存在"),
     TAG_NAME_ALREADY_EXISTS(400, "标签名称已存在"),
     ALBUM_NAME_EXIST(400, "相册名称已存在"),

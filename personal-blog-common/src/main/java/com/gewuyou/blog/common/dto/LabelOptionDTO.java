@@ -18,9 +18,18 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LabelOptionDTO {
+    /**
+     * 标签选项 ID
+     */
     private Integer id;
 
+    /**
+     * 标签选项名称
+     */
     private String label;
 
+    /**
+     * 标签选项子选项
+     */
     private List<LabelOptionDTO> children;
 }
