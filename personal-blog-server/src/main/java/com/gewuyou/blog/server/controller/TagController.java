@@ -17,6 +17,7 @@ import java.util.List;
  * @author gewuyou
  * @since 2024-04-23
  */
+@io.swagger.v3.oas.annotations.tags.Tag(name = "<p> 标签表 前端控制器 </p>", description = "<p> 标签表 前端控制器 </p>")
 @RestController
 @RequestMapping(InterfacePermissionConstant.SERVER_BASE_URL + "/tag")
 public class TagController {

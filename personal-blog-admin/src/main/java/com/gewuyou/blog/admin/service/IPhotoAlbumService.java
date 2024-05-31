@@ -1,8 +1,10 @@
 package com.gewuyou.blog.admin.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.PhotoAlbumAdminDTO;
 import com.gewuyou.blog.common.dto.PhotoAlbumDTO;
+import com.gewuyou.blog.common.model.PhotoAlbum;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.PhotoAlbumVO;
 
@@ -14,7 +16,7 @@ import java.util.List;
  * @author gewuyou
  * @since 2024-05-30 下午10:43:40
  */
-public interface IPhotoAlbumService {
+public interface IPhotoAlbumService extends IService<PhotoAlbum> {
     /**
      * 保存或更新相册
      *

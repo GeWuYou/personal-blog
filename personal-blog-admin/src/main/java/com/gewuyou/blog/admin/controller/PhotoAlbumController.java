@@ -12,6 +12,10 @@ import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.strategy.context.UploadStrategyContext;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.PhotoAlbumVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +29,7 @@ import java.util.List;
  * @author gewuyou
  * @since 2024-05-30 下午10:41:14
  */
+@Tag(name = "相册前端控制器", description = "相册前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/photo/album")
 public class PhotoAlbumController {
@@ -44,6 +49,8 @@ public class PhotoAlbumController {
      * @param file 相册封面文件
      * @return 上传结果
      */
+    @Parameter(name = "file", description = "相册封面文件", in = ParameterIn.QUERY, required = true)
+    @Operation(summary = "上传相册封面", description = "上传相册封面")
     @OperationLogging(type = OperationType.UPLOAD)
     @PostMapping("/upload")
     public Result<String> savePhotoAlbumCover(MultipartFile file) {
@@ -56,6 +63,7 @@ public class PhotoAlbumController {
      * @param photoAlbumVO 相册VO
      * @return 保存或更新结果
      */
+    @Operation(summary = "保存或更新相册", description = "保存或更新相册")
     @OperationLogging(type = OperationType.SAVE_OR_UPDATE)
     @PostMapping
     public Result<?> saveOrUpdatePhotoAlbum(@Valid @RequestBody PhotoAlbumVO photoAlbumVO) {
@@ -69,6 +77,7 @@ public class PhotoAlbumController {
      * @param conditionVO 条件VO
      * @return 相册列表
      */
+    @Operation(summary = "查看后台相册列表", description = "查看后台相册列表")
     @GetMapping
     public Result<PageResultDTO<PhotoAlbumAdminDTO>> listPhotoAlbumBacks(ConditionVO conditionVO) {
         return Result.success(photoAlbumService.listPhotoAlbumsAdminDTOs(conditionVO));
@@ -79,6 +88,7 @@ public class PhotoAlbumController {
      *
      * @return 相册列表信息
      */
+    @Operation(summary = "获取后台相册列表信息", description = "获取后台相册列表信息")
     @GetMapping("/info")
     public Result<List<PhotoAlbumDTO>> listPhotoAlbumBackInfos() {
         return Result.success(photoAlbumService.listPhotoAlbumAdminDTOs());
@@ -90,6 +100,8 @@ public class PhotoAlbumController {
      * @param albumId 相册id
      * @return 相册信息
      */
+    @Parameter(name = "albumId", description = "相册id", in = ParameterIn.PATH, required = true)
+    @Operation(summary = "根据id获取后台相册信息", description = "根据id获取后台相册信息")
     @GetMapping("/info/{albumId}")
     public Result<PhotoAlbumAdminDTO> getPhotoAlbumBackById(@PathVariable("albumId") Integer albumId) {
         return Result.success(photoAlbumService.getPhotoAlbumByIdAdminDTO(albumId));
@@ -101,6 +113,8 @@ public class PhotoAlbumController {
      * @param albumId 相册id
      * @return 删除结果
      */
+    @Parameter(name = "albumId", description = "相册id", in = ParameterIn.PATH, required = true)
+    @Operation(summary = "根据id删除相册", description = "根据id删除相册")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping("/{albumId}")
     public Result<?> deletePhotoAlbumById(@PathVariable("albumId") Integer albumId) {

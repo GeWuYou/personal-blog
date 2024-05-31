@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 @Schema(name = "Photo对象", description = "照片")
 public class Photo extends BaseModel implements Serializable {
     @Builder
-    public Photo(LocalDateTime createTime, LocalDateTime updateTime, Integer id, Integer albumId, String photoName, String photoDesc, String photoSrc, Boolean isDelete) {
+    public Photo(LocalDateTime createTime, LocalDateTime updateTime, Integer id, Integer albumId, String photoName, String photoDesc, String photoSrc, Byte isDelete) {
         super(createTime, updateTime);
         this.id = id;
         this.albumId = albumId;
@@ -63,5 +63,5 @@ public class Photo extends BaseModel implements Serializable {
 
     @Schema(description = "是否删除")
     @TableField("is_delete")
-    private Boolean isDelete;
+    private Byte isDelete;
 }
