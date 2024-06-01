@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.admin.config.entity.SecurityIgnoreUrl;
 import com.gewuyou.blog.admin.filter.ExceptionHandlerFilter;
 import com.gewuyou.blog.admin.filter.JwtAuthorizationFilter;
+import com.gewuyou.blog.admin.manager.CustomAuthorizationManager;
 import com.gewuyou.blog.common.constant.CommonConstant;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.entity.Result;
@@ -48,18 +49,22 @@ public class SecurityConfig {
 
     private final SecurityIgnoreUrl securityIgnoreUrl;
 
+    private final CustomAuthorizationManager customAuthorizationManager;
+
 
     @Autowired
     public SecurityConfig(
             ObjectMapper json,
             JwtAuthorizationFilter jwtAuthorizationFilter,
             ExceptionHandlerFilter exceptionHandlerFilter,
-            SecurityIgnoreUrl securityIgnoreUrl
+            SecurityIgnoreUrl securityIgnoreUrl,
+            CustomAuthorizationManager customAuthorizationManager
     ) {
         this.json = json;
         this.jwtAuthorizationFilter = jwtAuthorizationFilter;
         this.exceptionHandlerFilter = exceptionHandlerFilter;
         this.securityIgnoreUrl = securityIgnoreUrl;
+        this.customAuthorizationManager = customAuthorizationManager;
     }
 
     @Bean
@@ -85,7 +90,10 @@ public class SecurityConfig {
                                 // 放行登录接口
                                 .requestMatchers(securityIgnoreUrl.getUrls()).permitAll()
                                 .anyRequest()
-                                .authenticated()
+                                // .authenticated()
+                                .access(customAuthorizationManager)
+
+
                 )
                 .logout(
                         logout -> logout

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +22,7 @@ import java.io.Serializable;
  */
 @Getter
 @Setter
+@Builder
 @TableName("tb_role")
 @Schema(name = "Role对象", description = "角色表")
 public class Role extends BaseModel implements Serializable {

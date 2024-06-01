@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -47,8 +46,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
      */
     private final UserDetailsService userDetailsService;
 
-    private final AuthenticationManager authenticationManager;
-
     private final JwtService jwtService;
 
     @Autowired
@@ -61,7 +58,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         super(authenticationManager);
         this.userDetailsService = userDetailsService;
         this.securityIgnoreUrl = securityIgnoreUrl;
-        this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
     }
 

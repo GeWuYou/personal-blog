@@ -1,11 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.admin.mapper.RoleMapper">
+    <resultMap id="roleMap" type="com.gewuyou.blog.common.dto.RoleDTO">
+        <id property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="isDisable" column="is_disabled"/>
+        <collection property="resourceIds" ofType="java.lang.Integer">
+            <constructor>
+                <arg column="resource_id"/>
+            </constructor>
+        </collection>
+        <collection property="menuIds" ofType="java.lang.Integer">
+            <constructor>
+                <arg column="menu_id"/>
+            </constructor>
+        </collection>
+    </resultMap>
+    <resultMap id="resourceRoleResultMap" type="com.gewuyou.blog.common.dto.ResourceRoleDTO">
+        <id property="id" column="id"/>
+        <result property="url" column="url"/>
+        <result property="requestMethod" column="request_method"/>
+        <collection property="roleList" ofType="java.lang.String">
+            <constructor>
+                <arg column="role_name"/>
+            </constructor>
+        </collection>
+    </resultMap>
     <select id="listRolesByUserInfoId" resultType="java.lang.String">
         select role.role_name
         from tb_role role
                  left join tb_user_role ur on role.id = ur.role_id
         where role.id = ur.role_id
           and ur.user_id = #{userInfoId}
+    </select>
+    <select id="listRoleDTOs" resultMap="roleMap">
+        SELECT
+        r.id AS id,
+        role_name,
+        r.create_time AS create_time,
+        r.is_disable AS is_disable,
+        rr.resource_id AS resource_id,
+        rm.menu_id AS menu_id
+        FROM(
+        SELECT
+        id,
+        role_name,
+        create_time,
+        is_disable
+        FROM
+        tb_role
+        <where>
+            <if test="conditionVO.keywords!=null">
+                role_name LIKE CONCAT('%', #{conditionVO.keywords}, '%')
+            </if>
+        </where>
+        ) r
+
+        LEFT JOIN tb_role_resource rr ON r.id = rr.role_id
+        LEFT JOIN tb_role_menu rm ON r.id = rm.role_id
+        ORDER BY r.id
+    </select>
+    <select id="getResourceRoleDTOs" resultType="com.gewuyou.blog.common.dto.ResourceRoleDTO">
+        SELECT re.id AS id,
+               url,
+               request_method,
+               role_name
+        FROM tb_resource re
+                 LEFT JOIN tb_role_resource rr ON re.id = rr.resource_id
+                 LEFT JOIN tb_role ro ON rr.role_id = ro.id
+        WHERE re.parent_id IS NOT NULL
+          AND is_anonymous = 0
     </select>
 </mapper>
