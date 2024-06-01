@@ -10,7 +10,6 @@ import com.gewuyou.blog.common.dto.UserInfoDTO;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.enums.ResponseInformation;
-import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.vo.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -102,14 +101,10 @@ public class UserAuthController {
     @Operation(summary = "发送邮件注册接口", description = "发送邮件注册接口")
     @PostMapping("/register/email")
     public Result<String> sendRegisterEmail(@Validated @RequestBody RegisterEmailVO registerEmailVO) {
-        try {
-            if (userAuthService.sendEmail(registerEmailVO.getEmail(), httpSession.getId(), false)) {
-                return Result.success(ResponseInformation.VERIFICATION_CODE_HAS_BEEN_SENT);
-            } else {
-                return Result.failure(ResponseInformation.SEND_REGISTER_EMAIL_FAILED);
-            }
-        } catch (GlobalException e) {
-            return Result.failure(e.getResponseInformation());
+        if (userAuthService.sendEmail(registerEmailVO.getEmail(), httpSession.getId(), false)) {
+            return Result.success(ResponseInformation.VERIFICATION_CODE_HAS_BEEN_SENT);
+        } else {
+            return Result.failure(ResponseInformation.SEND_REGISTER_EMAIL_FAILED);
         }
     }
 
@@ -122,14 +117,10 @@ public class UserAuthController {
     @Operation(summary = "发送重置密码邮件接口", description = "发送重置密码邮件接口")
     @PostMapping("/reset-password/email")
     public Result<String> sendResetPasswordEmail(@Validated @RequestBody RegisterEmailVO registerEmailVO) {
-        try {
-            if (userAuthService.sendEmail(registerEmailVO.getEmail(), httpSession.getId(), true)) {
-                return Result.success(ResponseInformation.VERIFICATION_CODE_HAS_BEEN_SENT);
-            } else {
-                return Result.failure(ResponseInformation.SEND_REGISTER_EMAIL_FAILED);
-            }
-        } catch (GlobalException e) {
-            return Result.failure(e.getResponseInformation());
+        if (userAuthService.sendEmail(registerEmailVO.getEmail(), httpSession.getId(), true)) {
+            return Result.success(ResponseInformation.VERIFICATION_CODE_HAS_BEEN_SENT);
+        } else {
+            return Result.failure(ResponseInformation.SEND_REGISTER_EMAIL_FAILED);
         }
     }
 
@@ -143,14 +134,10 @@ public class UserAuthController {
     @Operation(summary = "注册接口", description = "注册接口")
     @PostMapping("/register")
     public Result<String> register(@Validated @RequestBody RegisterVO registerVO) {
-        try {
-            if (userAuthService.verifyEmailAndRegister(registerVO, httpSession.getId())) {
-                return Result.success(ResponseInformation.REGISTER_SUCCESS);
-            } else {
-                return Result.failure(ResponseInformation.VERIFICATION_CODE_ERROR);
-            }
-        } catch (GlobalException e) {
-            return Result.failure(e.getResponseInformation());
+        if (userAuthService.verifyEmailAndRegister(registerVO, httpSession.getId())) {
+            return Result.success(ResponseInformation.REGISTER_SUCCESS);
+        } else {
+            return Result.failure(ResponseInformation.VERIFICATION_CODE_ERROR);
         }
     }
 
@@ -163,16 +150,12 @@ public class UserAuthController {
     @Operation(summary = "重置密码接口", description = "重置密码接口")
     @PostMapping("/reset-password/verify-code")
     public Result<String> startResetPassword(@Validated @RequestBody StartResetPasswordVO startResetPasswordVO) {
-        try {
-            if (userAuthService.verifyCode(startResetPasswordVO.getEmail(), startResetPasswordVO.getVerifyCode(), httpSession.getId(), true)) {
-                // 校验通过，向会话中写入标记
-                httpSession.setAttribute(SESSION_TAGS, startResetPasswordVO.getEmail());
-                return Result.success(ResponseInformation.REGISTER_SUCCESS);
-            } else {
-                return Result.failure(ResponseInformation.VERIFICATION_CODE_ERROR);
-            }
-        } catch (GlobalException e) {
-            return Result.failure(e.getResponseInformation());
+        if (userAuthService.verifyCode(startResetPasswordVO.getEmail(), startResetPasswordVO.getVerifyCode(), httpSession.getId(), true)) {
+            // 校验通过，向会话中写入标记
+            httpSession.setAttribute(SESSION_TAGS, startResetPasswordVO.getEmail());
+            return Result.success(ResponseInformation.REGISTER_SUCCESS);
+        } else {
+            return Result.failure(ResponseInformation.VERIFICATION_CODE_ERROR);
         }
     }
 
@@ -191,16 +174,12 @@ public class UserAuthController {
         if (email == null) {
             return Result.failure(ResponseInformation.PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST);
         }
-        try {
-            if (userAuthService.resetPassword(email, doResetPasswordVO.getPassword())) {
-                // 重置密码成功，清除会话中的标记
-                httpSession.removeAttribute(SESSION_TAGS);
-                return Result.success(ResponseInformation.RESET_PASSWORD_SUCCESS);
-            } else {
-                return Result.failure(ResponseInformation.SERVER_ERROR);
-            }
-        } catch (GlobalException e) {
-            return Result.failure(e.getResponseInformation());
+        if (userAuthService.resetPassword(email, doResetPasswordVO.getPassword())) {
+            // 重置密码成功，清除会话中的标记
+            httpSession.removeAttribute(SESSION_TAGS);
+            return Result.success(ResponseInformation.RESET_PASSWORD_SUCCESS);
+        } else {
+            return Result.failure(ResponseInformation.SERVER_ERROR);
         }
     }
 
