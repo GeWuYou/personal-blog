@@ -40,7 +40,7 @@ public class ResourceController {
      * @param conditionVO 条件
      * @return 资源列表
      */
-    @GetMapping
+    @GetMapping("/list")
     public Result<List<ResourceDTO>> listResources(ConditionVO conditionVO) {
         return Result.success(resourceService.listResourceDTOs(conditionVO));
     }

@@ -13,6 +13,7 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
     @Autowired
     public FilterInvocationSecurityMetadataSourceImpl(RoleMapper roleMapper) {
         this.roleMapper = roleMapper;
-        resourceRoleDTOs = List.of();
+        resourceRoleDTOs = new ArrayList<>();
     }
 
     @PostConstruct
