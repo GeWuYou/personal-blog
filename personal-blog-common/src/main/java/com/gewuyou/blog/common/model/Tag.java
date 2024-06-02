@@ -27,9 +27,9 @@ import java.time.LocalDateTime;
 @Schema(name = "Tag对象", description = "标签表")
 public class Tag extends BaseModel implements Serializable {
     @Builder
-    public Tag(LocalDateTime createTime, LocalDateTime updateTime, Long tagId, String tagName) {
+    public Tag(LocalDateTime createTime, LocalDateTime updateTime, Long id, String tagName) {
         super(createTime, updateTime);
-        this.tagId = tagId;
+        this.id = id;
         this.tagName = tagName;
     }
 
@@ -37,8 +37,8 @@ public class Tag extends BaseModel implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "标签Id")
-    @TableId(value = "tag_id", type = IdType.AUTO)
-    private Long tagId;
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
 
     @Schema(description = "标签名")
     @TableField("tag_name")

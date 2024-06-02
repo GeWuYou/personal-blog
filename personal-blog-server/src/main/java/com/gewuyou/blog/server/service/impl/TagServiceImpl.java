@@ -2,10 +2,10 @@ package com.gewuyou.blog.server.service.impl;
 
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gewuyou.blog.common.dto.TagDTO;
 import com.gewuyou.blog.common.model.Tag;
 import com.gewuyou.blog.server.mapper.TagMapper;
 import com.gewuyou.blog.server.service.ITagService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,5 +39,25 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
     @Override
     public List<Tag> listTags() {
         return baseMapper.selectList(null);
+    }
+
+    /**
+     * 查询前十个标签
+     *
+     * @return 前十个标签
+     */
+    @Override
+    public List<TagDTO> listTenTagDTOs() {
+        return baseMapper.listTenTagDTOs();
+    }
+
+    /**
+     * 查询所有标签DTO
+     *
+     * @return 标签DTO列表
+     */
+    @Override
+    public List<TagDTO> listTagDTOs() {
+        return baseMapper.listTagDTOs();
     }
 }

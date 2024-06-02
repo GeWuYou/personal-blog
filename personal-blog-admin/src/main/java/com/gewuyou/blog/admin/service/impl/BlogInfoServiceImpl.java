@@ -136,7 +136,7 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
         List<UniqueViewDTO> uniqueViews = uniqueViewService.listUniqueViews();
         List<ArticleStatisticsDTO> articleStatisticsDTOs = serverClient.listArticleStatistics();
         List<CategoryDTO> categoryDTOs = serverClient.listCategories();
-        List<TagDTO> tagDTOs = BeanCopyUtil.copyList(serverClient.listTags(), TagDTO.class);
+        List<TagDTO> tagDTOs = BeanCopyUtil.copyList(serverClient.listTags().getData(), TagDTO.class);
         Map<Object, Double> articleMap = redisService.zReverseRangeWithScore(ARTICLE_VIEWS_COUNT, 0, 4);
         BlogAdminInfoDTO auroraAdminInfoDTO = BlogAdminInfoDTO.builder()
                 .articleStatisticsDTOs(articleStatisticsDTOs)

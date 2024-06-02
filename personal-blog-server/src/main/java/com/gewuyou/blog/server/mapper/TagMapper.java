@@ -2,9 +2,9 @@ package com.gewuyou.blog.server.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.gewuyou.blog.common.dto.TagDTO;
 import com.gewuyou.blog.common.model.Tag;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -18,12 +18,16 @@ import java.util.List;
  */
 @Mapper
 public interface TagMapper extends BaseMapper<Tag> {
+    /**
+     * 查询前十个标签
+     *
+     * @return 前十个标签
+     */
+    List<TagDTO> listTenTagDTOs();
 
     /**
-     * 根据文章ID查询标签名称列表
-     *
-     * @param articleId 文章ID
-     * @return 标签名称列表
+     * 查询所有标签
+     * @return 所有标签
      */
-    List<String> listTagNamesByArticleId(@Param("articleId") Long articleId);
+    List<TagDTO> listTagDTOs();
 }

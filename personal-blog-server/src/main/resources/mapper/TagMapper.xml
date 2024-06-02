@@ -2,10 +2,33 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.server.mapper.TagMapper">
 
-    <select id="listTagNamesByArticleId" resultType="java.lang.String">
-        SELECT tag_name
+    <select id="listTenTagDTOs" resultType="com.gewuyou.blog.common.dto.TagDTO">
+        SELECT t.id                  AS id,
+               tag_name              AS tagName,
+               COUNT(tat.article_id) AS count
         FROM tb_tag t
-                 JOIN tb_article_tag at ON t.tag_id = at.tag_id
-        WHERE at.article_id = #{articleId}
+                 LEFt JOIN (SELECT a.id      AS article_id,
+                                   at.tag_id AS tag_id
+                            FROM tb_article_tag at
+                                     LEFT JOIN tb_article a ON at.article_id = a.id
+                            WHERE a.is_delete = 0
+                              AND a.status IN (1, 2)) tat
+                           ON t.id = tat.tag_id
+        GROUP BY t.id
+        LIMIT 0,10;
+    </select>
+    <select id="listTagDTOs" resultType="com.gewuyou.blog.common.dto.TagDTO">
+        SELECT t.id                  AS id,
+               tag_name              AS tagName,
+               COUNT(tat.article_id) AS count
+        FROM tb_tag t
+                 LEFt JOIN (SELECT a.id      AS article_id,
+                                   at.tag_id AS tag_id
+                            FROM tb_article_tag at
+                                     LEFT JOIN tb_article a ON at.article_id = a.id
+                            WHERE a.is_delete = 0
+                              AND a.status IN (1, 2)) tat
+                           ON t.id = tat.tag_id
+        GROUP BY t.id;
     </select>
 </mapper>

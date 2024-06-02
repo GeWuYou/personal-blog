@@ -4,6 +4,7 @@ import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.ArticleRankDTO;
 import com.gewuyou.blog.common.dto.ArticleStatisticsDTO;
 import com.gewuyou.blog.common.dto.CategoryDTO;
+import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.model.Tag;
 import com.gewuyou.blog.common.model.UserInfo;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -50,8 +51,8 @@ public interface ServerClient {
     @GetMapping("/tag/count")
     Long selectTagCount();
 
-    @GetMapping("/tag/list")
-    List<Tag> listTags();
+    @GetMapping("/tag/all")
+    Result<List<Tag>> listTags();
 
     @GetMapping("/talk/count")
     Long selectTalkCount();

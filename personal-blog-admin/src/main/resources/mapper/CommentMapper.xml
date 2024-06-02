@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gewuyou.blog.admin.mapper.CommentMapper">
+
+    <select id="countComments" resultType="java.lang.Long">
+        SELECT
+        COUNT(*)
+        FROM tb_comment c
+        LEFT JOIN tb_user_info ui ON c.user_id = ui.id
+        <where>
+            <if test="conditionVO.type != null">
+                c.type = #{conditionVO.type}
+            </if>
+            <if test="conditionVO.isReview !=null">
+                AND c.is_review = #{conditionVO.isReview}
+            </if>
+            <if test="conditionVO.keywords !=null">
+                AND ui.nick_name like CONCAT('%',#{conditionVO.keywords},'%')
+            </if>
+        </where>
+    </select>
+    <select id="listCommentAdminDTOs" resultType="com.gewuyou.blog.common.dto.CommentAdminDTO">
+        SELECT
+        c.id AS id,
+        ui.avatar AS avatar,
+        ui.nick_name AS nickname,
+        r.nick_name AS replyNickname,
+        a.title AS articleTitle,
+        c.comment_content AS commentContent,
+        c.type AS type,
+        c.is_review AS isReview,
+        c.create_time AS createTime,
+        FROM tb_comment c
+        LEFT JOIN tb_article a ON c.topic_id = a.article_id
+        LEFT JOIN tb_user_info ui ON c.user_id = ui.id
+        LEFT JOIN tb_user_info r ON c.reply_user_id = r.id
+        <where>
+            <if test="conditionVO.type != null">
+                c.type = #{conditionVO.type}
+            </if>
+            <if test="conditionVO.isReview !=null">
+                AND c.is_review = #{conditionVO.isReview}
+            </if>
+            <if test="conditionVO.keywords !=null">
+                AND ui.nick_name like CONCAT('%',#{conditionVO.keywords},'%')
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+</mapper>

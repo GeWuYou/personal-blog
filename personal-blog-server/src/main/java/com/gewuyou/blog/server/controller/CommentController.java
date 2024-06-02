@@ -3,15 +3,12 @@ package com.gewuyou.blog.server.controller;
 import com.gewuyou.blog.common.annotation.AccessLimit;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
-import com.gewuyou.blog.common.dto.CommentAdminDTO;
 import com.gewuyou.blog.common.dto.CommentDTO;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.ReplyDTO;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.CommentVO;
-import com.gewuyou.blog.common.vo.ConditionVO;
-import com.gewuyou.blog.common.vo.ReviewVO;
 import com.gewuyou.blog.server.service.ICommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +16,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,7 +37,6 @@ public class CommentController {
     @Autowired
     public CommentController(ICommentService commentService) {
         this.commentService = commentService;
-
     }
 
     /**
@@ -97,47 +92,12 @@ public class CommentController {
 
 
     /**
-     * 查询后台评论
-     *
-     * @param conditionVO 条件VO
-     * @return Result
+     * 根据类型获取评论数量
+     * @param type 类型
+     * @return Long
      */
-    @Operation(summary = "查询后台评论", description = "查询后台评论")
-    @GetMapping("/admin/list")
-    public Result<PageResultDTO<CommentAdminDTO>> listCommentBackDTO(ConditionVO conditionVO) {
-        return Result.success(commentService.listCommentsAdminDTOs(conditionVO));
-    }
-
-    /**
-     * 审核评论
-     *
-     * @param reviewVO 审核VO
-     * @return Result
-     */
-    @Operation(summary = "审核评论", description = "审核评论")
-    @OperationLogging(type = OperationType.UPDATE)
-    @PutMapping("/admin/review")
-    public Result<?> updateCommentsReview(@Validated @RequestBody ReviewVO reviewVO) {
-        commentService.updateCommentsReview(reviewVO);
-        return Result.success();
-    }
-
-    /**
-     * 删除评论
-     *
-     * @param commentIdList 评论id列表
-     * @return Result
-     */
-    @Operation(summary = "删除评论", description = "删除评论")
-    @OperationLogging(type = OperationType.DELETE)
-    @DeleteMapping("/admin")
-    public Result<?> deleteComments(@RequestBody List<Integer> commentIdList) {
-        commentService.removeByIds(commentIdList);
-        return Result.success();
-    }
-
-    @Parameter(name = "type", description = "", in = ParameterIn.PATH, required = true)
-    @Operation(summary = "", description = "")
+    @Parameter(name = "type", description = "类型", in = ParameterIn.PATH, required = true)
+    @Operation(summary = "根据类型获取评论数量", description = "根据类型获取评论数量")
     @GetMapping("/count/type/{type}")
     public Long selectCommentCountByType(@PathVariable("type") Byte type) {
         return commentService.selectCommentCountByType(type);

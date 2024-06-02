@@ -2,6 +2,7 @@ package com.gewuyou.blog.server.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gewuyou.blog.common.dto.TagDTO;
 import com.gewuyou.blog.common.model.Tag;
 
 import java.util.List;
@@ -29,4 +30,18 @@ public interface ITagService extends IService<Tag> {
      * @return 标签列表
      */
     List<Tag> listTags();
+
+    /**
+     * 查询前十个标签
+     *
+     * @return 前十个标签
+     */
+    List<TagDTO> listTenTagDTOs();
+
+    /**
+     * 查询所有标签DTO
+     *
+     * @return 标签DTO列表
+     */
+    List<TagDTO> listTagDTOs();
 }

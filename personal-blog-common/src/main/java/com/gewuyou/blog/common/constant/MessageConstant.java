@@ -20,6 +20,14 @@ public class MessageConstant {
 
     public static final String LINK_NAME_NOT_EMPTY = "链接名称不能为空!";
 
+    public static final String COMMENT_NOT_EMPTY = "评论内容不能为空!";
+
+    public static final String COMMENT_TYPE_NOT_EMPTY = "评论类型不能为空!";
+
+    public static final String Tag_NOT_EMPTY = "标签不能为空!";
+
+    public static final String ID_NOT_EMPTY = "id不能为空!";
+
     /**
      * 无效的token请求
      */

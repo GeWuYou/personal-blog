@@ -3,11 +3,9 @@ package com.gewuyou.blog.server.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.gewuyou.blog.common.dto.ArticleAdminDTO;
 import com.gewuyou.blog.common.dto.ArticleCardDTO;
 import com.gewuyou.blog.common.dto.ArticleDTO;
 import com.gewuyou.blog.common.model.Article;
-import com.gewuyou.blog.common.vo.ConditionVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -95,21 +93,4 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @return 文章卡片列表DTO
      */
     List<ArticleCardDTO> listArticleCardDTOsByTagId(Page<ArticleCardDTO> page, @Param("tagId") Long tagId);
-
-    /**
-     * 根据条件分页查询查询后台文章数量
-     *
-     * @param conditionVO 条件VO
-     * @return 文章卡片列表DTO
-     */
-    Integer countArticleAdmins(@Param("conditionVO") ConditionVO conditionVO);
-
-    /**
-     * 根据条件分页查询文章列表
-     *
-     * @param page        分页对象
-     * @param conditionVO 条件VO
-     * @return 文章卡片列表DTO
-     */
-    List<ArticleAdminDTO> listArticlesAdminDTOs(Page<ArticleAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
 }

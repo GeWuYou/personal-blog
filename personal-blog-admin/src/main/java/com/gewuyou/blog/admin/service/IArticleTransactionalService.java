@@ -1,4 +1,4 @@
-package com.gewuyou.blog.server.service;
+package com.gewuyou.blog.admin.service;
 
 import com.gewuyou.blog.common.vo.ArticleVO;
 import com.gewuyou.blog.common.vo.DeleteVO;

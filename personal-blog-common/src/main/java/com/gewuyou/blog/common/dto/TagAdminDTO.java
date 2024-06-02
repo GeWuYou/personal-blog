@@ -6,22 +6,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
- * 标记 DTO
+ * 标签后台DTO
  *
  * @author gewuyou
- * @since 2024-05-04 下午10:30:43
+ * @since 2024-06-02 下午1:52:02
  */
+@Schema(description = "标签后台DTO")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Schema(description = "标记 DTO")
-public class TagDTO {
+public class TagAdminDTO {
     /**
-     * 主键
+     * 标签id
      */
-    @Schema(description = "主键")
+    @Schema(description = "标签id")
     private Long id;
 
     /**
@@ -31,9 +33,15 @@ public class TagDTO {
     private String tagName;
 
     /**
-     * 标签数量
+     * 文章数量
      */
-    @Schema(description = "标签数量")
-    private Long count;
+    @Schema(description = "文章数量")
+    private Long articleCount;
+
+    /**
+     * 创建时间
+     */
+    @Schema(description = "创建时间")
+    private LocalDateTime createTime;
 
 }

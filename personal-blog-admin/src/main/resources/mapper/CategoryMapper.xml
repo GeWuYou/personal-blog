@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gewuyou.blog.admin.mapper.CategoryMapper">
+
+    <select id="listCategoryAdminDTOs" resultType="com.gewuyou.blog.common.dto.CategoryAdminDTO">
+        SELECT
+        c.id AS id,
+        COUNT(a.id) AS articleCount,
+        c.category_name AS categoryName,
+        c.create_time AS createTime,
+        FROM
+        tb_category c
+        LEFT JOIN tb_article a ON c.id = a.id
+        <where>
+            <if test="conditionVO.keywords!=null">
+                category_name LIKE CONCAT('%', #{conditionVO.keywords}, '%')
+            </if>
+        </where>
+        ORDER BY
+        c.id
+    </select>
+</mapper>
