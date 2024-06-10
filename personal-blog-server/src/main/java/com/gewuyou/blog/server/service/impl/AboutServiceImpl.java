@@ -1,22 +1,20 @@
-package com.gewuyou.blog.admin.service.impl;
+package com.gewuyou.blog.server.service.impl;
 
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gewuyou.blog.admin.mapper.AboutMapper;
-import com.gewuyou.blog.admin.service.IAboutService;
-import com.gewuyou.blog.common.enums.ResponseInformation;
-import com.gewuyou.blog.common.exception.GlobalException;
+import com.gewuyou.blog.common.dto.AboutDTO;
 import com.gewuyou.blog.common.model.About;
 import com.gewuyou.blog.common.service.IRedisService;
-import com.gewuyou.blog.common.vo.AboutVO;
+import com.gewuyou.blog.server.mapper.AboutMapper;
+import com.gewuyou.blog.server.service.IAboutService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 import static com.gewuyou.blog.common.constant.CommonConstant.DEFAULT_ABOUT_ID;
 import static com.gewuyou.blog.common.constant.RedisConstant.ABOUT;
-
 
 /**
  * <p>
@@ -43,24 +41,25 @@ public class AboutServiceImpl extends ServiceImpl<AboutMapper, About> implements
     }
 
     /**
-     * 更新关于信息
+     * 获取关于信息
      *
-     * @param aboutVO AboutVO
+     * @return AboutDTO
      */
     @Override
-    public void updateAbout(AboutVO aboutVO) {
-        try {
-            About about =
-                    About
-                            .builder()
-                            .id(DEFAULT_ABOUT_ID)
-                            .content(objectMapper.writeValueAsString(aboutVO.getContent()))
-                            .build();
-            baseMapper.updateById(about);
-            // 清除缓存
-            redisService.delete(ABOUT);
-        } catch (JsonProcessingException e) {
-            throw new GlobalException(ResponseInformation.JSON_SERIALIZE_ERROR);
+    public AboutDTO getAbout() {
+        AboutDTO aboutDTO;
+        // 先尝试从缓存中获取
+        Object about = redisService.get(ABOUT);
+        if (Objects.nonNull(about)) {
+            aboutDTO = objectMapper.convertValue(about, AboutDTO.class);
         }
+        // 缓存中没有，从数据库中获取
+        else {
+            String content = baseMapper.selectById(DEFAULT_ABOUT_ID).getContent();
+            aboutDTO = objectMapper.convertValue(content, AboutDTO.class);
+            // 写入缓存
+            redisService.set(ABOUT, content);
+        }
+        return aboutDTO;
     }
 }

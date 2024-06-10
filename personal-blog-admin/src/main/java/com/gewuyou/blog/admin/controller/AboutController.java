@@ -3,7 +3,6 @@ package com.gewuyou.blog.admin.controller;
 import com.gewuyou.blog.admin.service.IAboutService;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
-import com.gewuyou.blog.common.dto.AboutDTO;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.AboutVO;
@@ -11,7 +10,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
@@ -32,16 +34,6 @@ public class AboutController {
         this.aboutService = aboutService;
     }
 
-    /**
-     * 获取关于信息
-     *
-     * @return 关于信息
-     */
-    @Operation(summary = "获取关于信息", description = "获取关于信息")
-    @GetMapping
-    public Result<AboutDTO> getAbout() {
-        return Result.success(aboutService.getAbout());
-    }
 
     /**
      * 更新关于信息
