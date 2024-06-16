@@ -2,6 +2,8 @@ package com.gewuyou.blog.server.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.dto.TalkDTO;
 import com.gewuyou.blog.common.model.Talk;
 
 /**
@@ -15,4 +17,19 @@ import com.gewuyou.blog.common.model.Talk;
 public interface ITalkService extends IService<Talk> {
 
     Long selectCount();
+
+    /**
+     * 获取说说列表
+     *
+     * @return 说说列表
+     */
+    PageResultDTO<TalkDTO> listTalkDTOs();
+
+    /**
+     * 根据说说ID获取说说详情
+     *
+     * @param talkId 说说ID
+     * @return 说说详情
+     */
+    TalkDTO getTalkById(Integer talkId);
 }

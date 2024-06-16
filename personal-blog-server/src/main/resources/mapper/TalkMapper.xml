@@ -2,4 +2,29 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.server.mapper.TalkMapper">
 
+    <select id="listTalkDTOs" resultType="com.gewuyou.blog.common.dto.TalkDTO">
+        SELECT t.id,
+               nick_name AS nickname,
+               avatar,
+               content,
+               images,
+               t.is_top,
+               t.create_time
+        FROM tb_talk t
+                 JOIN tb_user_info ui ON t.user_id = ui.id
+        WHERE t.status = 1
+        ORDER BY t.is_top DESC, t.id DESC
+    </select>
+    <select id="getTalkDTOById" resultType="com.gewuyou.blog.common.dto.TalkDTO">
+        SELECT t.id,
+               nick_name AS nickname,
+               avatar,
+               content,
+               images,
+               t.create_time
+        FROM tb_talk t
+                 JOIN tb_user_info ui ON t.user_id = ui.id
+        WHERE t.id = #{talkId}
+          AND t.status = 1
+    </select>
 </mapper>

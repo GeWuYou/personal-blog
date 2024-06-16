@@ -4,6 +4,7 @@ package com.gewuyou.blog.server.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gewuyou.blog.common.dto.CommentAdminDTO;
+import com.gewuyou.blog.common.dto.CommentCountDTO;
 import com.gewuyou.blog.common.dto.CommentDTO;
 import com.gewuyou.blog.common.dto.ReplyDTO;
 import com.gewuyou.blog.common.model.Comment;
@@ -66,4 +67,22 @@ public interface CommentMapper extends BaseMapper<Comment> {
      * @return 评论列表
      */
     List<CommentAdminDTO> listCommentAdminDTOs(Page<CommentAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
+
+    /**
+     * 根据类型和主题ID查询评论数量
+     *
+     * @param type    评论类型
+     * @param talkIds 主题ID列表
+     * @return 评论数量列表
+     */
+    List<CommentCountDTO> listCommentCountByTypeAndTopicIds(@Param("type") Byte type, @Param("topicIds") List<Integer> talkIds);
+
+    /**
+     * 根据类型和主题ID查询评论数量
+     *
+     * @param type   评论类型
+     * @param talkId 主题ID
+     * @return 评论数量
+     */
+    CommentCountDTO listCommentCountByTypeAndTopicId(@Param("type") Byte type, @Param("talkId") Integer talkId);
 }

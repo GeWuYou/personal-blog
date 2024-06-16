@@ -112,4 +112,26 @@
         </where>
         ORDER BY id DESC
     </select>
+    <select id="listCommentCountByTypeAndTopicIds" resultType="com.gewuyou.blog.common.dto.CommentCountDTO">
+        SELECT
+        topic_id AS id,
+        COUNT(1) AS commentCount
+        FROM
+        tb_comment c
+        WHERE type = #{type}
+        AND topic_id IN
+        <foreach open="(" collection="topicIds" item="topicId" separator="," close=")">
+            #{topicId}
+        </foreach>
+        GROUP BY
+        topic_id
+    </select>
+    <select id="listCommentCountByTypeAndTopicId" resultType="com.gewuyou.blog.common.dto.CommentCountDTO">
+        SELECT topic_id AS id,
+               COUNT(1) AS commentCount
+        FROM tb_comment c
+        WHERE type = #{type}
+          AND topic_id = #{topicId}
+        GROUP BY topic_id
+    </select>
 </mapper>
