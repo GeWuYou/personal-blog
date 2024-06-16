@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Tag(name = "<p> 菜单表 前端控制器 </p>", description = "<p> 菜单表 前端控制器 </p>")
 @RestController
-@RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/menus")
+@RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/menu")
 public class MenuController {
 
     private final IMenuService menuService;

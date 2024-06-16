@@ -1,7 +1,6 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IBlogInfoService;
-import com.gewuyou.blog.common.strategy.context.UploadStrategyContext;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.BlogAdminInfoDTO;
@@ -9,6 +8,7 @@ import com.gewuyou.blog.common.dto.BlogHomeInfoDTO;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.FilePathEnum;
 import com.gewuyou.blog.common.enums.OperationType;
+import com.gewuyou.blog.common.strategy.context.UploadStrategyContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -86,7 +86,7 @@ public class BlogInfoController {
     @Parameter(name = "file", description = "图片文件", in = ParameterIn.QUERY, required = true)
     @Operation(summary = "上传博客配置图片", description = "上传博客配置图片")
     @OperationLogging(type = OperationType.UPDATE)
-    @PostMapping("/config/image/upload")
+    @PostMapping("/config/images")
     public Result<?> savePhotoAlbumCover(MultipartFile file) {
         return Result.success(uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.CONFIG.getPath()));
     }

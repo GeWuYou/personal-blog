@@ -76,7 +76,7 @@ public class ResourceController {
      *
      * @return 角色资源选项
      */
-    @GetMapping
+    @GetMapping("/role")
     public Result<List<LabelOptionDTO>> listResourceOption() {
         return Result.success(resourceService.listResourceOptionDTO());
     }

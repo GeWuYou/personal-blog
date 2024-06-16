@@ -25,7 +25,7 @@ import java.util.List;
  */
 @Tag(name = "<p> 操作日志表 前端控制器 </p>", description = "<p> 操作日志表 前端控制器 </p>")
 @RestController
-@RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/operation/logs")
+@RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/operation/log")
 public class OperationLogController {
     private final IOperationLogService operationLogService;
 

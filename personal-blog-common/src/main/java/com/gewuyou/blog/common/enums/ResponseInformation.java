@@ -35,6 +35,7 @@ public enum ResponseInformation {
     NON_EMPTY_ROLE_DELETION_REQUEST(400, "该资源下存在角色关联，不能删除"),
     CATEGORY_NAME_ALREADY_EXISTS(400, "分类名称已存在"),
     TAG_NAME_ALREADY_EXISTS(400, "标签名称已存在"),
+    TALK_NOT_EXIST(400, "说说不存在"),
     ROLE_EXIST(400, "角色已存在"),
     ROLE_IN_USE(400, "角色下存在用户，不能删除"),
     ALBUM_NAME_EXIST(400, "相册名称已存在"),

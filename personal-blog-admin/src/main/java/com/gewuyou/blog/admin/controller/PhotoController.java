@@ -93,7 +93,7 @@ public class PhotoController {
      */
     @Operation(summary = "保存照片", description = "保存照片")
     @OperationLogging(type = OperationType.SAVE)
-    @PostMapping("/admin/photos")
+    @PostMapping
     public Result<?> savePhotos(@Valid @RequestBody PhotoVO photoVO) {
         photoService.savePhotos(photoVO);
         return Result.success();

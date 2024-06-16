@@ -47,14 +47,21 @@ public class UserInfoController {
         return userInfoService.selectUserInfoById(id);
     }
 
-    @Operation(summary = "", description = "")
+    /**
+     * 插入用户信息
+     *
+     * @param userInfo 用户信息
+     */
     @PostMapping("/insert")
     public void userInfoInsert(UserInfo userInfo) {
         log.info("userInfoInsert, userInfo: {}", userInfo);
         userInfoService.insert(userInfo);
     }
 
-    @Operation(summary = "", description = "")
+    /**
+     * 获取用户数量
+     * @return 用户数量
+     */
     @GetMapping("/count")
     public Long selectCount() {
         return userInfoService.selectCount();

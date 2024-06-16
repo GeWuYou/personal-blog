@@ -38,7 +38,7 @@ import static com.gewuyou.blog.common.constant.RegularConstant.USERNAME_REGULARI
  */
 @Tag(name = "<p> 用户认证信息表 前端控制器 </p>", description = "<p> 用户认证信息表 前端控制器 </p>")
 @RestController
-@RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/users")
+@RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/user")
 public class UserAuthController {
     private final IUserAuthService userAuthService;
 
