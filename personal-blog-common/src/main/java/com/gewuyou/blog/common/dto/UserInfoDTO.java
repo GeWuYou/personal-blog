@@ -28,13 +28,13 @@ public class UserInfoDTO {
      * 主键id
      */
     @Schema(description = "主键id")
-    private Integer id;
+    private Long id;
 
     /**
      * 用户信息id
      */
     @Schema(description = "用户信息id")
-    private Integer userInfoId;
+    private Long userInfoId;
 
     /**
      * 用户昵称
@@ -46,7 +46,7 @@ public class UserInfoDTO {
      * 登录类型
      */
     @Schema(description = "登录类型")
-    private Integer loginType;
+    private Byte loginType;
 
     /**
      * 用户名
@@ -82,7 +82,7 @@ public class UserInfoDTO {
      * 是否订阅
      */
     @Schema(description = "是否订阅")
-    private Integer isSubscribe;
+    private Byte isSubscribe;
 
     /**
      * ip地址
@@ -105,14 +105,8 @@ public class UserInfoDTO {
     private LocalDateTime lastLoginTime;
 
     /**
-     * 访问令牌
+     * 令牌
      */
-    @Schema(description = "访问令牌")
-    private String accessToken;
-
-    /**
-     * 刷新令牌
-     */
-    @Schema(description = "刷新令牌")
-    private String refreshToken;
+    @Schema(description = "令牌")
+    private String token;
 }

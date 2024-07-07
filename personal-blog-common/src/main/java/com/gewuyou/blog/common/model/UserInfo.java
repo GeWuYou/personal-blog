@@ -1,11 +1,9 @@
 package com.gewuyou.blog.common.model;
 
-import com.baomidou.mybatisplus.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -29,16 +27,16 @@ import java.time.LocalDateTime;
 @Schema(name = "UserInfo对象", description = "用户信息表")
 public class UserInfo extends BaseModel implements Serializable {
     @Builder
-    public UserInfo(LocalDateTime createTime, LocalDateTime updateTime, Long id, String nickName, String avatar, String intro, String website, Integer isSubscribe, Integer isDisable, String email) {
+    public UserInfo(LocalDateTime createTime, LocalDateTime updateTime, Long id, String nickName, String email, String avatar, String intro, String website, Byte isSubscribe, Byte isDisable) {
         super(createTime, updateTime);
         this.id = id;
         this.nickName = nickName;
+        this.email = email;
         this.avatar = avatar;
         this.intro = intro;
         this.website = website;
         this.isSubscribe = isSubscribe;
         this.isDisable = isDisable;
-        this.email = email;
     }
 
     @Serial
@@ -70,9 +68,9 @@ public class UserInfo extends BaseModel implements Serializable {
 
     @Schema(description = "是否订阅")
     @TableField("is_subscribe")
-    private Integer isSubscribe;
+    private Byte isSubscribe;
 
     @Schema(description = "是否禁用 0 表示否 1表示是")
     @TableField("is_disable")
-    private Integer isDisable;
+    private Byte isDisable;
 }

@@ -131,11 +131,11 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
         Object count = redisService.get(BLOG_VIEWS_COUNT);
         Long viewsCount = Long.parseLong(Optional.ofNullable(count).orElse(0).toString());
         Long messageCount = serverClient.selectCommentCountByType(Byte.valueOf("2"));
-        Long userCount = serverClient.selectUserInfoCount();
+        Long userCount = serverClient.selectUserInfoCount().getData();
         Long articleCount = serverClient.selectArticleCountNotDeleted();
         List<UniqueViewDTO> uniqueViews = uniqueViewService.listUniqueViews();
-        List<ArticleStatisticsDTO> articleStatisticsDTOs = serverClient.listArticleStatistics();
-        List<CategoryDTO> categoryDTOs = serverClient.listCategories();
+        List<ArticleStatisticsDTO> articleStatisticsDTOs = serverClient.listArticleStatistics().getData();
+        List<CategoryDTO> categoryDTOs = serverClient.listCategories().getData();
         List<TagDTO> tagDTOs = BeanCopyUtil.copyList(serverClient.listTags().getData(), TagDTO.class);
         Map<Object, Double> articleMap = redisService.zReverseRangeWithScore(ARTICLE_VIEWS_COUNT, 0, 4);
         BlogAdminInfoDTO auroraAdminInfoDTO = BlogAdminInfoDTO.builder()

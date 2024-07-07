@@ -5,8 +5,9 @@ spring:
   security:
     ignore:
       urls:
-        - /api/v1/admin/users/login
-        - /api/v1/admin/report
+        - /server/*
+        - /admin/user/login
+        - /admin/report
         - /swagger-ui/**
         - /v3/api-docs/**
         - /swagger-resources/**
@@ -17,7 +18,7 @@ spring:
   application:
     name: personal-blog-admin
   profiles:
-    include: common-log,common-private-mail,common-datasource,common-json,common-upload
+    include: common-log,common-private-mail,common-datasource,common-json,common-upload,common-security
   data:
     redis:
       # 数据库设置为0号数据库
@@ -39,6 +40,7 @@ spring:
       use-key-prefix: false
 eureka:
   instance:
+    prefer-ip-address: true
     hostname: ${spring.application.name}
   client:
     service-url:
@@ -50,13 +52,13 @@ eureka:
     eureka-server-connect-timeout-seconds: 10
     # 读取服务列表的超时时间, 默认 8, 单位秒
     eureka-server-read-timeout-seconds: 10
-jwt:
-  issuer: personal-blog
-  #JWT存储的请求头
-  header: Authorization
-  #令牌前缀
-  prefix: Bearer
-  secret: "dtPhqyaNgQZlFqmTTG9IVKR7923QLmm3R7uAi3OKSeo="
-  expirationTime:
-    access: 1800000
-    refresh: 86400000
+#jwt:
+#  issuer: personal-blog
+#  #JWT存储的请求头
+#  header: Authorization
+#  #令牌前缀
+#  prefix: Bearer
+#  secret: "dtPhqyaNgQZlFqmTTG9IVKR7923QLmm3R7uAi3OKSeo="
+#  expirationTime:
+#    access: 1800000
+#    refresh: 86400000

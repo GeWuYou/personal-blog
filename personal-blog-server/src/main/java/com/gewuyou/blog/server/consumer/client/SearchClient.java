@@ -1,6 +1,5 @@
-package com.gewuyou.blog.server.client;
+package com.gewuyou.blog.server.consumer.client;
 
-import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.EsArticleDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +12,7 @@ import java.util.List;
  * @author gewuyou
  * @since 2024-05-18 下午4:03:34
  */
-@FeignClient(name = "personal-blog-search", url = "http://localhost:8083" + InterfacePermissionConstant.SEARCH_BASE_URL)
+@FeignClient(name = "personal-blog-search", url = "http://localhost:8083")
 public interface SearchClient {
     /**
      * 搜索文章

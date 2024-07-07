@@ -6,6 +6,7 @@
 		<groupId>com.gewuyou</groupId>
 		<artifactId>personal-blog</artifactId>
 		<version>0.1.0</version>
+        <relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>personal-blog-server</artifactId>
 	<version>0.1.0</version>

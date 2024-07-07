@@ -1,4 +1,4 @@
-package com.gewuyou.blog.admin.security;
+package com.gewuyou.blog.common.utils;
 
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;

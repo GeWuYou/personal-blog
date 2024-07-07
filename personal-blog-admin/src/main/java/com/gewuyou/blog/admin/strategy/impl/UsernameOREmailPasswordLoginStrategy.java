@@ -1,11 +1,10 @@
 package com.gewuyou.blog.admin.strategy.impl;
 
-import com.gewuyou.blog.admin.security.service.JwtService;
 import com.gewuyou.blog.common.dto.UserDetailsDTO;
 import com.gewuyou.blog.common.dto.UserInfoDTO;
-import com.gewuyou.blog.common.enums.TokenType;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.vo.LoginVO;
+import com.gewuyou.blog.security.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,9 +53,8 @@ public class UsernameOREmailPasswordLoginStrategy extends AbstractOrdinaryLoginS
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // 获取用户信息
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        // 生成刷新token和访问token
-        String refreshToken = jwtService.generateToken(userDetails, TokenType.RefreshToken);
-        String accessToken = jwtService.generateToken(userDetails, TokenType.AccessToken);
+        // 生成token
+        String token = jwtService.generateToken((UserDetailsDTO) userDetails);
         // 设置cookie
         // response.addHeader("Set-Cookie", "refreshToken=" + refreshToken + ";path=/;HttpOnly");
         // response.addHeader("Set-Cookie", "accessToken=" + accessToken + ";path=/;HttpOnly");
@@ -64,9 +62,8 @@ public class UsernameOREmailPasswordLoginStrategy extends AbstractOrdinaryLoginS
         UserDetailsDTO userDetailsDTO = (UserDetailsDTO) userDetails;
         // 将dto转换为info
         UserInfoDTO userInfoDTO = BeanCopyUtil.copyObject(userDetailsDTO, UserInfoDTO.class);
-        // 设置refreshToken和accessToken
-        userInfoDTO.setRefreshToken(refreshToken);
-        userInfoDTO.setAccessToken(accessToken);
+        // 设置token
+        userInfoDTO.setToken(token);
         return userInfoDTO;
     }
 }

@@ -55,7 +55,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
             return new PageResultDTO<>();
         }
         Page<TagAdminDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
-        List<TagAdminDTO> tags = baseMapper.listTagsAdminDTOs(page, conditionVO);
+        List<TagAdminDTO> tags = baseMapper.listTagsAdminDTOs(page, conditionVO).getRecords();
         return new PageResultDTO<>(tags, count);
     }
 

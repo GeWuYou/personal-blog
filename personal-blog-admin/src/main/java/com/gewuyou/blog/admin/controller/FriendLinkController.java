@@ -69,7 +69,7 @@ public class FriendLinkController {
      */
     @Operation(summary = "删除友链", description = "删除友链")
     @OperationLogging(type = OperationType.DELETE)
-    @DeleteMapping("/list")
+    @DeleteMapping
     public Result<?> deleteFriendLink(@RequestBody List<Integer> linkIdList) {
         friendLinkService.removeByIds(linkIdList);
         return Result.success();

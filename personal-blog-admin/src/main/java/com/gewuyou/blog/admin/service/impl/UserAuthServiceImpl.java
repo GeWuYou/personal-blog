@@ -26,9 +26,11 @@ import com.gewuyou.blog.common.model.UserRole;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.EmailUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
+import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.LoginVO;
 import com.gewuyou.blog.common.vo.RegisterVO;
+import com.gewuyou.blog.security.service.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -74,6 +76,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     private final ServerClient serverClient;
 
     private final LoginStrategyContext loginStrategyContext;
+    private final JwtService jwtService;
 
 
     @Autowired
@@ -83,14 +86,15 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
             EmailUtil emailUtil,
             BCryptPasswordEncoder bCryptPasswordEncoder,
             ServerClient serverClient,
-            LoginStrategyContext loginStrategyContext
-    ) {
+            LoginStrategyContext loginStrategyContext,
+            JwtService jwtService) {
         this.redisService = redisService;
         this.userRoleMapper = userRoleMapper;
         this.emailUtil = emailUtil;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.serverClient = serverClient;
         this.loginStrategyContext = loginStrategyContext;
+        this.jwtService = jwtService;
     }
 
     /**
@@ -294,7 +298,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
             return new PageResultDTO<>();
         }
         Page<UserAdminDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
-        List<UserAdminDTO> userAdminDTOS = baseMapper.listUsers(page, conditionVO);
+        List<UserAdminDTO> userAdminDTOS = baseMapper.listUsers(page, conditionVO).getRecords();
         return new PageResultDTO<>(userAdminDTOS, count.longValue());
     }
 
@@ -308,4 +312,16 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     public UserInfoDTO usernameOrEmailPasswordLogin(LoginVO loginVO) {
         return loginStrategyContext.executeLoginStrategy(loginVO, LoginTypeEnum.USERNAME_OR_EMAIL);
     }
+
+    /**
+     * 退出登录
+     *
+     * @return 是否退出成功
+     */
+    @Override
+    public ResponseInformation logout() {
+        jwtService.deleteLoginUser(UserUtil.getUserDetailsDTO().getUserAuthId());
+        return ResponseInformation.LOGOUT_SUCCESS;
+    }
+
 }

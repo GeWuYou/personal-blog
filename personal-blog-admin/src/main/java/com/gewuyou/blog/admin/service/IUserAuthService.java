@@ -6,6 +6,7 @@ import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.UserAdminDTO;
 import com.gewuyou.blog.common.dto.UserAreaDTO;
 import com.gewuyou.blog.common.dto.UserInfoDTO;
+import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.model.UserAuth;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.LoginVO;
@@ -94,4 +95,12 @@ public interface IUserAuthService extends IService<UserAuth> {
      * @return 用户信息
      */
     UserInfoDTO usernameOrEmailPasswordLogin(LoginVO loginVO);
+
+
+    /**
+     * 登出
+     *
+     * @return 是否登出成功
+     */
+    ResponseInformation logout();
 }

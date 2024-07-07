@@ -1,49 +1,46 @@
-package com.gewuyou.blog.admin.handler;
+package com.gewuyou.blog.security.source;
 
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.gewuyou.blog.admin.mapper.RoleMapper;
-import com.gewuyou.blog.common.dto.ResourceRoleDTO;
+import com.gewuyou.blog.security.service.interfaces.DynamicSecurityService;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
- * 过滤器调用安全元数据源 实现
+ * 动态安全元数据源
  *
  * @author gewuyou
- * @since 2024-06-01 上午12:48:17
+ * @since 2024-06-10 下午4:46:40
  */
 @Component
-public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocationSecurityMetadataSource {
+public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
+    private static Map<String, ConfigAttribute> configAttributeMap = null;
 
-    private final RoleMapper roleMapper;
+    private final DynamicSecurityService dynamicSecurityService;
 
-    private static List<ResourceRoleDTO> resourceRoleDTOs;
-
-    @Autowired
-    public FilterInvocationSecurityMetadataSourceImpl(RoleMapper roleMapper) {
-        this.roleMapper = roleMapper;
-        resourceRoleDTOs = new ArrayList<>();
-    }
 
     @PostConstruct
-    private void init() {
-        resourceRoleDTOs.addAll(roleMapper.getResourceRoleDTOs());
+    public void loadDataSources() {
+        configAttributeMap = dynamicSecurityService.loadDataSource();
     }
 
+
     public void clearDataSource() {
-        resourceRoleDTOs.clear();
+        configAttributeMap.clear();
+        configAttributeMap = null;
+    }
+
+    public DynamicSecurityMetadataSource(DynamicSecurityService dynamicSecurityService) {
+        this.dynamicSecurityService = dynamicSecurityService;
     }
 
     /**
@@ -57,30 +54,31 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
      */
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
-        if (CollectionUtils.isEmpty(resourceRoleDTOs)) {
-            this.init();
+        if (Objects.isNull(configAttributeMap)) {
+            this.loadDataSources();
         }
-        FilterInvocation fi = (FilterInvocation) object;
-        String method = fi.getRequest().getMethod();
-        String url = fi.getRequest().getRequestURI();
+        if (!(object instanceof HttpServletRequest request)) {
+            throw new IllegalArgumentException("Object must be an instance of " +
+                    "HttpServletRequest");
+        }
+        String method = request.getMethod();
+        String url = request.getRequestURI();
         AntPathMatcher antPathMatcher = new AntPathMatcher();
-        for (ResourceRoleDTO resourceRoleDTO : resourceRoleDTOs) {
-            if (antPathMatcher.match(resourceRoleDTO.getUrl(), url) && resourceRoleDTO.getRequestMethod().equals(method)) {
-                List<String> roleList = resourceRoleDTO.getRoleList();
-                if (CollectionUtils.isEmpty(roleList)) {
-                    return SecurityConfig.createList("disable");
-                }
-                return SecurityConfig.createList(roleList.toArray(new String[]{}));
+        for (Map.Entry<String, ConfigAttribute> entry : configAttributeMap.entrySet()) {
+            String[] key = entry.getKey().split(":");
+            if (antPathMatcher.match(key[0], url) && method.equals(key[1])) {
+                String[] roles = entry.getValue().getAttribute().split(",");
+                return SecurityConfig.createList(roles);
             }
         }
-        return null;
+        return SecurityConfig.createList("disable");
     }
 
     /**
      * If available, returns all of the {@code ConfigAttribute}s defined by the
      * implementing class.
      * <p>
-     * This is used by the {@link AbstractSecurityInterceptor} to perform startup time
+     * This is used by the {@link} to perform startup time
      * validation of each {@code ConfigAttribute} configured against it.
      *
      * @return the {@code ConfigAttribute}s or {@code null} if unsupported

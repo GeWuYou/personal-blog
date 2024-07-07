@@ -5,7 +5,7 @@ import Vue from 'vue'
 import { _get } from '@/api/api'
 
 export function generaMenu() {
-  _get('/menus/user', {}, (data) => {
+  _get('/menu/user', {}, (data) => {
     let userMenus = data
     userMenus.forEach((item) => {
       if (item.icon != null) {

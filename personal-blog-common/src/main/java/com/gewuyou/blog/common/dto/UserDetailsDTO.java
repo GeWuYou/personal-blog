@@ -1,12 +1,19 @@
 package com.gewuyou.blog.common.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.beans.Transient;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -23,6 +30,8 @@ import java.util.stream.Collectors;
 @Schema(description = "用户信息")
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDetailsDTO implements UserDetails {
     /**
      * 用户认证Id
@@ -80,7 +89,7 @@ public class UserDetailsDTO implements UserDetails {
      * 是否禁用 0表示禁用 1表示启用
      */
     @Schema(description = "是否禁用 0表示禁用 1表示启用")
-    private Integer isDisable;
+    private Byte isDisable;
 
     /**
      * 浏览器
@@ -91,7 +100,7 @@ public class UserDetailsDTO implements UserDetails {
      * 登录类型 0表示密码登录 1表示邮箱登录 2表示微信登录 3表示QQ登录
      */
     @Schema(description = "登录类型 0表示密码登录 1表示邮箱登录 2表示微信登录 3表示QQ登录")
-    private Integer loginType;
+    private Byte loginType;
 
     /**
      * 操作系统
@@ -103,7 +112,17 @@ public class UserDetailsDTO implements UserDetails {
      * 上次登录时间
      */
     @Schema(description = "上次登录时间")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime lastLoginTime;
+
+
+    /**
+     * 登录令牌过期时间
+     */
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    private LocalDateTime expireTime;
     /**
      * 用户角色列表
      */
@@ -123,6 +142,7 @@ public class UserDetailsDTO implements UserDetails {
 
 
     @Override
+    @Transient
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles
                 .stream()
@@ -146,6 +166,7 @@ public class UserDetailsDTO implements UserDetails {
      * @return boolean
      */
     @Override
+    @Transient
     public boolean isAccountNonExpired() {
         return true;
     }
@@ -156,6 +177,7 @@ public class UserDetailsDTO implements UserDetails {
      * @return boolean
      */
     @Override
+    @Transient
     public boolean isAccountNonLocked() {
         return true;
     }
@@ -166,6 +188,7 @@ public class UserDetailsDTO implements UserDetails {
      * @return boolean
      */
     @Override
+    @Transient
     public boolean isCredentialsNonExpired() {
         return true;
     }
@@ -176,6 +199,7 @@ public class UserDetailsDTO implements UserDetails {
      * @return boolean
      */
     @Override
+    @Transient
     public boolean isEnabled() {
         return true;
     }

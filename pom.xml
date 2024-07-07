@@ -19,6 +19,7 @@
         <module>personal-blog-extension</module>
         <module>personal-blog-encrypt</module>
         <module>personal-blog-gateway</module>
+        <module>personal-blog-security</module>
     </modules>
     <groupId>com.gewuyou</groupId>
     <artifactId>personal-blog</artifactId>
@@ -42,6 +43,7 @@
         <springdoc-openapi-starter-webmvc-ui.version>2.5.0</springdoc-openapi-starter-webmvc-ui.version>
         <jjwt.version>0.12.5</jjwt.version>
         <personal-blog-common.version>0.1.0</personal-blog-common.version>
+        <personal-blog-security.version>0.1.0</personal-blog-security.version>
         <commons-validator.version>1.8.0</commons-validator.version>
         <user-agent-utils.version>1.21</user-agent-utils.version>
         <ip2region.version>1.7.2</ip2region.version>

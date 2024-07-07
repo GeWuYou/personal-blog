@@ -61,7 +61,7 @@
         LEFT JOIN tb_role_menu rm ON r.id = rm.role_id
         ORDER BY r.id
     </select>
-    <select id="getResourceRoleDTOs" resultType="com.gewuyou.blog.common.dto.ResourceRoleDTO">
+    <select id="getResourceRoleDTOs" resultMap="resourceRoleResultMap">
         SELECT re.id AS id,
                url,
                request_method,

@@ -23,7 +23,7 @@ import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.CommentVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.ReviewVO;
-import com.gewuyou.blog.server.client.AdminClient;
+import com.gewuyou.blog.server.consumer.client.AdminClient;
 import com.gewuyou.blog.server.mapper.ArticleMapper;
 import com.gewuyou.blog.server.mapper.CommentMapper;
 import com.gewuyou.blog.server.mapper.TalkMapper;

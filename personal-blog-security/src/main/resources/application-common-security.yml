@@ -1,0 +1,10 @@
+jwt:
+  issuer: personal-blog
+  #JWT存储的请求头
+  header: Authorization
+  #令牌前缀
+  prefix: Bearer
+  secret: "dtPhqyaNgQZlFqmTTG9IVKR7923QLmm3R7uAi3OKSeo="
+  #7天过期时间
+  expirationTime: 604800
+  refreshTokenTime: 30

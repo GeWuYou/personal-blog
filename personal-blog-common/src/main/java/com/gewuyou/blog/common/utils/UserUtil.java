@@ -14,9 +14,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserUtil {
     public static UserDetailsDTO getUserDetailsDTO() {
-        // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // Object principal = authentication.getPrincipal();
-        // return (UserDetailsDTO) principal;
         return (UserDetailsDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 

@@ -1,4 +1,4 @@
-package com.gewuyou.blog.server.client;
+package com.gewuyou.blog.server.consumer.client;
 
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.WebsiteConfigDTO;

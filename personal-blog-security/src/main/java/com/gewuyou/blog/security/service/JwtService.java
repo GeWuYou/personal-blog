@@ -1,24 +1,29 @@
-package com.gewuyou.blog.admin.security.service;
+package com.gewuyou.blog.security.service;
 
+import com.gewuyou.blog.common.dto.UserDetailsDTO;
 import com.gewuyou.blog.common.enums.ResponseInformation;
-import com.gewuyou.blog.common.enums.TokenType;
 import com.gewuyou.blog.common.exception.GlobalException;
+import com.gewuyou.blog.common.service.IRedisService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.gewuyou.blog.common.constant.RedisConstant.LOGIN_USER;
 
 /**
  * Jwt服务
@@ -37,19 +42,17 @@ public class JwtService {
     private String secret;
 
     /**
-     * 访问令牌过期时间（单位：毫秒）
+     * 令牌过期时间（单位：秒）
      */
-    @Value("${jwt.expirationTime.access}")
-    private long accessTokenExpiration;
+    @Value("${jwt.expirationTime}")
+    private long tokenExpiration;
+
+    @Value("${jwt.refreshTokenTime}")
+    private long refreshTokenTime;
+
 
     /**
-     * 刷新令牌过期时间（单位：毫秒）
-     */
-    @Value("${jwt.expirationTime.refresh}")
-    private long refreshTokenExpirationTime;
-
-    /**
-     * 访问令牌签发者
+     * 令牌签发者
      */
     @Value("${jwt.issuer}")
     private String issuer;
@@ -68,27 +71,14 @@ public class JwtService {
      */
     private static final String JWT_CREATE_TIME = "Jwt_creat_time";
 
-    /**
-     * token类型
-     */
-    private static final String TOKEN_TYPE = "TokenType";
 
-    /**
-     * token类型与过期时间映射
-     */
-    private Map<TokenType, Long> tokenTypeExpirationDateMapping;
+    private final IRedisService redisService;
 
-    private JwtService() {
-
+    @Autowired
+    private JwtService(IRedisService redisService) {
+        this.redisService = redisService;
     }
 
-    @PostConstruct
-    private void init() {
-        tokenTypeExpirationDateMapping = Map.of(
-                TokenType.AccessToken, accessTokenExpiration,
-                TokenType.RefreshToken, refreshTokenExpirationTime
-        );
-    }
 
 
     /**
@@ -120,22 +110,22 @@ public class JwtService {
     /**
      * 根据用户信息生成token
      *
-     * @param userDetails 用户信息
-     * @param tokenType   令牌类型
+     * @param userDetailsDTO 用户信息DTO
      * @return java.lang.String
      * @apiNote
      * @since 2023/7/2 19:45
      */
 
-    public String generateToken(UserDetails userDetails, TokenType tokenType) {
+    public String generateToken(UserDetailsDTO userDetailsDTO) {
+        cacheUserDetailsDTO(userDetailsDTO);
         Map<String, Object> claims = new HashMap<>();
-        claims.put(USERNAME, userDetails.getUsername());
-        // claims.put("Authorities",userDetails.getAuthorities());
-        claims.put(TOKEN_TYPE, tokenType.getValue());
+        claims.put(USERNAME, userDetailsDTO.getUsername());
+        claims.put(USER_ID, userDetailsDTO.getUserAuthId());
+        claims.put("Authorities", userDetailsDTO.getAuthorities());
         // 创建jwt创建时间
         claims.put(JWT_CREATE_TIME, new Date());
         // 创建token
-        return createToken(claims, tokenTypeExpirationDateMapping.get(tokenType));
+        return createToken(claims, tokenExpiration);
     }
 
     /**
@@ -207,7 +197,7 @@ public class JwtService {
      * @since 2023/7/2 19:44
      */
     private Date generateExpirationTime(Date startTime, long extendTime) {
-        return new Date(startTime.getTime() + extendTime);
+        return new Date(startTime.getTime() + extendTime * 1000);
     }
 
     /**
@@ -290,21 +280,6 @@ public class JwtService {
         return getValue(claims, USER_ID);
     }
 
-    /**
-     * 从token中获取token类型
-     *
-     * @param token 令牌
-     * @return java.lang.String
-     * @apiNote
-     * @since 2023/7/17 21:43
-     */
-    public String getTokenType(String token) {
-        Claims claims = parseToken(token);
-        if (claims == null) {
-            throw new IllegalArgumentException();
-        }
-        return getValue(claims, TOKEN_TYPE);
-    }
 
     /**
      * 从claims中获取值
@@ -322,5 +297,53 @@ public class JwtService {
         } else {
             return null;
         }
+    }
+
+    /**
+     * 刷新token
+     *
+     * @param userDetailsDTO 用户信息DTO
+     */
+    public void refreshToken(UserDetailsDTO userDetailsDTO) {
+        LocalDateTime expireTime = userDetailsDTO.getExpireTime();
+        LocalDateTime currentTime = LocalDateTime.now();
+        if (Duration.between(currentTime, expireTime).getSeconds() <= refreshTokenTime) {
+            cacheUserDetailsDTO(userDetailsDTO);
+        }
+    }
+
+    /**
+     * 缓存用户信息DTO
+     *
+     * @param userDetailsDTO 用户信息DTO
+     */
+    public void cacheUserDetailsDTO(UserDetailsDTO userDetailsDTO) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        userDetailsDTO.setExpireTime(currentTime.plusSeconds(tokenExpiration));
+        String userId = userDetailsDTO.getUserAuthId().toString();
+        redisService.hSet(LOGIN_USER, userId, userDetailsDTO, tokenExpiration);
+    }
+
+    /**
+     * 删除登录用户缓存
+     *
+     * @param userAuthId 用户认证id
+     */
+    public void deleteLoginUser(Long userAuthId) {
+        redisService.hDel(LOGIN_USER, String.valueOf(userAuthId));
+    }
+
+    /**
+     * 从缓存中获取用户信息DTO
+     *
+     * @param token 令牌
+     * @return UserDetailsDTO 用户信息DTO
+     */
+    public UserDetailsDTO getUserDetailsDTOFromToken(String token) {
+        if (StringUtils.hasText(token) && !token.equals("null")) {
+            String userAuthId = getUserId(token);
+            return (UserDetailsDTO) redisService.hGet(LOGIN_USER, userAuthId);
+        }
+        return null;
     }
 }

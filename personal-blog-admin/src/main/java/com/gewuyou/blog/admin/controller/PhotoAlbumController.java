@@ -78,7 +78,7 @@ public class PhotoAlbumController {
      * @return 相册列表
      */
     @Operation(summary = "查看后台相册列表", description = "查看后台相册列表")
-    @GetMapping
+    @GetMapping("/list")
     public Result<PageResultDTO<PhotoAlbumAdminDTO>> listPhotoAlbumBacks(ConditionVO conditionVO) {
         return Result.success(photoAlbumService.listPhotoAlbumsAdminDTOs(conditionVO));
     }

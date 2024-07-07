@@ -1,4 +1,4 @@
-package com.gewuyou.blog.admin.filter;
+package com.gewuyou.blog.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;

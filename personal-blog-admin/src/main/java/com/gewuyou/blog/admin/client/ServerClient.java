@@ -27,17 +27,17 @@ public interface ServerClient {
     @PostMapping("/user-info/insert")
     void userInfoInsert(UserInfo userInfo);
 
-    @PostMapping("/user-info/count")
-    Long selectUserInfoCount();
+    @GetMapping("/user-info/count")
+    Result<Long> selectUserInfoCount();
 
-    @GetMapping("/user-info/{id}")
+    @GetMapping("/user-info/select/{id}")
     UserInfo selectUserInfoById(@PathVariable(name = "id") Long id);
 
     @GetMapping("/article/count/not-deleted")
     Long selectArticleCountNotDeleted();
 
-    @GetMapping("/article/statistics")
-    List<ArticleStatisticsDTO> listArticleStatistics();
+    @GetMapping("/article/list/archives")
+    Result<List<ArticleStatisticsDTO>> listArticleStatistics();
 
     @PostMapping("/article/rank")
     List<ArticleRankDTO> listArticleRank(@RequestBody Map<Object, Double> articleMap);
@@ -46,7 +46,7 @@ public interface ServerClient {
     Long selectCategoryCount();
 
     @GetMapping("/category/list")
-    List<CategoryDTO> listCategories();
+    Result<List<CategoryDTO>> listCategories();
 
     @GetMapping("/tag/count")
     Long selectTagCount();

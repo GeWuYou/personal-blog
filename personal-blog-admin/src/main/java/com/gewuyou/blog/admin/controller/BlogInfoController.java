@@ -60,7 +60,7 @@ public class BlogInfoController {
      * @return Result<BlogAdminInfoDTO>
      */
     @Operation(summary = "获取博客后台信息", description = "获取博客后台信息")
-    @GetMapping("/admin")
+    @GetMapping
     public Result<BlogAdminInfoDTO> getBlogBackInfo() {
         return Result.success(blogInfoService.getBlogAdminInfo());
     }

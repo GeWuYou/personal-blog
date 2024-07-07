@@ -56,10 +56,9 @@ export default {
             username: that.loginForm.username,
             password: that.loginForm.password
           }
-          _post('/users/login', requestData, (data, message) => {
+          _post('/user/login', requestData, (data, message) => {
             that.$store.commit('login', data)
-            localStorage.setItem('accessToken', data.accessToken)
-            localStorage.setItem('refreshToken', data.refreshToken)
+            localStorage.setItem('token', data.token)
             generaMenu()
             that.$message.success(message)
             that.$router.push({ path: '/' })

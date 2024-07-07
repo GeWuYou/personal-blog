@@ -37,5 +37,5 @@ public interface TagMapper extends BaseMapper<Tag> {
      * @param conditionVO 条件对象
      * @return 分页查询结果
      */
-    List<TagAdminDTO> listTagsAdminDTOs(Page<TagAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
+    Page<TagAdminDTO> listTagsAdminDTOs(Page<TagAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
 }

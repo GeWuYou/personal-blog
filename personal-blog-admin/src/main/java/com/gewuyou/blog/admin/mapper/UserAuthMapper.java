@@ -9,7 +9,6 @@ import com.gewuyou.blog.common.vo.ConditionVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -30,5 +29,5 @@ public interface UserAuthMapper extends BaseMapper<UserAuth> {
 
     Integer countUsers(@Param("conditionVO") ConditionVO conditionVO);
 
-    List<UserAdminDTO> listUsers(Page<UserAdminDTO> page, ConditionVO conditionVO);
+    Page<UserAdminDTO> listUsers(Page<UserAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
 }

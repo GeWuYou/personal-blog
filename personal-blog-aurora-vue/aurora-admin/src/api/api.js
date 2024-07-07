@@ -12,7 +12,7 @@ const defaultErrorMessage = (error) => {
 const defaultFailureMessage = (message) => Message.warning(message)
 // 创建一个axios实例
 const instance = axios.create({
-  baseURL: 'http://localhost:8080/api/v1/admin',  // 请求的基础路径
+  baseURL: 'http://localhost:8082/api/v1/admin',  // 请求的基础路径
   timeout: 10000  // 超时，401
 })
 // // 添加请求拦截器

@@ -363,7 +363,7 @@ export default {
       // })
     },
     listUserArea() {
-      _get('/users/area', {
+      _get('/user/area', {
         params: {
           type: this.type
         }

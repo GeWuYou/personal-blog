@@ -32,7 +32,7 @@ import java.time.LocalDateTime;
 public class UserAuth extends BaseModel implements Serializable {
 
     @Builder
-    public UserAuth(LocalDateTime createTime, LocalDateTime updateTime, Long id, Long userInfoId, String username, String email, String password, Integer loginType, String ipAddress, String ipSource, LocalDateTime lastLoginTime) {
+    public UserAuth(LocalDateTime createTime, LocalDateTime updateTime, Long id, Long userInfoId, String username, String email, String password, Byte loginType, String ipAddress, String ipSource, LocalDateTime lastLoginTime) {
         super(createTime, updateTime);
         this.id = id;
         this.userInfoId = userInfoId;
@@ -70,7 +70,7 @@ public class UserAuth extends BaseModel implements Serializable {
 
     @Schema(description = "登录类型  0表示密码登录 1表示邮箱登录 2表示微信登录 3表示QQ登录")
     @TableField("login_type")
-    private Integer loginType;
+    private Byte loginType;
 
     @Schema(description = "用户登录ip")
     @TableField("ip_address")

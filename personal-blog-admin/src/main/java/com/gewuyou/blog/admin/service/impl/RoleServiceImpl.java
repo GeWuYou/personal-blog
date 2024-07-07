@@ -4,7 +4,6 @@ package com.gewuyou.blog.admin.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.gewuyou.blog.admin.handler.FilterInvocationSecurityMetadataSourceImpl;
 import com.gewuyou.blog.admin.mapper.RoleMapper;
 import com.gewuyou.blog.admin.mapper.UserRoleMapper;
 import com.gewuyou.blog.admin.service.IRoleMenuService;
@@ -23,6 +22,7 @@ import com.gewuyou.blog.common.model.UserRole;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.RoleVO;
+import com.gewuyou.blog.security.source.DynamicSecurityMetadataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,14 +48,17 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
     private final IRoleMenuService roleMenuService;
 
-    private final FilterInvocationSecurityMetadataSourceImpl filterInvocationSecurityMetadataSource;
+    private final DynamicSecurityMetadataSource dynamicSecurityMetadataSource;
     private final UserRoleMapper userRoleMapper;
 
     @Autowired
-    public RoleServiceImpl(IRoleResourceService roleResourceService, IRoleMenuService roleMenuService, FilterInvocationSecurityMetadataSourceImpl filterInvocationSecurityMetadataSource, UserRoleMapper userRoleMapper) {
+    public RoleServiceImpl(IRoleResourceService roleResourceService,
+                           IRoleMenuService roleMenuService,
+                           DynamicSecurityMetadataSource dynamicSecurityMetadataSource,
+                           UserRoleMapper userRoleMapper) {
         this.roleResourceService = roleResourceService;
         this.roleMenuService = roleMenuService;
-        this.filterInvocationSecurityMetadataSource = filterInvocationSecurityMetadataSource;
+        this.dynamicSecurityMetadataSource = dynamicSecurityMetadataSource;
         this.userRoleMapper = userRoleMapper;
     }
 
@@ -128,7 +131,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
                             .build())
                     .collect(Collectors.toList());
             roleResourceService.saveBatch(roleResourceList);
-            filterInvocationSecurityMetadataSource.clearDataSource();
+            dynamicSecurityMetadataSource.clearDataSource();
         }
         if (Objects.nonNull(roleVO.getMenuIds())) {
             if (Objects.nonNull(roleVO.getId())) {

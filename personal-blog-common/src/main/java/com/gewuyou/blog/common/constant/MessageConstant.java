@@ -106,6 +106,15 @@ public class MessageConstant {
      * 邮箱已注册
      */
     public static final String EMAIL_IS_REGISTERED = "该邮箱已被注册";
+
+    /**
+     * 邮箱不能为空
+     */
+    public static final String EMAIL_IS_EMPTY = "邮箱不能为空!";
+    /**
+     * 邮箱格式不正确
+     */
+    public static final String EMAIL_IS_INCORRECT = "邮箱格式不正确!";
     /**
      * 当前邮件发送请求过于频繁，请稍后后再试
      */
@@ -177,4 +186,8 @@ public class MessageConstant {
     public static final String COMMENT_TYPE_CANNOT_BE_EMPTY = "评论类型不能为空!";
     public static final String ID_CANNOT_BE_EMPTY = "id不能为空!";
     public static final String REVIEW_STATUS_CANNOT_BE_EMPTY = "审核状态不能为空";
+    public static final String TALK_CONTENT_CANNOT_BE_EMPTY = "说说内容不能为空!";
+    public static final String TALK_STATUS_CANNOT_BE_EMPTY = "说说状态不能为空!";
+    public static final String PINNED_STATE_CANNOT_BE_EMPTY = "置顶状态不能为空!";
+
 }

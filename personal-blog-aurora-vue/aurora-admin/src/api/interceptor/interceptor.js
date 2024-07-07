@@ -7,7 +7,7 @@ function requestInterceptor(config) {
     return config
   }
   // 先从持久化的存储中尝试获取token
-  let token = localStorage.getItem('accessToken')
+  let token = localStorage.getItem('token')
   // 如果token存在，则设置Authorization请求头
   if (token !== null && token !== undefined) {
     config.headers.Authorization = `Bearer ${token}`

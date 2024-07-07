@@ -16,6 +16,9 @@ import java.io.Serializable;
 @Schema(description = "返回结果包装类")
 @Data
 public class Result<T> implements Serializable {
+    public Result() {
+    }
+
     /**
      * 结果代码
      */

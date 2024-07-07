@@ -6,11 +6,12 @@
 		<groupId>com.gewuyou</groupId>
 		<artifactId>personal-blog</artifactId>
 		<version>0.1.0</version>
+        <relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>personal-blog-search</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
 	<name>personal-blog-search</name>
-	<description>personal-blog-search</description>
+    <description>项目搜索模块</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>

@@ -124,6 +124,16 @@ public class UserAuthController {
         }
     }
 
+    /**
+     * 退出登录接口
+     *
+     * @return 退出登录结果
+     */
+    @PostMapping("/logout")
+    public Result<String> logout() {
+        return Result.success(userAuthService.logout());
+    }
+
 
     /**
      * 注册接口

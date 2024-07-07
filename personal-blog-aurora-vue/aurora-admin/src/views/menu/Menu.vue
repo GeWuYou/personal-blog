@@ -152,7 +152,7 @@ export default {
   },
   methods: {
     listMenus() {
-      _get('/menus', { keywords: this.keywords }, (message, code, data) => {
+      _get('/menu', { keywords: this.keywords }, (message, code, data) => {
         this.menus = data
         this.loading = false
       })
@@ -215,7 +215,7 @@ export default {
         id: menu.id,
         isHidden: menu.isHidden
       }
-      _put('/menus/isHidden', params,
+      _put('/menu/isHidden', params,
         () => {
           this.$notify.success({
             title: '成功',
@@ -259,7 +259,7 @@ export default {
         this.$message.error('菜单访问路径不能为空')
         return false
       }
-      _post('/menus', this.menuForm,
+      _post('/menu', this.menuForm,
         () => {
           this.$notify.success({
             title: '成功',
@@ -291,7 +291,7 @@ export default {
     }
     ,
     deleteMenu(id) {
-      _delete('/menus', id, () => {
+      _delete('/menu', id, () => {
         this.$notify.success({
           title: '成功',
           message: '删除成功'

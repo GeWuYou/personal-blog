@@ -1,10 +1,10 @@
-package com.gewuyou.blog.admin.filter;
+package com.gewuyou.blog.security.filter;
 
-import com.gewuyou.blog.admin.config.entity.SecurityIgnoreUrl;
-import com.gewuyou.blog.admin.security.service.JwtService;
-import com.gewuyou.blog.common.dto.UserDetailsDTO;
+
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
+import com.gewuyou.blog.security.config.SecurityIgnoreUrl;
+import com.gewuyou.blog.security.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -88,11 +88,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             log.error("token已过期：{}", token);
             throw new GlobalException(ResponseInformation.TOKEN_EXPIRED);
         }
-        // 从token中解析用户名或邮箱
-        String username = jwtService.getUsername(token);
-        log.info("解析出用户名：{}", username);
-        // 获取当前登录用户UserDetails并强转为UserDetailsDto
-        UserDetailsDTO userDetailsDTO = (UserDetailsDTO) userDetailsService.loadUserByUsername(username);
+        //  从token中获取当前登录用户UserDetails并强转为UserDetailsDto
+        var userDetailsDTO = jwtService.getUserDetailsDTOFromToken(token);
         // 构建认证token
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userDetailsDTO, null, userDetailsDTO.getAuthorities());

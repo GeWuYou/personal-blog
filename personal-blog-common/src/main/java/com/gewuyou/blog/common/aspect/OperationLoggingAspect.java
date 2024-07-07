@@ -13,7 +13,6 @@ import com.gewuyou.blog.common.utils.UserUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -93,7 +92,13 @@ public class OperationLoggingAspect {
         Tag tag = joinPoint.getTarget().getClass().getAnnotation(Tag.class);
         // 获取方法注解Operation
         Operation operation = method.getAnnotation(Operation.class);
-        UserDetailsDTO userDetailsDTO = UserUtil.getUserDetailsDTO();
+        UserDetailsDTO userDetailsDTO;
+        // 如果是未登录用户，则不记录日志
+        try {
+            userDetailsDTO = UserUtil.getUserDetailsDTO();
+        } catch (Exception e) {
+            return;
+        }
         String ipAddress = IpUtil.getIpAddress(Objects.requireNonNull(request));
         String ipSource = IpUtil.getIpSource(ipAddress);
         try {
