@@ -56,7 +56,7 @@ export default {
             username: that.loginForm.username,
             password: that.loginForm.password
           }
-          _post('/user/login', requestData, (data, message) => {
+          _post('/admin/user/login', requestData, (data, message) => {
             that.$store.commit('login', data)
             localStorage.setItem('token', data.token)
             generaMenu()

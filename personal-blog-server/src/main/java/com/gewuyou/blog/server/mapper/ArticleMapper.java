@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gewuyou.blog.common.dto.ArticleCardDTO;
 import com.gewuyou.blog.common.dto.ArticleDTO;
+import com.gewuyou.blog.common.dto.ArticleStatisticsDTO;
 import com.gewuyou.blog.common.model.Article;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -93,4 +94,11 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @return 文章卡片列表DTO
      */
     List<ArticleCardDTO> listArticleCardDTOsByTagId(Page<ArticleCardDTO> page, @Param("tagId") Long tagId);
+
+    /**
+     * 获取文章统计信息
+     *
+     * @return 文章统计信息列表
+     */
+    List<ArticleStatisticsDTO> listArticleStatistics();
 }

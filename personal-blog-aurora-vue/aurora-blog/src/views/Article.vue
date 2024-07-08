@@ -138,20 +138,20 @@
 </template>
 
 <script lang="ts">
-import { Sidebar, Profile, Navigator } from '@/components/Sidebar'
+import { Navigator, Profile, Sidebar } from '@/components/Sidebar'
 import {
   computed,
   defineComponent,
+  getCurrentInstance,
   nextTick,
-  onUnmounted,
   onMounted,
+  onUnmounted,
+  provide,
   reactive,
   ref,
-  toRefs,
-  provide,
-  getCurrentInstance
+  toRefs
 } from 'vue'
-import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
+import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Comment } from '@/components/Comment'
 import { SubTitle } from '@/components/Title'
@@ -164,12 +164,13 @@ import Prism from 'prismjs'
 import tocbot from 'tocbot'
 import emitter from '@/utils/mitt'
 import { v3ImgPreviewFn } from 'v3-img-preview'
-import api from '@/api/api'
+import api from '@/api/function'
 import markdownToHtml from '@/utils/markdown'
+import ObSkeleton from '@/components/LoadingSkeleton/src/Skeleton.vue'
 
 export default defineComponent({
   name: 'Article',
-  components: { Sidebar, Comment, SubTitle, ArticleCard, Profile, Sticky, Navigator },
+  components: { ObSkeleton, Sidebar, Comment, SubTitle, ArticleCard, Profile, Sticky, Navigator },
   setup() {
     const proxy: any = getCurrentInstance()?.appContext.config.globalProperties
     const commonStore = useCommonStore()
@@ -276,7 +277,7 @@ export default defineComponent({
     }
     const fetchArticle = () => {
       loading.value = true
-      api.getArticeById(reactiveData.articleId).then(({ data }) => {
+      api.getArticleById(reactiveData.articleId).then(({ data }) => {
         if (data.code === 52003) {
           proxy.$notify({
             title: 'Error',
@@ -338,11 +339,7 @@ export default defineComponent({
         } else {
           reactiveData.comments.push(...data.data.records)
         }
-        if (data.data.count <= reactiveData.comments.length) {
-          reactiveData.haveMore = false
-        } else {
-          reactiveData.haveMore = true
-        }
+        reactiveData.haveMore = data.data.count > reactiveData.comments.length
         pageInfo.current++
       })
     }

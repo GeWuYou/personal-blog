@@ -50,17 +50,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive, toRefs, provide, computed } from 'vue'
+import { computed, defineComponent, onMounted, provide, reactive, toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Breadcrumb from '@/components/Breadcrumb.vue'
-import { Sidebar, Profile } from '../components/Sidebar'
+import { Profile, Sidebar } from '../components/Sidebar'
 import { Comment } from '../components/Comment'
 import Avatar from '../components/Avatar.vue'
 import { useCommentStore } from '@/stores/comment'
 import { v3ImgPreviewFn } from 'v3-img-preview'
 import emitter from '@/utils/mitt'
-import api from '@/api/api'
+import api from '@/api/function'
 
 export default defineComponent({
   name: 'talks',

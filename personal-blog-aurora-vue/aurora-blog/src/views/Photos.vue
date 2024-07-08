@@ -44,11 +44,11 @@
 import { computed, defineComponent, reactive, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCommonStore } from '@/stores/common'
-import { useRoute, onBeforeRouteUpdate } from 'vue-router'
-import { Sidebar, Profile } from '../components/Sidebar'
+import { onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { Profile, Sidebar } from '../components/Sidebar'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import { v3ImgPreviewFn } from 'v3-img-preview'
-import api from '@/api/api'
+import api from '@/api/function'
 
 export default defineComponent({
   name: 'Photos',

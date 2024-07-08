@@ -21,14 +21,14 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, toRefs, reactive, getCurrentInstance, computed } from 'vue'
+import { computed, defineComponent, getCurrentInstance, reactive, toRefs } from 'vue'
 import Avatar from '@/components/Avatar.vue'
 import { SubTitle } from '@/components/Title'
 import { useUserStore } from '@/stores/user'
 import { useRoute } from 'vue-router'
 import { useCommentStore } from '@/stores/comment'
 import { useAppStore } from '@/stores/app'
-import api from '@/api/api'
+import api from '@/api/function'
 import emitter from '@/utils/mitt'
 
 export default defineComponent({

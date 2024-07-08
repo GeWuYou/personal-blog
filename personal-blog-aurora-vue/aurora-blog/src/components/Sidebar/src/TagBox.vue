@@ -20,9 +20,9 @@
 import { defineComponent, onMounted, toRef } from 'vue'
 import { SubTitle } from '@/components/Title'
 import { useTagStore } from '@/stores/tag'
-import { TagList, TagItem } from '@/components/Tag'
+import { TagItem, TagList } from '@/components/Tag'
 import { useI18n } from 'vue-i18n'
-import api from '@/api/api'
+import api from '@/api/function'
 
 export default defineComponent({
   name: 'ObTag',

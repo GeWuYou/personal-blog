@@ -13,7 +13,7 @@ export default {
     if (this.$store.state.userInfo != null) {
       generaMenu()
     }
-    _post('/report', {}, () => {
+    _post('/admin/report', {}, () => {
     })
     // this.axios.post('/api/report')
   }

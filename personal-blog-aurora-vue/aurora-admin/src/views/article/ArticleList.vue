@@ -11,11 +11,11 @@
     </div>
     <div class="operation-container">
       <el-button
-        v-if="isDelete == 0"
+        v-if="isDelete === 0"
         type="danger"
         size="small"
         icon="el-icon-delete"
-        :disabled="articleIds.length == 0"
+        :disabled="articleIds.length === 0"
         @click="updateIsDelete = true">
         批量删除
       </el-button>
@@ -24,7 +24,7 @@
         type="danger"
         size="small"
         icon="el-icon-delete"
-        :disabled="articleIds.length == 0"
+        :disabled="articleIds.length === 0"
         @click="remove = true">
         批量删除
       </el-button>
@@ -32,7 +32,7 @@
         type="success"
         size="small"
         icon="el-icon-download"
-        :disabled="articleIds.length == 0"
+        :disabled="articleIds.length === 0"
         style="margin-right: 1rem"
         @click="isExport = true">
         批量导出
@@ -98,11 +98,11 @@
             :src="
               scope.row.articleCover
                 ? scope.row.articleCover
-                : 'https://static.talkxj.com/articles/c5cc2b2561bd0e3060a500198a4ad37d.png'
+                : 'https://ui-avatars.com/api/?name=default&background=random'
             " />
-          <i v-if="scope.row.status == 1" class="iconfont el-icon-mygongkai article-status-icon" />
-          <i v-if="scope.row.status == 2" class="iconfont el-icon-mymima article-status-icon" />
-          <i v-if="scope.row.status == 3" class="iconfont el-icon-mycaogaoxiang article-status-icon" />
+          <i v-if="scope.row.status === 1" class="iconfont el-icon-mygongkai article-status-icon" />
+          <i v-if="scope.row.status === 2" class="iconfont el-icon-mymima article-status-icon" />
+          <i v-if="scope.row.status === 3" class="iconfont el-icon-mycaogaoxiang article-status-icon" />
         </template>
       </el-table-column>
       <el-table-column prop="articleTitle" label="标题" align="center" />
@@ -141,7 +141,7 @@
             v-model="scope.row.isTop"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            :disabled="scope.row.isDelete == 1"
+            :disabled="scope.row.isDelete === 1"
             :active-value="1"
             :inactive-value="0"
             @change="changeTopAndFeatured(scope.row)" />
@@ -153,7 +153,7 @@
             v-model="scope.row.isFeatured"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            :disabled="scope.row.isDelete == 1"
+            :disabled="scope.row.isDelete === 1"
             :active-value="1"
             :inactive-value="0"
             @change="changeTopAndFeatured(scope.row)" />
@@ -161,25 +161,25 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="150">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="editArticle(scope.row.id)" v-if="scope.row.isDelete == 0">
+          <el-button type="primary" size="mini" @click="editArticle(scope.row.id)" v-if="scope.row.isDelete === 0">
             编辑
           </el-button>
           <el-popconfirm
             title="确定删除吗？"
             style="margin-left: 10px"
             @confirm="updateArticleDelete(scope.row.id)"
-            v-if="scope.row.isDelete == 0">
+            v-if="scope.row.isDelete === 0">
             <el-button size="mini" type="danger" slot="reference"> 删除</el-button>
           </el-popconfirm>
           <el-popconfirm
             title="确定恢复吗？"
-            v-if="scope.row.isDelete == 1"
+            v-if="scope.row.isDelete === 1"
             @confirm="updateArticleDelete(scope.row.id)">
             <el-button size="mini" type="success" slot="reference"> 恢复</el-button>
           </el-popconfirm>
           <el-popconfirm
             style="margin-left: 10px"
-            v-if="scope.row.isDelete == 1"
+            v-if="scope.row.isDelete === 1"
             title="确定彻底删除吗？"
             @confirm="deleteArticles(scope.row.id)">
             <el-button size="mini" type="danger" slot="reference"> 删除</el-button>
@@ -225,6 +225,8 @@
 </template>
 
 <script>
+import { _delete, _get, _post, _put } from '@/api/api'
+
 export default {
   created() {
     this.current = this.$store.state.pageState.articleList
@@ -290,22 +292,34 @@ export default {
       } else {
         param.ids = this.articleIds
       }
-      param.isDelete = this.isDelete == 0 ? 1 : 0
-      this.axios.put('/api/admin/articles', param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listArticles()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
-        this.updateIsDelete = false
+      param.isDelete = this.isDelete === 0 ? 1 : 0
+      _put('/admin/article', param, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listArticles()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.put('/api/admin/articles', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listArticles()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.updateIsDelete = false
+      // })
     },
     deleteArticles(id) {
       let param = {}
@@ -314,52 +328,85 @@ export default {
       } else {
         param = { data: [id] }
       }
-      this.axios.delete('/api/admin/articles/delete', param).then(({ data }) => {
-        if (data.flag) {
+      _delete('/admin/article', param, (_, message) => {
           this.$notify.success({
             title: '成功',
-            message: data.message
+            message: message
           })
           this.listArticles()
-        } else {
+        }, (message) => {
           this.$notify.error({
             title: '失败',
-            message: data.message
+            message: message
           })
+        },
+        () => {
+          this.remove = false
         }
-        this.remove = false
-      })
+      )
+      // this.axios.delete('/api/admin/articles/delete', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listArticles()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.remove = false
+      // })
     },
     exportArticles(id) {
-      var param = {}
+      let param = {}
       if (id == null) {
         param = this.articleIds
       } else {
         param = [id]
       }
-      this.axios.post('/api/admin/articles/export', param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          data.data.forEach((item) => {
-            this.downloadFile(item)
-          })
-          this.listArticles()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _post('/admin/article/export', param, (data, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        data.forEach((item) => {
+          this.downloadFile(item)
+        })
+        this.listArticles()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, () => {
         this.isExport = false
       })
+      // this.axios.post('/api/admin/articles/export', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     data.data.forEach((item) => {
+      //       this.downloadFile(item)
+      //     })
+      //     this.listArticles()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.isExport = false
+      // })
     },
     downloadFile(url) {
       const iframe = document.createElement('iframe')
       iframe.style.display = 'none'
-      iframe.style.height = 0
+      iframe.style.height = '0'
       iframe.src = url
       document.body.appendChild(iframe)
       setTimeout(() => {
@@ -416,56 +463,96 @@ export default {
       this.activeStatus = status
     },
     changeTopAndFeatured(article) {
-      this.axios
-        .put('/api/admin/articles/topAndFeatured', {
+      _put('/admin/article/top-and-featured',
+        {
           id: article.id,
           isTop: article.isTop,
           isFeatured: article.isFeatured
-        })
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: '成功',
-              message: '修改成功'
-            })
-          } else {
-            this.$notify.error({
-              title: '失败',
-              message: data.message
-            })
-          }
+        }, () => {
+          this.$notify.success({
+            title: '成功',
+            message: '修改成功'
+          })
+        }, (message) => {
+          this.$notify.error({
+            title: '失败',
+            message: message
+          })
+        }, null, () => {
           this.remove = false
         })
+      // this.axios
+      //   .put('/api/admin/article/topAndFeatured', {
+      //     id: article.id,
+      //     isTop: article.isTop,
+      //     isFeatured: article.isFeatured
+      //   })
+      //   .then(({ data }) => {
+      //     if (data.flag) {
+      //       this.$notify.success({
+      //         title: '成功',
+      //         message: '修改成功'
+      //       })
+      //     } else {
+      //       this.$notify.error({
+      //         title: '失败',
+      //         message: data.message
+      //       })
+      //     }
+      //     this.remove = false
+      //   })
     },
     listArticles() {
-      this.axios
-        .get('/api/admin/articles', {
-          params: {
-            current: this.current,
-            size: this.size,
-            keywords: this.keywords,
-            categoryId: this.categoryId,
-            status: this.status,
-            tagId: this.tagId,
-            type: this.type,
-            isDelete: this.isDelete
-          }
-        })
-        .then(({ data }) => {
-          this.articles = data.data.records
-          this.count = data.data.count
+      _get('/admin/article/list', {
+          current: this.current,
+          size: this.size,
+          keywords: this.keywords,
+          categoryId: this.categoryId,
+          status: this.status,
+          tagId: this.tagId,
+          type: this.type,
+          isDelete: this.isDelete
+        },
+        (data) => {
+          this.articles = data.records
+          this.count = data.count
           this.loading = false
-        })
+        }
+      )
+      // this.axios
+      //   .get('/api/admin/articles', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       keywords: this.keywords,
+      //       categoryId: this.categoryId,
+      //       status: this.status,
+      //       tagId: this.tagId,
+      //       type: this.type,
+      //       isDelete: this.isDelete
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.articles = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     },
     listCategories() {
-      this.axios.get('/api/admin/categories/search').then(({ data }) => {
+      _get('/admin/category/search', {}, (data) => {
         this.categories = data.data
       })
+      // this.axios.get('/api/admin/categories/search').then(({ data }) => {
+      //   this.categories = data.data
+      // })
     },
     listTags() {
-      this.axios.get('/api/admin/tags/search').then(({ data }) => {
+      _get('/admin/tag/search', {}, (data) => {
         this.tags = data.data
       })
+      // this.axios.get('/api/admin/tag/search').then(({ data }) => {
+      //   this.tags = data.data
+      // })
     }
   },
   watch: {
@@ -517,7 +604,7 @@ export default {
     },
     isActive() {
       return function(status) {
-        return this.activeStatus == status ? 'active-status' : 'status'
+        return this.activeStatus === status ? 'active-status' : 'status'
       }
     }
   }

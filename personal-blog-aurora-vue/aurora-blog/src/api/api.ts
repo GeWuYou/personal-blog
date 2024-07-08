@@ -1,114 +1,115 @@
-import axios from 'axios'
+// 导入异步请求包
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 
-
-export default {
-  getTopAndFeaturedArticles: () => {
-    return axios.get('/api/articles/topAndFeatured')
-  },
-  getArticles: (params: any) => {
-    return axios.get('/api/articles/all', { params: params })
-  },
-  getArticlesByCategoryId: (params: any) => {
-    return axios.get('/api/articles/categoryId', { params: params })
-  },
-  getArticeById: (articleId: any) => {
-    return axios.get('/api/articles/' + articleId)
-  },
-  getAllCategories: () => {
-    return axios.get('/api/categories/all')
-  },
-  getAllTags: () => {
-    return axios.get('/api/tags/all')
-  },
-  getTopTenTags: () => {
-    return axios.get('/api/tags/topTen')
-  },
-  getArticlesByTagId: (params: any) => {
-    return axios.get('/api/articles/tagId', { params: params })
-  },
-  getAllArchives: (params: any) => {
-    return axios.get('/api/archives/all', { params: params })
-  },
-  login: (params: any) => {
-    return axios.post('/api/users/login', params)
-  },
-  saveComment: (params: any) => {
-    return axios.post('/api/comments/save', params)
-  },
-  getComments: (params: any) => {
-    return axios.get('/api/comments', { params: params })
-  },
-  getTopSixComments: () => {
-    return axios.get('/api/comments/topSix')
-  },
-  getAbout: () => {
-    return axios.get('/api/about')
-  },
-  getFriendLink: () => {
-    return axios.get('/api/links')
-  },
-  submitUserInfo: (params: any) => {
-    return axios.put('/api/users/info', params)
-  },
-  getUserInfoById: (id: any) => {
-    return axios.get('/api/users/info/' + id)
-  },
-  updateUserSubscribe: (params: any) => {
-    return axios.put('/api/users/subscribe', params)
-  },
-  sendValidationCode: (username: any) => {
-    return axios.get('/api/users/code', {
-      params: {
-        username: username
-      }
-    })
-  },
-  bindingEmail: (params: any) => {
-    return axios.put('/api/users/email', params)
-  },
-  register: (params: any) => {
-    return axios.post('/api/admin/users/register', params)
-  },
-  searchArticles: (params: any) => {
-    return axios.get('/api/articles/search', {
-      params: params
-    })
-  },
-  getAlbums: () => {
-    return axios.get('/api/photos/albums')
-  },
-  getPhotosBuAlbumId: (albumId: any, params: any) => {
-    return axios.get('/api/albums/' + albumId + '/photos', {
-      params: params
-    })
-  },
-  getWebsiteConfig: () => {
-    return axios.get('/api')
-  },
-  qqLogin: (params: any) => {
-    return axios.post('/api/users/oauth/qq', params)
-  },
-  report: () => {
-    axios.post('/api/admin/report')
-  },
-  getTalks: (params: any) => {
-    return axios.get('/api/talks', {
-      params: params
-    })
-  },
-  getTalkById: (id: any) => {
-    return axios.get('/api/talks/' + id)
-  },
-  logout: () => {
-    return axios.post('/api/users/logout')
-  },
-  getRepliesByCommentId: (commentId: any) => {
-    return axios.get(`/api/comments/${commentId}/replies`)
-  },
-  updatePassword: (params: any) => {
-    return axios.put('/api/users/password', params)
-  },
-  accessArticle: (params: any) => {
-    return axios.post('/api/articles/access', params)
-  }
+// 默认的错误信息
+const defaultErrorMessage = (error: any): void => {
+  console.log(error)
 }
+
+// 默认的失败信息
+const defaultFailureMessage = (message: string): void => console.log(message)
+
+// 创建一个axios实例
+const instance: AxiosInstance = axios.create({
+  baseURL: 'http://localhost:8082/api/v1/server',  // 请求的基础路径
+  timeout: 10000  // 超时，401
+})
+
+// 定义响应数据类型
+interface ResponseData<T = any> {
+  success: boolean;
+  data: T;
+  message: string;
+  code: number;
+}
+
+/**
+ * 异步post请求
+ * @param url 请求url
+ * @param data 提交的数据
+ * @param success 成功响应回调
+ * @param failure 失败响应回调
+ * @param error 错误响应回调
+ */
+function _post<T>(url: string, data: any, success: (data: T, message: string, code: number) => void, failure: (message: string, code: number) => void = defaultFailureMessage, error: (error: any) => void = defaultErrorMessage): void {
+  instance.post(url, JSON.stringify(data), {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then((response: AxiosResponse<ResponseData<T>>) => {
+    const { data } = response
+    if (data.success) {
+      success(data.data, data.message, data.code)
+    } else {
+      failure(data.message, data.code)
+    }
+  }).catch(error)
+}
+
+/**
+ * 异步get请求
+ * @param url 请求url
+ * @param data 请求参数
+ * @param success 成功响应回调
+ * @param failure 失败响应回调
+ * @param error 错误响应回调
+ */
+function _get<T>(url: string, data: any, success: (data: T, message: string, code: number) => void, failure: (message: string, code: number) => void = defaultFailureMessage, error: (error: any) => void = defaultErrorMessage): void {
+  instance.get(url, {
+    params: data
+  }).then((response: AxiosResponse<ResponseData<T>>) => {
+    const { data } = response
+    if (data.success) {
+      success(data.data, data.message, data.code)
+    } else {
+      failure(data.message, data.code)
+    }
+  }).catch(error)
+}
+
+/**
+ * 异步put请求
+ * @param url 请求url
+ * @param data 提交的数据
+ * @param success 成功响应回调
+ * @param failure 失败响应回调
+ * @param error 错误响应回调
+ */
+function _put<T>(url: string, data: any, success: (data: T, message: string, code: number) => void, failure: (message: string, code: number) => void = defaultFailureMessage, error: (error: any) => void = defaultErrorMessage): void {
+  instance.put(url, JSON.stringify(data), {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then((response: AxiosResponse<ResponseData<T>>) => {
+    const { data } = response
+    if (data.success) {
+      success(data.data, data.message, data.code)
+    } else {
+      failure(data.message, data.code)
+    }
+  }).catch(error)
+}
+
+/**
+ * 异步delete请求
+ * @param url 请求url
+ * @param data 提交的数据
+ * @param success 成功响应回调
+ * @param failure 失败响应回调
+ * @param error 错误响应回调
+ */
+function _delete<T>(url: string, data: any, success: (data: T, message: string, code: number) => void, failure: (message: string, code: number) => void = defaultFailureMessage, error: (error: any) => void = defaultErrorMessage): void {
+  instance.delete(url, {
+    params: data
+  })
+    .then((response: AxiosResponse<ResponseData<T>>) => {
+      const { data } = response
+      if (data.success) {
+        success(data.data, data.message, data.code)
+      } else {
+        failure(data.message, data.code)
+      }
+    }).catch(error)
+}
+
+export { _get, _post, _put, _delete }

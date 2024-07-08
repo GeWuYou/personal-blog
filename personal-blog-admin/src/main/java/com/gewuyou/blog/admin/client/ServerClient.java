@@ -36,7 +36,7 @@ public interface ServerClient {
     @GetMapping("/article/count/not-deleted")
     Long selectArticleCountNotDeleted();
 
-    @GetMapping("/article/list/archives")
+    @GetMapping("/article/list/statistics")
     Result<List<ArticleStatisticsDTO>> listArticleStatistics();
 
     @PostMapping("/article/rank")

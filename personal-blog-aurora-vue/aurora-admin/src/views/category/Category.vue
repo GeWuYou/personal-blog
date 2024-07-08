@@ -7,7 +7,7 @@
         type="danger"
         size="small"
         icon="el-icon-delete"
-        :disabled="this.categoryIds.length == 0"
+        :disabled="this.categoryIds.length === 0"
         @click="isDelete = true">
         批量删除
       </el-button>
@@ -82,6 +82,8 @@
 </template>
 
 <script>
+import { _delete, _get, _post } from '@/api/api'
+
 export default {
   created() {
     this.current = this.$store.state.pageState.category
@@ -131,36 +133,62 @@ export default {
       } else {
         param = { data: [id] }
       }
-      this.axios.delete('/api/admin/categories', param).then(({ data }) => {
-        if (data.flag) {
+      _delete('admin/category', param, (_, message) => {
           this.$notify.success({
             title: '成功',
-            message: data.message
+            message: message
           })
           this.listCategories()
-        } else {
+        },
+        (message) => {
           this.$notify.error({
             title: '失败',
-            message: data.message
+            message: message
           })
+        },
+        () => {
+          this.isDelete = false
         }
-        this.isDelete = false
-      })
+      )
+      // this.axios.delete('/api/admin/categories', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listCategories()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.isDelete = false
+      // })
     },
     listCategories() {
-      this.axios
-        .get('/api/admin/categories', {
-          params: {
-            current: this.current,
-            size: this.size,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.categories = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/category/list', {
+        current: this.current,
+        size: this.size,
+        keywords: this.keywords
+      }, (data) => {
+        this.categories = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/admin/category', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       keywords: this.keywords
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.categories = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     },
     openModel(category) {
       if (category != null) {
@@ -174,25 +202,39 @@ export default {
       this.addOrEdit = true
     },
     addOrEditCategory() {
-      if (this.categoryForm.categoryName.trim() == '') {
+      if (this.categoryForm.categoryName.trim() === '') {
         this.$message.error('分类名不能为空')
         return false
       }
-      this.axios.post('/api/admin/categories', this.categoryForm).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listCategories()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _post('/admin/category', this.categoryForm, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listCategories()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, () => {
         this.addOrEdit = false
       })
+      // this.axios.post('/admin/categories', this.categoryForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listCategories()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.addOrEdit = false
+      // })
     }
   }
 }

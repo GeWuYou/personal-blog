@@ -37,7 +37,7 @@ import static com.gewuyou.blog.common.enums.OperationType.*;
  */
 @Tag(name = "文章前端控制器", description = "文章前端控制器")
 @RestController
-@RequestMapping(InterfacePermissionConstant.SERVER_BASE_URL + "/article")
+@RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/article")
 public class ArticleController {
     private final IArticleTransactionalService articleTransactionalService;
     private final IArticleService articleService;

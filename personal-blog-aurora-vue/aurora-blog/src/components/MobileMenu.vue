@@ -98,12 +98,12 @@
 import { computed, defineComponent, onMounted, reactive, toRefs } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useI18n } from 'vue-i18n'
-import { Dropdown, DropdownMenu, DropdownItem } from '@/components/Dropdown'
+import { Dropdown, DropdownItem, DropdownMenu } from '@/components/Dropdown'
 import { useRouter } from 'vue-router'
 import { useNavigatorStore } from '@/stores/navigator'
 import Social from '@/components/Social.vue'
 import config from '@/config/config'
-import api from '@/api/api'
+import api from '@/api/function'
 
 export default defineComponent({
   name: 'ObMobileMenu',

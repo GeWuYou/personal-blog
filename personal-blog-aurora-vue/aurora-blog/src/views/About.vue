@@ -47,10 +47,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, toRefs, ref, reactive, nextTick, provide, computed } from 'vue'
+import { computed, defineComponent, nextTick, onMounted, onUnmounted, provide, reactive, ref, toRefs } from 'vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import { useI18n } from 'vue-i18n'
-import { Sidebar, Profile, Navigator } from '@/components/Sidebar'
+import { Navigator, Profile, Sidebar } from '@/components/Sidebar'
 import { useCommonStore } from '@/stores/common'
 import { useCommentStore } from '@/stores/comment'
 import Sticky from '@/components/Sticky.vue'
@@ -59,7 +59,7 @@ import { Comment } from '@/components/Comment'
 import tocbot from 'tocbot'
 import Prism from 'prismjs'
 import '@/styles/prism-aurora-future.css'
-import api from '@/api/api'
+import api from '@/api/function'
 import emitter from '@/utils/mitt'
 import { v3ImgPreviewFn } from 'v3-img-preview'
 import markdownToHtml from '@/utils/markdown'

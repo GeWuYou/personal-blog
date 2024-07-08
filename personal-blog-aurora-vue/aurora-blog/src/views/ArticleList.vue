@@ -30,7 +30,7 @@ import Breadcrumb from '@/components/Breadcrumb.vue'
 import { ArticleCard } from '@/components/ArticleCard'
 import Paginator from '@/components/Paginator.vue'
 import { useRoute } from 'vue-router'
-import api from '@/api/api'
+import api from '@/api/function'
 import markdownToHtml from '@/utils/markdown'
 
 export default defineComponent({

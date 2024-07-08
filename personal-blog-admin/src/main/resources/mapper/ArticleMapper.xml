@@ -55,7 +55,7 @@
         a.create_time,
         category_name,
         t.tag_id,
-        tag_name,
+        tag_name
         FROM(
         SELECT
         id,
@@ -67,7 +67,7 @@
         is_featured,
         is_delete,
         create_time,
-        update_time,
+        update_time
         FROM tb_article
         <where>
             is_delete = #{conditionVO.isDelete}

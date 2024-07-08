@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
@@ -41,22 +40,15 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final SecurityIgnoreUrl securityIgnoreUrl;
 
-    /**
-     * UserDetailsService实现类
-     */
-    private final UserDetailsService userDetailsService;
-
     private final JwtService jwtService;
 
     @Autowired
     public JwtAuthorizationFilter(
             AuthenticationManager authenticationManager,
-            UserDetailsService userDetailsService,
             SecurityIgnoreUrl securityIgnoreUrl,
             JwtService jwtService
     ) {
         super(authenticationManager);
-        this.userDetailsService = userDetailsService;
         this.securityIgnoreUrl = securityIgnoreUrl;
         this.jwtService = jwtService;
     }

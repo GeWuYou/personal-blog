@@ -27,14 +27,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs, reactive, getCurrentInstance, inject, computed } from 'vue'
+import { computed, defineComponent, getCurrentInstance, inject, reactive, toRefs } from 'vue'
 import Avatar from '@/components/Avatar.vue'
 import emitter from '@/utils/mitt'
 import { useUserStore } from '@/stores/user'
 import { useCommentStore } from '@/stores/comment'
 import { useAppStore } from '@/stores/app'
 import { useRoute } from 'vue-router'
-import api from '@/api/api'
+import api from '@/api/function'
 
 export default defineComponent({
   components: {

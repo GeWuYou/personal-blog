@@ -69,18 +69,18 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, toRefs, toRef, reactive } from 'vue'
+import { computed, defineComponent, onMounted, reactive, ref, toRef, toRefs } from 'vue'
 import { Feature, FeatureList } from '@/components/Feature'
 import { ArticleCard, HorizontalArticle } from '@/components/ArticleCard'
 import { Title } from '@/components/Title'
-import { Sidebar, Profile, RecentComment, TagBox, Notice, WebsiteInfo } from '@/components/Sidebar'
+import { Notice, Profile, RecentComment, Sidebar, TagBox, WebsiteInfo } from '@/components/Sidebar'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { useArticleStore } from '@/stores/article'
 import { useCategoryStore } from '@/stores/Category'
 import { useI18n } from 'vue-i18n'
 import Paginator from '@/components/Paginator.vue'
-import api from '@/api/api'
+import api from '@/api/function'
 import markdownToHtml from '@/utils/markdown'
 
 export default defineComponent({
@@ -132,20 +132,7 @@ export default defineComponent({
       articleOffset.value = articleListEl && articleListEl instanceof HTMLElement ? articleListEl.offsetTop + 120 : 0
     })
     const fetchTopAndFeatured = () => {
-      api.getTopAndFeaturedArticles().then(({ data }) => {
-        data.data.topArticle.articleContent = markdownToHtml(data.data.topArticle.articleContent)
-          .replace(/<\/?[^>]*>/g, '')
-          .replace(/[|]*\n/, '')
-          .replace(/&npsp;/gi, '')
-        data.data.featuredArticles.forEach((item: any) => {
-          item.articleContent = markdownToHtml(item.articleContent)
-            .replace(/<\/?[^>]*>/g, '')
-            .replace(/[|]*\n/, '')
-            .replace(/&npsp;/gi, '')
-        })
-        articleStore.topArticle = data.data.topArticle
-        articleStore.featuredArticles = data.data.featuredArticles
-      })
+      api.getTopAndFeaturedArticles(articleStore)
     }
     const fetchArticles = () => {
       activeTab.value = userStore.tab

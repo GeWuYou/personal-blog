@@ -95,4 +95,11 @@ public interface IArticleService extends IService<Article> {
      * @return 文章列表
      */
     List<EsArticleDTO> listArticlesBySearch(ConditionVO condition);
+
+    /**
+     * 查询文章统计信息
+     *
+     * @return 文章统计信息
+     */
+    List<ArticleStatisticsDTO> listArticleStatistics();
 }

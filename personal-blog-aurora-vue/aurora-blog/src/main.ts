@@ -18,7 +18,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import infiniteScroll from 'vue3-infinite-scroll-better'
 import v3ImgPreview from 'v3-img-preview'
 import 'mavon-editor/dist/css/index.css'
-import api from './api/api'
+import api from './api/function'
 import axios from 'axios'
 import { useUserStore } from '@/stores/user'
 

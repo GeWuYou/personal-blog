@@ -349,6 +349,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return searchStrategyContext.executeSearchStrategy(condition.getKeywords());
     }
 
+    /**
+     * 查询文章统计信息
+     *
+     * @return 文章统计信息
+     */
+    @Override
+    public List<ArticleStatisticsDTO> listArticleStatistics() {
+        return baseMapper.listArticleStatistics();
+    }
+
 
     private void updateArticleViewsCount(Long articleId) {
         redisService.zIncr(ARTICLE_VIEWS_COUNT, articleId, 1D);

@@ -78,10 +78,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef, ref, reactive, toRefs, getCurrentInstance, computed, onMounted } from 'vue'
+import { computed, defineComponent, getCurrentInstance, reactive, ref, toRef, toRefs } from 'vue'
 import { useUserStore } from '@/stores/user'
 import AvatarCropper from 'vue-avatar-cropper'
-import api from '@/api/api'
+import api from '@/api/function'
 
 export default defineComponent({
   name: 'UserCenter',

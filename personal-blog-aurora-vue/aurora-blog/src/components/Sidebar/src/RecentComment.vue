@@ -39,7 +39,7 @@ import { defineComponent, onMounted, toRef } from 'vue'
 import { SubTitle } from '@/components/Title'
 import { useCommentStore } from '@/stores/comment'
 import { useI18n } from 'vue-i18n'
-import api from '@/api/api'
+import api from '@/api/function'
 
 export default defineComponent({
   name: 'RecentComment',

@@ -12,7 +12,7 @@ const defaultErrorMessage = (error) => {
 const defaultFailureMessage = (message) => Message.warning(message)
 // 创建一个axios实例
 const instance = axios.create({
-  baseURL: 'http://localhost:8082/api/v1/admin',  // 请求的基础路径
+  baseURL: 'http://localhost:8082/api/v1',  // 请求的基础路径
   timeout: 10000  // 超时，401
 })
 // // 添加请求拦截器
@@ -27,8 +27,10 @@ instance.interceptors.request.use(requestInterceptor)
  * @param success 成功响应回调
  * @param failure 失败响应回调
  * @param error 错误响应回调
+ * @param callback 回调函数
  */
-function _post(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage) {
+function _post(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage, callback = () => {
+}) {
   // 发送post异步请求
   instance.post(url, JSON.stringify(data), {
     // 设置提交方式为Json提交
@@ -41,8 +43,9 @@ function _post(url, data, success, failure = defaultFailureMessage, error = defa
       if (data.success) {
         success(data.data, data.message, data.code)
       } else {
-        failure(data.message, data.code)
+        (failure ?? defaultFailureMessage)(data.message, data.code)
       }
+      callback()
     }).catch(error)
 }
 
@@ -53,8 +56,10 @@ function _post(url, data, success, failure = defaultFailureMessage, error = defa
  * @param success 成功响应回调
  * @param failure 失败响应回调
  * @param error 错误响应回调
+ * @param callback 回调函数
  */
-function _get(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage) {
+function _get(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage, callback = () => {
+}) {
   // 发送get异步请求
   instance.get(url, {
     params: data
@@ -64,8 +69,9 @@ function _get(url, data, success, failure = defaultFailureMessage, error = defau
       if (data.success) {
         success(data.data, data.message, data.code)
       } else {
-        failure(data.message, data.code)
+        (failure ?? defaultFailureMessage)(data.message, data.code)
       }
+      callback()
     }).catch(error)
 }
 
@@ -76,8 +82,10 @@ function _get(url, data, success, failure = defaultFailureMessage, error = defau
  * @param success 成功响应回调
  * @param failure 失败响应回调
  * @param error 错误响应回调
+ * @param callback 回调函数
  */
-function _put(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage) {
+function _put(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage, callback = () => {
+}) {
   // 发送put异步请求
   instance.put(url, JSON.stringify(data), {
     // 设置提交方式为Json提交
@@ -90,13 +98,24 @@ function _put(url, data, success, failure = defaultFailureMessage, error = defau
         if (data.success) {
           success(data.data, data.message, data.code)
         } else {
-          failure(data.message, data.code)
+          (failure ?? defaultFailureMessage)(data.message, data.code)
         }
+      callback()
       }
     ).catch(error)
 }
 
-function _delete(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage) {
+/**
+ * 异步delete请求
+ * @param url 请求url
+ * @param data 请求参数
+ * @param success 成功响应回调
+ * @param failure 失败响应回调
+ * @param error 错误响应回调
+ * @param callback 回调函数
+ */
+function _delete(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage, callback = () => {
+}) {
   instance.delete(url, {
     params: data
   })
@@ -104,8 +123,9 @@ function _delete(url, data, success, failure = defaultFailureMessage, error = de
       if (data.success) {
         success(data.data, data.message, data.code)
       } else {
-        failure(data.message, data.code)
+        (failure ?? defaultFailureMessage)(data.message, data.code)
       }
+      callback()
     }).catch(error)
 }
 

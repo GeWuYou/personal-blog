@@ -123,6 +123,17 @@ public class ArticleController {
         return Result.success(articleService.listArchiveDTOs());
     }
 
+
+    /**
+     * 获取文章归档统计数据
+     *
+     * @return List<ArticleStatisticsDTO>
+     */
+    @GetMapping("/list/statistics")
+    public Result<List<ArticleStatisticsDTO>> listArticleStatistics() {
+        return Result.success(articleService.listArticleStatistics());
+    }
+
     /**
      * 搜索文章
      *

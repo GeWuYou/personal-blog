@@ -116,14 +116,14 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, toRef, toRefs, reactive, getCurrentInstance, nextTick } from 'vue'
-import { Dropdown, DropdownMenu, DropdownItem } from '@/components/Dropdown'
+import { computed, defineComponent, getCurrentInstance, nextTick, reactive, toRef, toRefs } from 'vue'
+import { Dropdown, DropdownItem, DropdownMenu } from '@/components/Dropdown'
 import { useAppStore } from '@/stores/app'
 import { useCommonStore } from '@/stores/common'
 import { useUserStore } from '@/stores/user'
 import { useRoute, useRouter } from 'vue-router'
 import ThemeToggle from '@/components/ToggleSwitch/ThemeToggle.vue'
-import api from '@/api/api'
+import api from '@/api/function'
 import SearchModel from '@/components/SearchModel.vue'
 import { useSearchStore } from '@/stores/search'
 import config from '@/config/config'

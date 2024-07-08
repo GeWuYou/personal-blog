@@ -19,9 +19,9 @@ import { defineComponent, onMounted, onUnmounted, toRef } from 'vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import { useI18n } from 'vue-i18n'
 import { useTagStore } from '@/stores/tag'
-import { TagList, TagItem } from '@/components/Tag'
+import { TagItem, TagList } from '@/components/Tag'
 import { useCommonStore } from '@/stores/common'
-import api from '@/api/api'
+import api from '@/api/function'
 
 export default defineComponent({
   name: 'Tag',

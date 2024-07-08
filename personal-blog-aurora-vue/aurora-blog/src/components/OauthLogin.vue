@@ -14,7 +14,7 @@ import { defineComponent, getCurrentInstance } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { useUserStore } from '@/stores/user'
-import api from '@/api/api'
+import api from '@/api/function'
 
 export default defineComponent({
   name: 'OauthLoginModel',

@@ -245,7 +245,7 @@ import { useSearchStore } from '@/stores/search'
 import { computed, defineComponent, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import api from '@/api/api'
+import api from '@/api/function'
 import { useLocalStore } from '@/stores/local'
 
 export default defineComponent({

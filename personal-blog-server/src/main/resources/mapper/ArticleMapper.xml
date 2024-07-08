@@ -55,7 +55,7 @@
                         update_time
                  FROM tb_article) a
                  LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON at.tag_id = t.tag_id
+                 LEFT JOIN tb_tag t ON at.id = t.id
                  LEFT JOIN tb_category c ON a.category_id = c.id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
         WHERE a.is_delete = 0
@@ -100,7 +100,7 @@
               ORDER BY id DESC) a
                  LEFT JOIN tb_article_tag at ON a.id = at.id
 
-                 LEFT JOIN tb_tag t ON at.tag_id = t.tag_id
+                 LEFT JOIN tb_tag t ON at.id = t.id
                  LEFT JOIN tb_category c ON a.category_id = c.id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
@@ -140,7 +140,7 @@
                 AND status IN (1, 2)
               ORDER BY id DESC) a
                  LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON at.tag_id = t.tag_id
+                 LEFT JOIN tb_tag t ON at.id = t.id
                  LEFT JOIN tb_category c ON a.category_id = c.id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
@@ -203,7 +203,7 @@
                  LEFT JOIN tb_article_tag at
                            ON a.id = at.id
                  LEFT JOIN tb_tag t
-                           ON t.tag_id = at.tag_id
+                           ON t.id = at.id
                  LEFT JOIN tb_category c
                            ON c.id = a.category_id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
@@ -246,8 +246,8 @@
               ORDER BY id DESC
               limit 0,1) a
                  LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON t.tag_id = at.tag_id
-                 LEFT JOIN tb_category c ON t.tag_id = at.tag_id
+                 LEFT JOIN tb_tag t ON t.id = at.id
+                 LEFT JOIN tb_category c ON t.id = at.id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
     <select id="getNextArticleCardDTOById" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
@@ -288,8 +288,8 @@
               ORDER BY id
               limit 0,1) a
                  LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON t.tag_id = at.tag_id
-                 LEFT JOIN tb_category c ON t.tag_id = at.tag_id
+                 LEFT JOIN tb_tag t ON t.id = at.id
+                 LEFT JOIN tb_category c ON t.id = at.id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
     <select id="getLastArticleCardDTO" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
@@ -328,8 +328,8 @@
               ORDER BY id DESC
               limit 0,1) a
                  LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON t.tag_id = at.tag_id
-                 LEFT JOIN tb_category c ON t.tag_id = at.tag_id
+                 LEFT JOIN tb_tag t ON t.id = at.id
+                 LEFT JOIN tb_category c ON t.id = at.id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
     <select id="getFirstArticleCardDTO" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
@@ -368,8 +368,8 @@
               ORDER BY id
               limit 0,1) a
                  LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON t.tag_id = at.tag_id
-                 LEFT JOIN tb_category c ON t.tag_id = at.tag_id
+                 LEFT JOIN tb_tag t ON t.id = at.id
+                 LEFT JOIN tb_category c ON t.id = at.id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
     <select id="listArticleCardDTOsByTagId" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
@@ -391,11 +391,18 @@
                tag_name
         FROM tb_article a
                  LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON t.tag_id = at.tag_id
+                 LEFT JOIN tb_tag t ON t.id = at.id
                  LEFT JOIN tb_category c ON c.id = a.category_id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
-        WHERE t.tag_id = #{tagId}
+        WHERE t.id = #{tagId}
           AND a.is_delete = 0
           AND a.status IN (1, 2)
+    </select>
+    <select id="listArticleStatistics" resultType="com.gewuyou.blog.common.dto.ArticleStatisticsDTO">
+        SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date,
+               COUNT(*)                             AS count
+        FROM tb_article
+        GROUP BY date
+        ORDER BY date DESC
     </select>
 </mapper>
