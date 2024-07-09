@@ -4,15 +4,15 @@
     <div class="review-menu">
       <span>状态</span>
       <span @click="changeReview(null)" :class="isReview == null ? 'active-review' : 'review'"> 全部 </span>
-      <span @click="changeReview(1)" :class="isReview == 1 ? 'active-review' : 'review'"> 正常 </span>
-      <span @click="changeReview(0)" :class="isReview == 0 ? 'active-review' : 'review'"> 审核中 </span>
+      <span @click="changeReview(1)" :class="isReview === 1 ? 'active-review' : 'review'"> 正常 </span>
+      <span @click="changeReview(0)" :class="isReview === 0 ? 'active-review' : 'review'"> 审核中 </span>
     </div>
     <div class="operation-container">
       <el-button
         type="danger"
         size="small"
         icon="el-icon-delete"
-        :disabled="commentIds.length == 0"
+        :disabled="commentIds.length === 0"
         @click="remove = true">
         批量删除
       </el-button>
@@ -20,7 +20,7 @@
         type="success"
         size="small"
         icon="el-icon-success"
-        :disabled="commentIds.length == 0"
+        :disabled="commentIds.length === 0"
         @click="updateCommentReview(null)">
         批量通过
       </el-button>
@@ -77,23 +77,23 @@
       </el-table-column>
       <el-table-column prop="isReview" label="状态" width="80" align="center">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.isReview == 0" type="warning">审核中</el-tag>
-          <el-tag v-if="scope.row.isReview == 1" type="success">正常</el-tag>
+          <el-tag v-if="scope.row.isReview === 0" type="warning">审核中</el-tag>
+          <el-tag v-if="scope.row.isReview === 1" type="success">正常</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="来源" align="center" width="100">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.type == 1">文章</el-tag>
-          <el-tag v-if="scope.row.type == 2" type="danger">留言</el-tag>
-          <el-tag v-if="scope.row.type == 3" type="success">关于我</el-tag>
-          <el-tag v-if="scope.row.type == 4" type="warning">友链</el-tag>
-          <el-tag v-if="scope.row.type == 5" type="warning">说说</el-tag>
+          <el-tag v-if="scope.row.type === 1">文章</el-tag>
+          <el-tag v-if="scope.row.type === 2" type="danger">留言</el-tag>
+          <el-tag v-if="scope.row.type === 3" type="success">关于我</el-tag>
+          <el-tag v-if="scope.row.type === 4" type="warning">友链</el-tag>
+          <el-tag v-if="scope.row.type === 5" type="warning">说说</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="160" align="center">
         <template slot-scope="scope">
           <el-button
-            v-if="scope.row.isReview == 0"
+            v-if="scope.row.isReview === 0"
             size="mini"
             type="success"
             slot="reference"
@@ -128,6 +128,8 @@
 </template>
 
 <script>
+import { _delete, _get } from '@/api/api'
+
 export default {
   created() {
     this.current = this.$store.state.pageState.comment
@@ -197,60 +199,97 @@ export default {
         param.ids = this.commentIds
       }
       param.isReview = 1
-      this.axios.put('/api/admin/comments/review', param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listComments()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _put('admin/comment/review', param, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listComments()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.put('/api/admin/comments/review', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listComments()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
     },
     deleteComments(id) {
-      var param = {}
+      let param = {}
       if (id == null) {
         param = { data: this.commentIds }
       } else {
         param = { data: [id] }
       }
-      this.axios.delete('/api/admin/comments', param).then(({ data }) => {
-        if (data.flag) {
+      _delete('/admin/comment', param, (_, message) => {
           this.$notify.success({
             title: '成功',
-            message: data.message
+            message: message
           })
           this.listComments()
-        } else {
+        }, (message) => {
           this.$notify.error({
             title: '失败',
-            message: data.message
+            message: message
           })
-        }
-        this.remove = false
-      })
+        }, null, () =>
+          this.remove = false
+      )
+      // this.axios.delete('/api/admin/comments', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listComments()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.remove = false
+      // })
     },
     listComments() {
-      this.axios
-        .get('/api/admin/comments', {
-          params: {
-            current: this.current,
-            size: this.size,
-            keywords: this.keywords,
-            type: this.type,
-            isReview: this.isReview
-          }
-        })
-        .then(({ data }) => {
-          this.comments = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/comment/list', {
+        current: this.current,
+        size: this.size,
+        keywords: this.keywords,
+        type: this.type,
+        isReview: this.isReview
+      }, (data) => {
+        this.comments = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/comments', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       keywords: this.keywords,
+      //       type: this.type,
+      //       isReview: this.isReview
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.comments = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     }
   },
   watch: {

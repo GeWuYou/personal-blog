@@ -22,12 +22,12 @@
           <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">
             全选
           </el-checkbox>
-          <div class="check-count">已选择{{ selectphotoIds.length }}张</div>
+          <div class="check-count">已选择{{ selectPhotoIds.length }}张</div>
         </div>
         <el-button
           type="success"
           @click="movePhoto = true"
-          :disabled="selectphotoIds.length == 0"
+          :disabled="selectPhotoIds.length === 0"
           size="small"
           icon="el-icon-deleteItem">
           移动到
@@ -35,7 +35,7 @@
         <el-button
           type="danger"
           @click="batchDeletePhoto = true"
-          :disabled="selectphotoIds.length == 0"
+          :disabled="selectPhotoIds.length === 0"
           size="small"
           icon="el-icon-deleteItem">
           批量删除
@@ -43,12 +43,12 @@
       </div>
     </div>
     <el-row class="photo-container" :gutter="10" v-loading="loading">
-      <el-empty v-if="photos.length == 0" description="暂无照片" />
-      <el-checkbox-group v-model="selectphotoIds" @change="handleCheckedPhotoChange">
+      <el-empty v-if="photos.length === 0" description="暂无照片" />
+      <el-checkbox-group v-model="selectPhotoIds" @change="handleCheckedPhotoChange">
         <el-col :md="4" v-for="item of photos" :key="item.id">
           <el-checkbox :label="item.id">
             <div class="photo-item">
-              <div class="photo-opreation">
+              <div class="photo-operation">
                 <el-dropdown @command="handleCommand">
                   <i class="el-icon-more" style="color: #fff" />
                   <el-dropdown-menu slot="dropdown">
@@ -90,7 +90,7 @@
         </el-upload>
         <div class="upload">
           <el-upload
-            v-show="uploads.length == 0"
+            v-show="uploads.length === 0"
             drag
             action="/api/admin/photos/upload"
             multiple
@@ -109,7 +109,7 @@
           <div class="upload-count">共上传{{ uploads.length }}张照片</div>
           <div style="margin-left: auto">
             <el-button @click="uploadPhoto = false">取 消</el-button>
-            <el-button @click="savePhotos" type="primary" :disabled="uploads.length == 0"> 开始上传</el-button>
+            <el-button @click="savePhotos" type="primary" :disabled="uploads.length === 0"> 开始上传</el-button>
           </div>
         </div>
       </div>
@@ -144,7 +144,7 @@
         <el-radio-group v-model="albumId">
           <div class="album-check-item">
             <template v-for="item of albumList">
-              <el-radio v-if="item.id != albumInfo.id" :key="item.id" :label="item.id" style="margin-bottom: 1rem">
+              <el-radio v-if="item.id !== albumInfo.id" :key="item.id" :label="item.id" style="margin-bottom: 1rem">
                 <div class="album-check">
                   <el-image fit="cover" class="album-check-cover" :src="item.albumCover" />
                   <div style="margin-left: 0.5rem">{{ item.albumName }}</div>
@@ -164,11 +164,12 @@
 
 <script>
 import * as imageConversion from 'image-conversion'
+import { _get, _post, _put } from '@/api/api'
 
 export default {
   created() {
     this.albumId = this.$route.params.albumId
-    if (this.albumId == this.$store.state.pageState.photo.albumId) {
+    if (this.albumId === this.$store.state.pageState.photo.albumId) {
       this.current = this.$store.state.pageState.photo.current
     } else {
       this.current = 1
@@ -193,7 +194,7 @@ export default {
       uploads: [],
       photos: [],
       photoIds: [],
-      selectphotoIds: [],
+      selectPhotoIds: [],
       albumList: [],
       albumInfo: {
         id: null,
@@ -216,30 +217,46 @@ export default {
   },
   methods: {
     getAlbumInfo() {
-      this.axios.get('/api/admin/photos/albums/' + this.$route.params.albumId + '/info').then(({ data }) => {
-        this.albumInfo = data.data
+      _get('/admin/photo/album/info/' + this.$route.params.albumId, {}, (data) => {
+        this.albumInfo = data
       })
+      // this.axios.get('/api/admin/photos/albums/' + this.$route.params.albumId + '/info').then(({ data }) => {
+      //   this.albumInfo = data.data
+      // })
     },
     listAlbums() {
-      this.axios.get('/api/admin/photos/albums/info').then(({ data }) => {
-        this.albumList = data.data
+      _get('/admin/photo/album/info', {}, (data) => {
+        this.albumList = data
       })
+      // this.axios.get('/api/admin/photos/albums/info').then(({ data }) => {
+      //   this.albumList = data.data
+      // })
     },
     listPhotos() {
-      this.axios
-        .get('/api/admin/photos', {
-          params: {
-            current: this.current,
-            size: this.size,
-            albumId: this.$route.params.albumId,
-            isDelete: 0
-          }
-        })
-        .then(({ data }) => {
-          this.photos = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/photo', {
+        current: this.current,
+        size: this.size,
+        albumId: this.$route.params.albumId,
+        isDelete: 0
+      }, (data) => {
+        this.photos = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/photos', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       albumId: this.$route.params.albumId,
+      //       isDelete: 0
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.photos = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     },
     currentChange(current) {
       this.current = current
@@ -250,80 +267,125 @@ export default {
       this.listPhotos()
     },
     savePhotos() {
-      var photoUrls = []
+      const photoUrls = []
       this.uploads.forEach((item) => {
         photoUrls.push(item.url)
       })
-      this.axios
-        .post('/api/admin/photos', {
-          albumId: this.$route.params.albumId,
-          photoUrls: photoUrls
+      _post('/admin/photo', {
+        albumId: this.$route.params.albumId,
+        photoUrls: photoUrls
+      }, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
         })
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: '成功',
-              message: data.message
-            })
-            this.uploads = []
-            this.listPhotos()
-            this.getAlbumInfo()
-          } else {
-            this.$notify.error({
-              title: '失败',
-              message: data.message
-            })
-          }
+        this.uploads = []
+        this.listPhotos()
+        this.getAlbumInfo()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
         })
+      })
+      // this.axios
+      //   .post('/api/admin/photos', {
+      //     albumId: this.$route.params.albumId,
+      //     photoUrls: photoUrls
+      //   })
+      //   .then(({ data }) => {
+      //     if (data.flag) {
+      //       this.$notify.success({
+      //         title: '成功',
+      //         message: data.message
+      //       })
+      //       this.uploads = []
+      //       this.listPhotos()
+      //       this.getAlbumInfo()
+      //     } else {
+      //       this.$notify.error({
+      //         title: '失败',
+      //         message: data.message
+      //       })
+      //     }
+      //   })
       this.uploadPhoto = false
     },
     updatePhoto() {
-      if (this.photoForm.photoName.trim() == '') {
+      if (this.photoForm.photoName.trim() === '') {
         this.$message.error('照片名称不能为空')
         return false
       }
-      this.axios.put('/api/admin/photos', this.photoForm).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listPhotos()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
-        this.editPhoto = false
-      })
+      _put('/admin/photo', this.photoForm, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listPhotos()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, null, () => this.editPhoto = false)
+      // this.axios.put('/api/admin/photos', this.photoForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listPhotos()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.editPhoto = false
+      // })
     },
     updatePhotoAlbum() {
-      this.axios
-        .put('/api/admin/photos/album', {
-          albumId: this.albumId,
-          photoIds: this.selectphotoIds
+      _put('/admin/photo/album', {
+        albumId: this.albumId,
+        photoIds: this.selectPhotoIds
+      }, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
         })
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: '成功',
-              message: data.message
-            })
-            this.getAlbumInfo()
-            this.listPhotos()
-          } else {
-            this.$notify.error({
-              title: '失败',
-              message: data.message
-            })
-          }
-          this.movePhoto = false
+        this.getAlbumInfo()
+        this.listPhotos()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
         })
+      }, null, () => this.movePhoto = false)
+      // this.axios
+      //   .put('/api/admin/photos/album', {
+      //     albumId: this.albumId,
+      //     photoIds: this.selectPhotoIds
+      //   })
+      //   .then(({ data }) => {
+      //     if (data.flag) {
+      //       this.$notify.success({
+      //         title: '成功',
+      //         message: data.message
+      //       })
+      //       this.getAlbumInfo()
+      //       this.listPhotos()
+      //     } else {
+      //       this.$notify.error({
+      //         title: '失败',
+      //         message: data.message
+      //       })
+      //     }
+      //     this.movePhoto = false
+      //   })
     },
     handleRemove(file) {
       this.uploads.forEach((item, index) => {
-        if (item.url == file.url) {
+        if (item.url === file.url) {
           this.uploads.splice(index, 1)
         }
       })
@@ -342,7 +404,7 @@ export default {
       })
     },
     handleCheckAllChange(val) {
-      this.selectphotoIds = val ? this.photoIds : []
+      this.selectPhotoIds = val ? this.photoIds : []
       this.isIndeterminate = false
     },
     handleCheckedPhotoChange(value) {
@@ -355,27 +417,40 @@ export default {
       this.editPhoto = true
     },
     updatePhotoDelete(id) {
-      var param = {}
+      let param = {}
       if (id == null) {
-        param = { ids: this.selectphotoIds, isDelete: 1 }
+        param = { ids: this.selectPhotoIds, isDelete: 1 }
       } else {
         param = { ids: [id], isDelete: 1 }
       }
-      this.axios.put('/api/admin/photos/delete', param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listPhotos()
-          this.getAlbumInfo()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _put('/admin/photo/delete', param, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listPhotos()
+        this.getAlbumInfo()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.put('/api/admin/photos/delete', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listPhotos()
+      //     this.getAlbumInfo()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
       this.batchDeletePhoto = false
     }
   },
@@ -479,7 +554,7 @@ export default {
   align-items: center;
 }
 
-.photo-opreation {
+.photo-operation {
   position: absolute;
   z-index: 1000;
   top: 0.3rem;

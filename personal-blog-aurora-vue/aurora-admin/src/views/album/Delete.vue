@@ -11,7 +11,7 @@
       <el-button
         type="success"
         @click="updatePhotoDelete(null)"
-        :disabled="selectPhotoIds.length == 0"
+        :disabled="selectPhotoIds.length === 0"
         size="small"
         icon="el-icon-deleteItem">
         批量恢复
@@ -19,14 +19,14 @@
       <el-button
         type="danger"
         @click="batchDeletePhoto = true"
-        :disabled="selectPhotoIds.length == 0"
+        :disabled="selectPhotoIds.length === 0"
         size="small"
         icon="el-icon-deleteItem">
         批量删除
       </el-button>
     </div>
     <el-row class="photo-container" :gutter="10" v-loading="loading">
-      <el-empty v-if="photos.length == 0" description="暂无照片" />
+      <el-empty v-if="photos.length === 0" description="暂无照片" />
       <el-checkbox-group v-model="selectPhotoIds" @change="handleCheckedPhotoChange">
         <el-col :md="4" v-for="item of photos" :key="item.id">
           <el-checkbox :label="item.id">
@@ -59,6 +59,8 @@
 </template>
 
 <script>
+import { _delete, _get, _put } from '@/api/api'
+
 export default {
   created() {
     this.listPhotos()
@@ -79,19 +81,28 @@ export default {
   },
   methods: {
     listPhotos() {
-      this.axios
-        .get('/api/admin/photos', {
-          params: {
-            current: this.current,
-            size: this.size,
-            isDelete: 1
-          }
-        })
-        .then(({ data }) => {
-          this.photos = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/photo/list', {
+        current: this.current,
+        size: this.size,
+        isDelete: 1
+      }, (data) => {
+        this.photos = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/photos', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       isDelete: 1
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.photos = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     },
     sizeChange(size) {
       this.size = size
@@ -102,43 +113,67 @@ export default {
       this.listPhotos()
     },
     updatePhotoDelete(id) {
-      var param = {}
+      let param = {}
       if (id == null) {
         param = { ids: this.selectPhotoIds, isDelete: 0 }
       } else {
         param = { ids: [id], isDelete: 0 }
       }
-      this.axios.put('/api/admin/photos/delete', param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listPhotos()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _put('/admin/photo/delete', param, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listPhotos()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.put('/api/admin/photos/delete', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listPhotos()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
       this.batchDeletePhoto = false
     },
     deletePhotos() {
-      this.axios.delete('/api/admin/photos', { data: this.selectPhotoIds }).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listPhotos()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _delete('/admin/photo', { data: this.selectPhotoIds }, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listPhotos()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.delete('/api/admin/photos', { data: this.selectPhotoIds }).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listPhotos()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
       this.batchDeletePhoto = false
     },
     handleCheckAllChange(val) {

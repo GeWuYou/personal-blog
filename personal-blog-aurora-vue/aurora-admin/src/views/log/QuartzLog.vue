@@ -112,7 +112,7 @@
     <el-dialog
       title="调度日志详细"
       :visible.sync="open"
-      :width="jobLog.status == 1 ? '700px' : '80%'"
+      :width="jobLog.status === 1 ? '700px' : '80%'"
       append-to-body
       destroy-on-close>
       <el-form ref="form" :model="jobLog" label-width="100px" size="mini">
@@ -137,7 +137,7 @@
               <div v-else-if="jobLog.status === 0">失败</div>
             </el-form-item>
           </el-col>
-          <el-col v-if="jobLog.status == 0" :span="24">
+          <el-col v-if="jobLog.status === 0" :span="24">
             <div>
               <pre>
 		<code class="language-java">{{ jobLog.exceptionInfo }}</code>
@@ -154,14 +154,16 @@
 </template>
 
 <script>
+import { _delete, _get } from '@/api/api'
+
 export default {
   created() {
-    if (this.$route.params.quartzId == 'all') {
+    if (this.$route.params.quartzId === 'all') {
       this.jobId = 0
     } else if (this.$route.params.quartzId !== null) {
       this.jobId = this.$route.params.quartzId
     }
-    if (this.jobId == this.$store.state.pageState.quartzLog.jobId) {
+    if (this.jobId === this.$store.state.pageState.quartzLog.jobId) {
       this.current = this.$store.state.pageState.quartzLog.current
     } else {
       this.current = 1
@@ -197,9 +199,10 @@ export default {
       })
     },
     listJobGroups() {
-      this.axios.get('/api/admin/jobLogs/jobGroups').then(({ data }) => {
-        this.jobGroups = data.data
-      })
+      _get('admin/jobLog/groups', {}, (data) => this.jobGroups = data)
+      // this.axios.get('/api/admin/jobLogs/jobGroups').then(({ data }) => {
+      //   this.jobGroups = data.data
+      // })
     },
     listJobLogs() {
       if (this.jobId === 0) {
@@ -211,15 +214,20 @@ export default {
       this.searchParams.size = this.size
       this.searchParams.startTime = this.dateRange[0]
       this.searchParams.endTime = this.dateRange[1]
-      this.axios
-        .get('/api/admin/jobLogs', {
-          params: this.searchParams
-        })
-        .then(({ data }) => {
-          this.jobLogs = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/jobLog/list', this.searchParams, (data) => {
+        this.jobLogs = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/jobLogs', {
+      //     params: this.searchParams
+      //   })
+      //   .then(({ data }) => {
+      //     this.jobLogs = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     },
     searchLogs() {
       this.current = 1
@@ -249,36 +257,60 @@ export default {
     deleteJobLogs() {
       let param = {}
       param = { data: this.jobLogIds }
-      this.axios.delete('/api/admin/jobLogs', param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
-          })
-          this.listJobLogs()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: '删除失败'
-          })
-        }
+      _delete('/admin/jobLog', param, () => {
+        this.$notify.success({
+          title: '成功',
+          message: '删除成功'
+        })
+        this.listJobLogs()
+      }, () => {
+        this.$notify.error({
+          title: '失败',
+          message: '删除失败'
+        })
       })
+      // this.axios.delete('/api/admin/jobLogs', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: '删除成功'
+      //     })
+      //     this.listJobLogs()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: '删除失败'
+      //     })
+      //   }
+      // })
     },
     clean() {
-      this.axios.delete('/api/admin/jobLogs/clean').then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: '清空成功'
-          })
-          this.listJobLogs()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: '清空失败'
-          })
-        }
+      _delete('/admin/jobLog/clean', {}, () => {
+        this.$notify.success({
+          title: '成功',
+          message: '清空成功'
+        })
+        this.listJobLogs()
+      }, () => {
+        this.$notify.error({
+          title: '失败',
+          message: '清空失败'
+        })
       })
+      // this.axios.delete('/api/admin/jobLogs/clean').then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: '清空成功'
+      //     })
+      //     this.listJobLogs()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: '清空失败'
+      //     })
+      //   }
+      // })
     },
     changeOpen(jobLog) {
       this.jobLog = jobLog

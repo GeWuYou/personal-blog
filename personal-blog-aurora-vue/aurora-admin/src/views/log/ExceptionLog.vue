@@ -99,6 +99,8 @@
 </template>
 
 <script>
+import { _delete, _get } from '@/api/api'
+
 export default {
   created() {
     this.current = this.$store.state.pageState.exceptionLog
@@ -141,42 +143,63 @@ export default {
       this.listLogs()
     },
     listLogs() {
-      this.axios
-        .get('/api/admin/exception/logs', {
-          params: {
-            current: this.current,
-            size: this.size,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.logs = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/exception/log/list', {
+        current: this.current,
+        size: this.size,
+        keywords: this.keywords
+      }, (data) => {
+        this.logs = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/exception/logs', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       keywords: this.keywords
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.logs = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     },
     deleteLog(id) {
-      var param = {}
+      let param = {}
       if (id != null) {
         param = { data: [id] }
       } else {
         param = { data: this.logIds }
       }
-      this.axios.delete('/api/admin/exception/logs', param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listLogs()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
-        this.isDelete = false
-      })
+      _delete('/admin/exception/', param, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listLogs()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, null, () => this.isDelete = false)
+      // this.axios.delete('/api/admin/exception/logs', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listLogs()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.isDelete = false
+      // })
     },
     check(exceptionLog) {
       this.exceptionLog = exceptionLog

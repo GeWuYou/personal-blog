@@ -7,7 +7,7 @@
         type="danger"
         size="small"
         icon="el-icon-delete"
-        :disabled="linkIdList.length == 0"
+        :disabled="linkIdList.length === 0"
         @click="deleteFlag = true">
         批量删除
       </el-button>
@@ -92,6 +92,8 @@
 </template>
 
 <script>
+import { _delete, _get, _post } from '@/api/api'
+
 export default {
   created() {
     this.current = this.$store.state.pageState.friendLink
@@ -138,27 +140,39 @@ export default {
       this.listLinks()
     },
     deleteLink(id) {
-      var param = {}
+      let param = {}
       if (id == null) {
         param = { data: this.linkIdList }
       } else {
         param = { data: [id] }
       }
-      this.axios.delete('/api/admin/links', param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listLinks()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
-        this.deleteFlag = false
-      })
+      _delete('/admin/article', param, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listLinks()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, null, () => this.deleteFlag = false)
+      // this.axios.delete('/api/admin/links', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listLinks()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.deleteFlag = false
+      // })
     },
     openModel(link) {
       if (link != null) {
@@ -175,52 +189,73 @@ export default {
       this.addOrEdit = true
     },
     addOrEditCategory() {
-      if (this.linkForm.linkName.trim() == '') {
+      if (this.linkForm.linkName.trim() === '') {
         this.$message.error('友链名不能为空')
         return false
       }
-      if (this.linkForm.linkAvatar.trim() == '') {
+      if (this.linkForm.linkAvatar.trim() === '') {
         this.$message.error('友链头像不能为空')
         return false
       }
-      if (this.linkForm.linkIntro.trim() == '') {
+      if (this.linkForm.linkIntro.trim() === '') {
         this.$message.error('友链介绍不能为空')
         return false
       }
-      if (this.linkForm.linkAddress.trim() == '') {
+      if (this.linkForm.linkAddress.trim() === '') {
         this.$message.error('友链地址不能为空')
         return false
       }
-      this.axios.post('/api/admin/links', this.linkForm).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listLinks()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
-        this.addOrEdit = false
-      })
+      _post('/admin/link', this.linkForm, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listLinks()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, null, () => this.addOrEdit = false)
+      // this.axios.post('/api/admin/links', this.linkForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listLinks()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.addOrEdit = false
+      // })
     },
     listLinks() {
-      this.axios
-        .get('/api/admin/links', {
-          params: {
-            current: this.current,
-            size: this.size,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.linkList = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/link/list', {
+        current: this.current,
+        size: this.size,
+        keywords: this.keywords
+      }, (data) => {
+        this.linkList = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/links', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       keywords: this.keywords
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.linkList = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     }
   }
 }

@@ -12,6 +12,7 @@
 
 <script>
 import * as imageConversion from 'image-conversion'
+import { _get, _post, _put } from '@/api/api'
 
 export default {
   created() {
@@ -24,44 +25,66 @@ export default {
   },
   methods: {
     getAbout() {
-      this.axios.get('/api/about').then(({ data }) => {
-        this.aboutContent = data.data.content
+      _get('/admin/about', {}, (data) => {
+        this.aboutContent = data.content
       })
+      // this.axios.get('/api/about').then(({ data }) => {
+      //   this.aboutContent = data.data.content
+      // })
     },
     uploadImg(pos, file) {
-      var formdata = new FormData()
+      let formData = new FormData()
       if (file.size / 1024 < this.config.UPLOAD_SIZE) {
-        formdata.append('file', file)
-        this.axios.post('/api/admin/articles/images', formdata).then(({ data }) => {
-          this.$refs.md.$img2Url(pos, data.data)
+        formData.append('file', file)
+        _post('/admin/article/images', formData, (data) => {
+          this.$refs.md.$img2Url(pos, data)
         })
+        // this.axios.post('/api/admin/articles/images', formData).then(({ data }) => {
+        //   this.$refs.md.$img2Url(pos, data.data)
+        // })
       } else {
         imageConversion.compressAccurately(file, this.config.UPLOAD_SIZE).then((res) => {
-          formdata.append('file', new window.File([res], file.name, { type: file.type }))
-          this.axios.post('/api/admin/articles/images', formdata).then(({ data }) => {
-            this.$refs.md.$img2Url(pos, data.data)
+          formData.append('file', new window.File([res], file.name, { type: file.type }))
+          _post('/admin/article/images', formData, (data) => {
+            this.$refs.md.$img2Url(pos, data)
           })
+          // this.axios.post('/api/admin/articles/images', formData).then(({ data }) => {
+          //   this.$refs.md.$img2Url(pos, data.data)
+          // })
         })
       }
     },
     updateAbout() {
-      this.axios
-        .put('/api/admin/about', {
-          content: this.aboutContent
+      _put('/admin/about', {
+        content: this.aboutContent
+      }, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
         })
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: '成功',
-              message: data.message
-            })
-          } else {
-            this.$notify.error({
-              title: '失败',
-              message: data.message
-            })
-          }
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
         })
+      })
+      // this.axios
+      //   .put('/api/admin/about', {
+      //     content: this.aboutContent
+      //   })
+      //   .then(({ data }) => {
+      //     if (data.flag) {
+      //       this.$notify.success({
+      //         title: '成功',
+      //         message: data.message
+      //       })
+      //     } else {
+      //       this.$notify.error({
+      //         title: '失败',
+      //         message: data.message
+      //       })
+      //     }
+      //   })
     }
   }
 }

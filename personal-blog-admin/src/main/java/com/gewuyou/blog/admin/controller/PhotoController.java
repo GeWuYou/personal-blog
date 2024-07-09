@@ -66,7 +66,7 @@ public class PhotoController {
      * @return 照片列表
      */
     @Operation(summary = "获取照片列表", description = "获取照片列表")
-    @GetMapping
+    @GetMapping("/list")
     public Result<PageResultDTO<PhotoAdminDTO>> listPhotos(ConditionVO conditionVO) {
         return Result.success(photoService.listPhotoAdminDTOs(conditionVO));
     }

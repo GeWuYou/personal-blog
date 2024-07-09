@@ -36,7 +36,7 @@
           </div>
           <div class="album-photo-count">
             <div>{{ item.photoCount }}</div>
-            <i v-if="item.status == 2" class="iconfont el-icon-mymima" />
+            <i v-if="item.status === 2" class="iconfont el-icon-mymima" />
           </div>
           <el-image fit="cover" class="album-cover" :src="item.albumCover" />
           <div class="album-name">{{ item.albumName }}</div>
@@ -70,8 +70,8 @@
             action="/api/admin/photos/albums/upload"
             multiple
             :on-success="uploadCover">
-            <i class="el-icon-upload" v-if="albumForum.albumCover == ''" />
-            <div class="el-upload__text" v-if="albumForum.albumCover == ''">将文件拖到此处，或<em>点击上传</em></div>
+            <i class="el-icon-upload" v-if="albumForum.albumCover === ''" />
+            <div class="el-upload__text" v-if="albumForum.albumCover === ''">将文件拖到此处，或<em>点击上传</em></div>
             <img v-else :src="albumForum.albumCover" width="360px" height="180px" />
           </el-upload>
         </el-form-item>
@@ -87,11 +87,11 @@
         <el-button type="primary" @click="addOrEditAlbum"> 确 定</el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="isdelete" width="30%">
+    <el-dialog :visible.sync="isDelete" width="30%">
       <div class="dialog-title-container" slot="title"><i class="el-icon-warning" style="color: #ff9900" />提示</div>
       <div style="font-size: 1rem">是否删除该相册？</div>
       <div slot="footer">
-        <el-button @click="isdelete = false">取 消</el-button>
+        <el-button @click="isDelete = false">取 消</el-button>
         <el-button type="primary" @click="deleteAlbum"> 确 定</el-button>
       </div>
     </el-dialog>
@@ -100,6 +100,7 @@
 
 <script>
 import * as imageConversion from 'image-conversion'
+import { _delete, _get, _post } from '@/api/api'
 
 export default {
   created() {
@@ -109,7 +110,7 @@ export default {
     return {
       keywords: '',
       loading: true,
-      isdelete: false,
+      isDelete: false,
       addOrEdit: false,
       albumForum: {
         id: null,
@@ -150,26 +151,35 @@ export default {
       this.$router.push({ path: '/photos/delete' })
     },
     listAlbums() {
-      this.axios
-        .get('/api/admin/photos/albums', {
-          params: {
-            current: this.current,
-            size: this.size,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.albums = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/photo/album/list', {
+        current: this.current,
+        size: this.size,
+        keywords: this.keywords
+      }, (data) => {
+        this.albums = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/photos/albums', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       keywords: this.keywords
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.albums = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     },
     addOrEditAlbum() {
-      if (this.albumForum.albumName.trim() == '') {
+      if (this.albumForum.albumName.trim() === '') {
         this.$message.error('相册名称不能为空')
         return false
       }
-      if (this.albumForum.albumDesc.trim() == '') {
+      if (this.albumForum.albumDesc.trim() === '') {
         this.$message.error('相册描述不能为空')
         return false
       }
@@ -177,20 +187,32 @@ export default {
         this.$message.error('相册封面不能为空')
         return false
       }
-      this.axios.post('/api/admin/photos/albums', this.albumForum).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listAlbums()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _post('/admin/photo/album', this.albumForum, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listAlbums()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.post('/api/admin/photos/albums', this.albumForum).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listAlbums()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
       this.addOrEdit = false
     },
     uploadCover(response) {
@@ -209,30 +231,44 @@ export default {
     handleCommand(command) {
       const type = command.substring(0, 6)
       const data = command.substring(6)
-      if (type == 'delete') {
+      if (type === 'delete') {
         this.albumForum.id = data
-        this.isdelete = true
+        this.isDelete = true
       } else {
         console.log(data)
         this.openModel(data)
       }
     },
     deleteAlbum() {
-      this.axios.delete('/api/admin/photos/albums/' + this.albumForum.id).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listAlbums()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
-        this.isdelete = false
+      _delete('/admin/photo/album' + this.albumForum.id, {}, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listAlbums()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, null, () => {
+        this.isDelete = false
       })
+      // this.axios.delete('/api/admin/photos/albums/' + this.albumForum.id).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listAlbums()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.isDelete = false
+      // })
     },
     searchAlbums() {
       this.current = 1
