@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Tag(name = "<p> 分类表 前端控制器 </p>", description = "<p> 分类表 前端控制器 </p>")
 @RestController
-@RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/category")
+@RequestMapping(InterfacePermissionConstant.SERVER_BASE_URL + "/category")
 public class CategoryController {
 
     private final ICategoryService categoryService;

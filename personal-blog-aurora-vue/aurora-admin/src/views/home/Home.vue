@@ -63,7 +63,7 @@
         <el-card>
           <div class="e-title">文章浏览量排行</div>
           <div style="height: 350px">
-            <v-chart :options="ariticleRank" v-loading="loading" />
+            <v-chart :options="articleRank" v-loading="loading" />
           </div>
         </el-card>
       </el-col>
@@ -164,7 +164,7 @@ export default {
           }
         ]
       },
-      ariticleRank: {
+      articleRank: {
         tooltip: {
           trigger: 'axis',
           axisPointer: {
@@ -279,7 +279,7 @@ export default {
   },
   methods: {
     getData() {
-      _get('', {}, (data) => {
+      _get('/admin', {}, (data) => {
         this.viewsCount = data.viewsCount
         this.messageCount = data.messageCount
         this.userCount = data.userCount
@@ -304,8 +304,8 @@ export default {
 
         if (data.articleRankDTOs != null) {
           data.articleRankDTOs.forEach((item) => {
-            this.ariticleRank.series[0].data.push(item.viewsCount)
-            this.ariticleRank.xAxis.data.push(item.articleTitle)
+            this.articleRank.series[0].data.push(item.viewsCount)
+            this.articleRank.xAxis.data.push(item.articleTitle)
           })
         }
 
@@ -345,8 +345,8 @@ export default {
       //
       //   if (data.articleRankDTOs != null) {
       //     data.articleRankDTOs.forEach((item) => {
-      //       this.ariticleRank.series[0].data.push(item.viewsCount)
-      //       this.ariticleRank.xAxis.data.push(item.articleTitle)
+      //       this.articleRank.series[0].data.push(item.viewsCount)
+      //       this.articleRank.xAxis.data.push(item.articleTitle)
       //     })
       //   }
       //

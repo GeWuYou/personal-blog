@@ -1,12 +1,14 @@
 package com.gewuyou.blog.admin.service.impl;
 
-import com.gewuyou.blog.common.dto.UniqueViewDTO;
-import com.gewuyou.blog.common.model.UniqueView;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.UniqueViewMapper;
 import com.gewuyou.blog.admin.service.IUniqueViewService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gewuyou.blog.common.dto.UniqueViewDTO;
+import com.gewuyou.blog.common.model.UniqueView;
+import com.gewuyou.blog.common.utils.DateUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,6 +29,8 @@ public class UniqueViewServiceImpl extends ServiceImpl<UniqueViewMapper, UniqueV
      */
     @Override
     public List<UniqueViewDTO> listUniqueViews() {
-        return baseMapper.listUniqueViews();
+        var startTime = DateUtil.beginOfDay(DateUtil.offsetDay(new Date(), -7));
+        var endTime = DateUtil.endOfDay(new Date());
+        return baseMapper.listUniqueViews(startTime, endTime);
     }
 }

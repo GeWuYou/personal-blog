@@ -45,20 +45,19 @@
     <select id="listArticlesAdminDTOs" resultType="com.gewuyou.blog.common.dto.ArticleAdminDTO">
         SELECT
         a.id,
-        article_cover AS article_cover,
-        article_title AS article_title,
-        is_top,
-        is_featured,
-        is_delete,
+        article_cover AS articleCover,
+        article_title AS articleTitle,
+        a.create_time AS createTime,
+        category_name AS categoryName,
+        is_top AS isTop,
+        is_featured AS isFeatured,
+        is_delete AS isDelete,
         status,
-        type,
-        a.create_time,
-        category_name,
-        t.tag_id,
-        tag_name
+        type
         FROM(
         SELECT
         id,
+        category_id,
         article_cover,
         article_title,
         status,
@@ -66,8 +65,7 @@
         is_top,
         is_featured,
         is_delete,
-        create_time,
-        update_time
+        create_time
         FROM tb_article
         <where>
             is_delete = #{conditionVO.isDelete}
@@ -101,7 +99,7 @@
         id DESC
         ) a
         LEFT JOIN tb_category c ON a.category_id = c.id
-        LEFT JOIN tb_article_tag at ON a.id = at.id
+        LEFT JOIN tb_article_tag at ON a.id = at.article_id
         LEFT JOIN tb_tag t ON t.id = at.tag_id
         ORDER BY
         is_top DESC,

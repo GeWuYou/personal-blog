@@ -3,10 +3,11 @@
 <mapper namespace="com.gewuyou.blog.admin.mapper.UniqueViewMapper">
 
     <select id="listUniqueViews" resultType="com.gewuyou.blog.common.dto.UniqueViewDTO">
-        SELECT DATE_FORMAT(create_time, "%Y-%m-%d") AS date,
-               COUNT(*)                             AS count
-        FROM tb_article
-        GROUP BY date
-        ORDER BY date DESC
+        SELECT DATE_FORMAT(create_time, "%Y-%m-%d") as `day`,
+               views_count
+        FROM `tb_unique_view`
+        WHERE create_time &gt; #{startTime}
+          AND create_time &lt;= #{endTime}
+        ORDER BY create_time
     </select>
 </mapper>

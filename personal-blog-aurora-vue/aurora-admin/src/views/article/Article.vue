@@ -150,6 +150,9 @@ export default {
     const path = this.$route.path
     const arr = path.split('/')
     const articleId = arr[2]
+    if (articleId === '*') {
+      return
+    }
     if (articleId) {
       _get('/admin/article/' + articleId, {}, (data) => {
         this.article = data

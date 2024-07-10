@@ -23,7 +23,7 @@
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
       <el-table-column prop="resourceName" label="资源名" width="220" />
       <el-table-column prop="url" label="资源路径" width="300" />
-      <el-table-column prop="requetMethod" label="请求方式">
+      <el-table-column prop="requestMethod" label="请求方式">
         <template slot-scope="scope" v-if="scope.row.requestMethod">
           <el-tag :type="tagType(scope.row.requestMethod)">
             {{ scope.row.requestMethod }}
@@ -101,6 +101,8 @@
 </template>
 
 <script>
+import { _delete, _get, _post } from '@/api/api'
+
 export default {
   created() {
     this.listResources()
@@ -117,32 +119,48 @@ export default {
   },
   methods: {
     listResources() {
-      this.axios
-        .get('/api/admin/resources', {
-          params: {
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.resources = data.data
-          this.loading = false
-        })
+      _get('/admin/resource', { keywords: this.keywords }, data => {
+        this.resources = data
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/resources', {
+      //     params: {
+      //       keywords: this.keywords
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.resources = data.data
+      //     this.loading = false
+      //   })
     },
     changeResource(resource) {
-      this.axios.post('/api/admin/resources', resource).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listResources()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _post('/admin/resource', resource, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listResources()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.post('/api/admin/resources', resource).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listResources()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
     },
     openModel(resource) {
       if (resource != null) {
@@ -171,42 +189,69 @@ export default {
       this.addResource = true
     },
     deleteResource(id) {
-      this.axios.delete('/api/admin/resources/' + id).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listResources()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _delete('/admin/resource' + id, {}, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listResources()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.delete('/api/admin/resources/' + id).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listResources()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
     },
     addOrEditResource() {
-      if (this.resourceForm.resourceName.trim() == '') {
+      if (this.resourceForm.resourceName.trim() === '') {
         this.$message.error('资源名不能为空')
         return false
       }
-      this.axios.post('/api/admin/resources', this.resourceForm).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listResources()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _post('/admin/resource', this.resourceForm, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listResources()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, null, () => {
         this.addModule = false
         this.addResource = false
       })
+      // this.axios.post('/api/admin/resources', this.resourceForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listResources()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.addModule = false
+      //   this.addResource = false
+      // })
     }
   },
   computed: {

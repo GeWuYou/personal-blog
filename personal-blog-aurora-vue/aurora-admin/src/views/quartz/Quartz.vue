@@ -42,7 +42,7 @@
           type="danger"
           size="small"
           icon="el-icon-delete"
-          :disabled="jobIds.length == 0"
+          :disabled="jobIds.length === 0"
           @click="isDelete = true">
           批量删除
         </el-button>
@@ -262,6 +262,7 @@
 <script>
 import Crontab from '@/components/Crontab'
 import router from '@/router'
+import { _delete, _get, _post, _put } from '@/api/api'
 
 export default {
   components: { Crontab },
@@ -307,22 +308,28 @@ export default {
       this.listJobs()
     },
     listJobGroups() {
-      this.axios.get('/api/admin/jobs/jobGroups').then(({ data }) => {
-        this.jobGroups = data.data
-      })
+      _get('/admin/job/groups', {}, (data) => this.jobGroups = data.data)
+      // this.axios.get('/api/admin/jobs/jobGroups').then(({ data }) => {
+      //   this.jobGroups = data.data
+      // })
     },
     listJobs() {
       this.searchParams.current = this.current
       this.searchParams.size = this.size
-      this.axios
-        .get('/api/admin/jobs', {
-          params: this.searchParams
-        })
-        .then(({ data }) => {
-          this.jobs = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/job/list', this.searchParams, (data) => {
+        this.jobs = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/jobs', {
+      //     params: this.searchParams
+      //   })
+      //   .then(({ data }) => {
+      //     this.jobs = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     },
     reset() {
       this.searchParams = {}
@@ -335,25 +342,37 @@ export default {
       })
     },
     changeStatus(job) {
-      this.axios
-        .put('/api/admin/jobs/status', {
-          id: job.id,
-          status: job.status
+      _put('/admin/job/status', { id: job.id, status: job.status }, () => {
+        this.$notify.success({
+          title: '成功',
+          message: '修改成功'
         })
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: '成功',
-              message: '修改成功'
-            })
-            this.listJobs()
-          } else {
-            this.$notify.error({
-              title: '失败',
-              message: '修改失败'
-            })
-          }
+        this.listJobs()
+      }, () => {
+        this.$notify.error({
+          title: '失败',
+          message: '修改失败'
         })
+      })
+      // this.axios
+      //   .put('/api/admin/jobs/status', {
+      //     id: job.id,
+      //     status: job.status
+      //   })
+      //   .then(({ data }) => {
+      //     if (data.flag) {
+      //       this.$notify.success({
+      //         title: '成功',
+      //         message: '修改成功'
+      //       })
+      //       this.listJobs()
+      //     } else {
+      //       this.$notify.error({
+      //         title: '失败',
+      //         message: '修改失败'
+      //       })
+      //     }
+      //   })
     },
     deleteJobs(id) {
       let param = {}
@@ -362,21 +381,33 @@ export default {
       } else {
         param = { data: [id] }
       }
-      this.axios.delete('/api/admin/jobs', param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: '删除成功'
-          })
-          this.listJobs()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: '删除失败'
-          })
-        }
-        this.isDelete = false
-      })
+      _delete('/admin/job', param, () => {
+        this.$notify.success({
+          title: '成功',
+          message: '删除成功'
+        })
+        this.listJobs()
+      }, () => {
+        this.$notify.error({
+          title: '失败',
+          message: '删除失败'
+        })
+      }, null, () => this.isDelete = false)
+      // this.axios.delete('/api/admin/jobs', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: '删除成功'
+      //     })
+      //     this.listJobs()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: '删除失败'
+      //     })
+      //   }
+      //   this.isDelete = false
+      // })
     },
     handleShowCron() {
       this.expression = this.job.cronExpression
@@ -391,9 +422,10 @@ export default {
     handleChange(jobId) {
       this.editOrUpdate = true
       this.title = '编辑任务'
-      this.axios.get('/api/admin/jobs/' + jobId).then(({ data }) => {
-        this.job = data.data
-      })
+      _get('/admin/job/' + jobId, {}, (data) => this.job = data)
+      // this.axios.get('/api/admin/jobs/' + jobId).then(({ data }) => {
+      //   this.job = data.data
+      // })
       this.dialogFormVisible = true
     },
     crontabFill(value) {
@@ -401,37 +433,61 @@ export default {
     },
     handleEditOrUpdate() {
       if (this.editOrUpdate === true) {
-        this.axios.put('/api/admin/jobs', this.job).then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: '修改成功',
-              message: data.message
-            })
-            this.listJobs()
-          } else {
-            this.$notify.error({
-              title: '修改失败',
-              message: data.message
-            })
-          }
-          this.dialogFormVisible = false
-        })
+        _put('/admin/job', this.job, (_, message) => {
+          this.$notify.success({
+            title: '修改成功',
+            message: message
+          })
+          this.listJobs()
+        }, (message) => {
+          this.$notify.error({
+            title: '修改失败',
+            message: message
+          })
+        }, null, () => this.dialogFormVisible = false)
+        // this.axios.put('/api/admin/jobs', this.job).then(({ data }) => {
+        //   if (data.flag) {
+        //     this.$notify.success({
+        //       title: '修改成功',
+        //       message: data.message
+        //     })
+        //     this.listJobs()
+        //   } else {
+        //     this.$notify.error({
+        //       title: '修改失败',
+        //       message: data.message
+        //     })
+        //   }
+        //   this.dialogFormVisible = false
+        // })
       } else if (this.editOrUpdate === false) {
-        this.axios.post('/api/admin/jobs', this.job).then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: '添加成功',
-              message: data.message
-            })
-            this.listJobs()
-          } else {
-            this.$notify.error({
-              title: '添加失败',
-              message: data.message
-            })
-          }
-          this.dialogFormVisible = false
-        })
+        _post('/admin/job', this.job, (_, message) => {
+          this.$notify.success({
+            title: '添加成功',
+            message: message
+          })
+          this.listJobs()
+        }, (message) => {
+          this.$notify.error({
+            title: '添加失败',
+            message: message
+          })
+        }, null, () => this.dialogFormVisible = false)
+        // this.axios.post('/api/admin/jobs', this.job).then(({ data }) => {
+        //   if (data.flag) {
+        //     this.$notify.success({
+        //       title: '添加成功',
+        //       message: data.message
+        //     })
+        //     this.listJobs()
+        //   } else {
+        //     this.$notify.error({
+        //       title: '添加失败',
+        //       message: data.message
+        //     })
+        //   }
+        //   this.dialogFormVisible = false
+        // })
       }
     },
     handleCommand(command, row) {
@@ -454,19 +510,30 @@ export default {
         id: job.id,
         jobGroup: job.jobGroup
       }
-      this.axios.put('/api/admin/jobs/run', params).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '执行成功',
-            message: data.message
-          })
-        } else {
-          this.$notify.error({
-            title: '执行失败',
-            message: data.message
-          })
-        }
+      _put('/admin/job/run', params, (_, message) => {
+        this.$notify.success({
+          title: '执行成功',
+          message: message
+        })
+      }, (message) => {
+        this.$notify.error({
+          title: '执行失败',
+          message: message
+        })
       })
+      // this.axios.put('/api/admin/jobs/run', params).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '执行成功',
+      //       message: data.message
+      //     })
+      //   } else {
+      //     this.$notify.error({
+      //       title: '执行失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
     },
     handleView(job) {
       this.openView = true

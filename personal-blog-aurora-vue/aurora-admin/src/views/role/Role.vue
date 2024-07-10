@@ -7,7 +7,7 @@
         type="danger"
         size="small"
         icon="el-icon-delete"
-        :disabled="this.roleIds.length == 0"
+        :disabled="this.roleIds.length === 0"
         @click="isDelete = true">
         批量删除
       </el-button>
@@ -111,6 +111,8 @@
 </template>
 
 <script>
+import { _delete, _get, _post } from '@/api/api'
+
 export default {
   created() {
     this.current = this.$store.state.pageState.role
@@ -159,48 +161,73 @@ export default {
       })
     },
     listRoles() {
-      this.axios
-        .get('/api/admin/roles', {
-          params: {
-            current: this.current,
-            size: this.size,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.roles = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
-      this.axios.get('/api/admin/role/resources').then(({ data }) => {
-        this.resources = data.data
+      _get('/admin/role/list', {
+        current: this.current,
+        size: this.size,
+        keywords: this.keywords
+      }, (data) => {
+        this.roles = data.records
+        this.count = data.count
+        this.loading = false
       })
-      this.axios.get('/api/admin/role/menus').then(({ data }) => {
-        this.menus = data.data
-      })
+      // this.axios
+      //   .get('/api/admin/roles', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       keywords: this.keywords
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.roles = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
+      _get('/admin/resource/role', {}, (data) => this.resources = data)
+      // this.axios.get('/api/admin/role/resources').then(({ data }) => {
+      //   this.resources = data.data
+      // })
+      _get('/admin/menu/role', {}, (data) => this.menus = data)
+      // this.axios.get('/api/admin/role/menus').then(({ data }) => {
+      //   this.menus = data.data
+      // })
     },
     deleteRoles(id) {
-      var param = {}
+      let param = {}
       if (id == null) {
         param = { data: this.roleIds }
       } else {
         param = { data: [id] }
       }
-      this.axios.delete('/api/admin/roles', param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listRoles()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _delete('/admin/role', param, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listRoles()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, null, () => {
         this.isDelete = false
       })
+      // this.axios.delete('/api/admin/roles', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listRoles()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.isDelete = false
+      // })
     },
     openMenuModel(role) {
       this.$nextTick(function() {
@@ -229,44 +256,68 @@ export default {
     saveOrUpdateRoleResource() {
       this.roleForm.menuIds = null
       this.roleForm.resourceIds = this.$refs.resourceTree.getCheckedKeys()
-      this.axios.post('/api/admin/role', this.roleForm).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listRoles()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
-        this.roleResource = false
-      })
+      _post('/admin/role', this.roleForm, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listRoles()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, null, () => this.roleResource = false)
+      // this.axios.post('/api/admin/role', this.roleForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listRoles()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.roleResource = false
+      // })
     },
     saveOrUpdateRoleMenu() {
-      if (this.roleForm.roleName.trim() == '') {
+      if (this.roleForm.roleName.trim() === '') {
         this.$message.error('角色名不能为空')
         return false
       }
       this.roleForm.resourceIds = null
       this.roleForm.menuIds = this.$refs.menuTree.getCheckedKeys().concat(this.$refs.menuTree.getHalfCheckedKeys())
-      this.axios.post('/api/admin/role', this.roleForm).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listRoles()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
-        this.roleMenu = false
-      })
+      _post('/admin/role', this.roleForm, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listRoles()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, null, () => this.roleMenu = false)
+      // this.axios.post('/api/admin/role', this.roleForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listRoles()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.roleMenu = false
+      // })
     }
   }
 }

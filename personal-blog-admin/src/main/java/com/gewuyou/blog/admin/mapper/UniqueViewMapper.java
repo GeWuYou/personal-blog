@@ -1,10 +1,12 @@
 package com.gewuyou.blog.admin.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.gewuyou.blog.common.dto.UniqueViewDTO;
 import com.gewuyou.blog.common.model.UniqueView;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,5 +24,5 @@ public interface UniqueViewMapper extends BaseMapper<UniqueView> {
      *
      * @return List<UniqueViewDTO>
      */
-    List<UniqueViewDTO> listUniqueViews();
+    List<UniqueViewDTO> listUniqueViews(@Param("startTime") Date startTime, @Param("endTime") Date endTime);
 }

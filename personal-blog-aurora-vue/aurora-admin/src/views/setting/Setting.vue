@@ -9,7 +9,7 @@
             :show-file-list="false"
             :headers="headers"
             :on-success="updateAvatar">
-            <img v-if="avatar" :src="avatar" class="avatar" />
+            <img v-if="avatar" :src="avatar" class="avatar" alt="头像" />
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
           <el-form label-width="70px" :model="infoForm" style="width: 320px; margin-left: 3rem">
@@ -57,6 +57,8 @@
 </template>
 
 <script>
+import { _put } from '@/api/api'
+
 export default {
   data: function() {
     return {
@@ -76,7 +78,7 @@ export default {
   },
   methods: {
     handleClick(tab) {
-      if (tab.index == 2 && this.notice == '') {
+      if (tab.index === 2 && this.notice === '') {
         this.axios.get('/api/admin/notice').then(({ data }) => {
           this.notice = data.data
         })
@@ -91,31 +93,43 @@ export default {
       }
     },
     updateInfo() {
-      if (this.infoForm.nickname.trim() == '') {
+      if (this.infoForm.nickname.trim() === '') {
         this.$message.error('昵称不能为空')
         return false
       }
-      this.axios.put('/api/users/info', this.infoForm).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: '修改成功'
-          })
-          this.$store.commit('updateUserInfo', this.infoForm)
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: '修改失败'
-          })
-        }
+      _put('/server/user-info', this.infoForm, () => {
+        this.$notify.success({
+          title: '成功',
+          message: '修改成功'
+        })
+        this.$store.commit('updateUserInfo', this.infoForm)
+      }, () => {
+        this.$notify.error({
+          title: '失败',
+          message: '修改失败'
+        })
       })
+      // this.axios.put('/api/users/info', this.infoForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: '修改成功'
+      //     })
+      //     this.$store.commit('updateUserInfo', this.infoForm)
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: '修改失败'
+      //     })
+      //   }
+      // })
     },
     updatePassword() {
-      if (this.passwordForm.oldPassword.trim() == '') {
+      if (this.passwordForm.oldPassword.trim() === '') {
         this.$message.error('旧密码不能为空')
         return false
       }
-      if (this.passwordForm.newPassword.trim() == '') {
+      if (this.passwordForm.newPassword.trim() === '') {
         this.$message.error('新密码不能为空')
         return false
       }
@@ -123,26 +137,41 @@ export default {
         this.$message.error('新密码不能少于6位')
         return false
       }
-      if (this.passwordForm.newPassword != this.passwordForm.confirmPassword) {
+      if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
         this.$message.error('两次密码输入不一致')
         return false
       }
-      this.axios.put('/api/admin/users/password', this.passwordForm).then(({ data }) => {
-        if (data.flag) {
-          this.passwordForm.oldPassword = ''
-          this.passwordForm.newPassword = ''
-          this.passwordForm.confirmPassword = ''
-          this.$notify.success({
-            title: '成功',
-            message: '修改成功'
-          })
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: '修改失败'
-          })
-        }
+      // todo 修改密码接口
+      _put('/admin/user/reset-password', this.passwordForm, () => {
+        this.passwordForm.oldPassword = ''
+        this.passwordForm.newPassword = ''
+        this.passwordForm.confirmPassword = ''
+        this.$notify.success({
+          title: '成功',
+          message: '修改成功'
+        })
+      }, () => {
+        this.$notify.error({
+          title: '失败',
+          message: '修改失败'
+        })
       })
+      // this.axios.put('/api/admin/users/password', this.passwordForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.passwordForm.oldPassword = ''
+      //     this.passwordForm.newPassword = ''
+      //     this.passwordForm.confirmPassword = ''
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: '修改成功'
+      //     })
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: '修改失败'
+      //     })
+      //   }
+      // })
     }
   },
   computed: {

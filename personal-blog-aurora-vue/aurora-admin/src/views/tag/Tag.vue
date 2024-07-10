@@ -7,7 +7,7 @@
         type="danger"
         size="small"
         icon="el-icon-delete"
-        :disabled="tagIds.length == 0"
+        :disabled="tagIds.length === 0"
         @click="isDelete = true">
         批量删除
       </el-button>
@@ -83,6 +83,8 @@
 </template>
 
 <script>
+import { _delete, _get, _post } from '@/api/api'
+
 export default {
   created() {
     this.current = this.$store.state.pageState.tag
@@ -126,42 +128,63 @@ export default {
       this.listTags()
     },
     deleteTag(id) {
-      var param = {}
+      let param = {}
       if (id == null) {
         param = { data: this.tagIds }
       } else {
         param = { data: [id] }
       }
-      this.axios.delete('/api/admin/tags', param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listTags()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _delete('/admin/tag', param, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listTags()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.delete('/api/admin/tags', param).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listTags()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
       this.isDelete = false
     },
     listTags() {
-      this.axios
-        .get('/api/admin/tags', {
-          params: {
-            current: this.current,
-            size: this.size,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.tags = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/tag/list', {
+        current: this.current,
+        size: this.size,
+        keywords: this.keywords
+      }, (data) => {
+        this.tags = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/tags', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       keywords: this.keywords
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.tags = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     },
     openModel(tag) {
       if (tag != null) {
@@ -175,24 +198,36 @@ export default {
       this.addOrEdit = true
     },
     addOrEditTag() {
-      if (this.tagForm.tagName.trim() == '') {
+      if (this.tagForm.tagName.trim() === '') {
         this.$message.error('标签名不能为空')
         return false
       }
-      this.axios.post('/api/admin/tags', this.tagForm).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listTags()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _post('/admin/tag', this.tagForm, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listTags()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.post('/api/admin/tags', this.tagForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listTags()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
       this.addOrEdit = false
     }
   }
