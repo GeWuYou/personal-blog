@@ -2,7 +2,6 @@ package com.gewuyou.blog.admin.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gewuyou.blog.common.dto.ResourceRoleDTO;
 import com.gewuyou.blog.common.dto.RoleDTO;
 import com.gewuyou.blog.common.model.Role;
@@ -33,11 +32,12 @@ public interface RoleMapper extends BaseMapper<Role> {
     /**
      * 查询角色列表
      *
-     * @param page        分页对象
+     * @param current   当前页
+     * @param size 分页尺寸
      * @param conditionVO 条件对象
      * @return 角色列表
      */
-    List<RoleDTO> listRoleDTOs(Page<RoleDTO> page, @Param("conditionVO") ConditionVO conditionVO);
+    List<RoleDTO> listRoleDTOs(@Param("current") Long current, @Param("size") Long size, @Param("conditionVO") ConditionVO conditionVO);
 
     /**
      * 查询资源角色列表

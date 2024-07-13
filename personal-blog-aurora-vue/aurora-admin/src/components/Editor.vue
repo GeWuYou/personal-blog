@@ -55,7 +55,7 @@ export default {
     onBlur() {
       // 记录光标
       if (window.getSelection) {
-        var selection = window.getSelection()
+        const selection = window.getSelection()
         this.range = selection.getRangeAt(0)
       }
       this.$emit('blur', this.$el.innerHTML)
@@ -64,7 +64,7 @@ export default {
     addText(value) {
       // 还原光标
       if (window.getSelection) {
-        var selection = window.getSelection()
+        const selection = window.getSelection()
         selection.removeAllRanges()
         // 为空初始化光标
         if (this.range == null) {

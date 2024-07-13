@@ -119,7 +119,7 @@ export default {
   },
   methods: {
     listResources() {
-      _get('/admin/resource', { keywords: this.keywords }, data => {
+      _get('/admin/resource/list', { keywords: this.keywords }, data => {
         this.resources = data
         this.loading = false
       })
@@ -189,7 +189,7 @@ export default {
       this.addResource = true
     },
     deleteResource(id) {
-      _delete('/admin/resource' + id, {}, (_, message) => {
+      _delete('/admin/resource/' + id, {}, (_, message) => {
         this.$notify.success({
           title: '成功',
           message: message

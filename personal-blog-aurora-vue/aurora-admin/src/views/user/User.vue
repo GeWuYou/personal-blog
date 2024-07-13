@@ -103,6 +103,8 @@
 </template>
 
 <script>
+import { _get, _put } from '@/api/api'
+
 export default {
   created() {
     this.current = this.$store.state.pageState.user
@@ -152,10 +154,14 @@ export default {
       this.listUsers()
     },
     changeDisable(user) {
-      this.axios.put('/api/admin/users/disable', {
+      _put('/admin/user-info/disable', {
         id: user.userInfoId,
         isDisable: user.isDisable
-      })
+      }, null)
+      // this.axios.put('/api/admin/users/disable', {
+      //   id: user.userInfoId,
+      //   isDisable: user.isDisable
+      // })
     },
     openEditModel(user) {
       this.roleIds = []
@@ -168,42 +174,67 @@ export default {
     editUserRole() {
       this.userForm.roleIds = this.roleIds
       console.log(this.userForm)
-      this.axios.put('/api/admin/users/role', this.userForm).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listUsers()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
-        this.isEdit = false
-      })
+      _put('/admin/user-info/role', this.userForm, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listUsers()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, null, () => this.isEdit = false)
+      // this.axios.put('/api/admin/users/role', this.userForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listUsers()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.isEdit = false
+      // })
     },
     listUsers() {
-      this.axios
-        .get('/api/admin/users', {
-          params: {
-            current: this.current,
-            size: this.size,
-            keywords: this.keywords,
-            loginType: this.loginType
-          }
-        })
-        .then(({ data }) => {
-          this.userList = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/user/list', {
+        current: this.current,
+        size: this.size,
+        keywords: this.keywords,
+        loginType: this.loginType
+      }, (data) => {
+        this.userList = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/users', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       keywords: this.keywords,
+      //       loginType: this.loginType
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.userList = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     },
     listRoles() {
-      this.axios.get('/api/admin/users/role').then(({ data }) => {
-        this.userRoles = data.data
+      _get('/admin/role/user/list', {}, (data) => {
+        this.userRoles = data
       })
+      // this.axios.get('/api/admin/users/role').then(({ data }) => {
+      //   this.userRoles = data.data
+      // })
     }
   },
   watch: {

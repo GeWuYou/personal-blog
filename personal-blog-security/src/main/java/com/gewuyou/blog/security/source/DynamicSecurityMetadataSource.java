@@ -71,7 +71,8 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
                 return SecurityConfig.createList(roles);
             }
         }
-        return SecurityConfig.createList("disable");
+        // 没有匹配到，返回空集合
+        return SecurityConfig.createList();
     }
 
     /**

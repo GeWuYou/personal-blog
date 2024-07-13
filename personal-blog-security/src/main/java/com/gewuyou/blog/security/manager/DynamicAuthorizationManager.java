@@ -72,11 +72,17 @@ public class DynamicAuthorizationManager implements AuthorizationManager<Request
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
+        log.info("当前用户的权限列表：{}", permissions);
         // 获取当前请求的权限列表
         Collection<ConfigAttribute> attributes = dynamicSecurityMetadataSource.getAttributes(request);
         // 遍历权限列表，判断是否有访问权限
         // 判断当前用户是否有当前请求的权限
         for (ConfigAttribute attribute : attributes) {
+            log.info("当前请求的权限：{}, 请求的URL：{}", attribute.getAttribute(), request.getRequestURI());
+            // 允许匿名访问
+            if ("anonymous".equals(attribute.getAttribute())) {
+                return new AuthorizationDecision(true);
+            }
             if (permissions.contains(attribute.getAttribute())) {
                 log.info("当前用户有访问权限：{}", request.getRequestURI());
                 return new AuthorizationDecision(true);

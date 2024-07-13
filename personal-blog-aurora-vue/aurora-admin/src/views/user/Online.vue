@@ -56,6 +56,7 @@
 
 <script>
 import router from '@/router'
+import { _delete, _get } from '@/api/api'
 
 export default {
   created() {
@@ -76,19 +77,28 @@ export default {
   },
   methods: {
     listOnlineUsers() {
-      this.axios
-        .get('/api/admin/users/online', {
-          params: {
-            current: this.current,
-            size: this.size,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.users = data.data.records
-          this.count = data.data.count
-          this.loading = false
-        })
+      _get('/admin/user-info/online', {
+        current: this.current,
+        size: this.size,
+        keywords: this.keywords
+      }, (data) => {
+        this.users = data.records
+        this.count = data.count
+        this.loading = false
+      })
+      // this.axios
+      //   .get('/api/admin/users/online', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       keywords: this.keywords
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.users = data.data.records
+      //     this.count = data.data.count
+      //     this.loading = false
+      //   })
     },
     sizeChange(size) {
       this.size = size
@@ -100,24 +110,40 @@ export default {
       this.listOnlineUsers()
     },
     removeOnlineUser(user) {
-      this.axios.delete('/api/admin/users/' + user.userInfoId + '/online').then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          if (user.userInfoId == this.$store.state.userInfo.id) {
-            router.push({ path: '/login' })
-            sessionStorage.removeItem('token')
-          }
-          this.listOnlineUsers()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
+      _delete('/admin/user-info/online/' + user.userInfoId, {}, (data) => {
+        this.$notify.success({
+          title: '成功',
+          message: data.message
+        })
+        if (user.userInfoId === this.$store.state.userInfo.id) {
+          router.push({ path: '/login' })
+          sessionStorage.removeItem('token')
         }
+        this.listOnlineUsers()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.delete('/api/admin/users/' + user.userInfoId + '/online').then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     if (user.userInfoId === this.$store.state.userInfo.id) {
+      //       router.push({ path: '/login' })
+      //       sessionStorage.removeItem('token')
+      //     }
+      //     this.listOnlineUsers()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
     }
   },
   computed: {

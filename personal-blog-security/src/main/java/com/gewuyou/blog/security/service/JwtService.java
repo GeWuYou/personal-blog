@@ -300,7 +300,7 @@ public class JwtService {
     }
 
     /**
-     * 刷新token
+     * 判断token是否快过期，如果快过期则刷新token
      *
      * @param userDetailsDTO 用户信息DTO
      */

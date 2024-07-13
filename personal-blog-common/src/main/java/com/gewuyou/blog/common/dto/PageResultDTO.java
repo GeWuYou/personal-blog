@@ -3,7 +3,6 @@ package com.gewuyou.blog.common.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -15,7 +14,6 @@ import java.util.List;
  */
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 public class PageResultDTO<T> {
     /**
@@ -27,4 +25,9 @@ public class PageResultDTO<T> {
      * 总记录数
      */
     private Long count;
+
+    public PageResultDTO() {
+        this.records = List.of();
+        this.count = 0L;
+    }
 }

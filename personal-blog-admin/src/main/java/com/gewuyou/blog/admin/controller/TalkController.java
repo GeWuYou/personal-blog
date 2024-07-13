@@ -96,7 +96,7 @@ public class TalkController {
      * @return 后台说说列表
      */
     @Operation(summary = "查看后台说说列表", description = "查看后台说说列表")
-    @GetMapping
+    @GetMapping("/list")
     public Result<PageResultDTO<TalkAdminDTO>> listBackTalks(ConditionVO conditionVO) {
         return Result.success(talkService.listBackTalkAdminDTOs(conditionVO));
     }

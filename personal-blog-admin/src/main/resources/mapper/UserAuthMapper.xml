@@ -29,17 +29,17 @@
         WHERE username = #{username}
     </select>
     <select id="countUsers" resultType="java.lang.Integer">
-        SELECT couunt(1)
+        SELECT count(1)
         FROM tb_user_auth ua
         LEFT JOIN tb_user_info ui ON ua.user_info_id = ui.id
         <where>
-            # 如果搜索内容不为空则添加搜索条件并模糊查询
+            <!-- 如果搜索内容不为空则添加搜索条件并模糊查询 -->
             <if test="conditionVO.keywords != null">
-                nickname LIKE CONCAT('%', #{conditionVo.keywords}, '%')
+                nick_name LIKE CONCAT('%', #{conditionVO.keywords}, '%')
             </if>
-            # 如果登录类型不为空则添加登录类型的搜索条件
+            <!--  如果登录类型不为空则添加登录类型的搜索条件-->
             <if test="conditionVO.loginType != null">
-                AND login_type = #{conditionVo.loginType}
+                AND login_type = #{conditionVO.loginType}
             </if>
         </where>
     </select>
@@ -47,7 +47,7 @@
         <id property="id" column="id"/>
         <result property="userInfoId" column="user_info_id"/>
         <result property="avatar" column="avatar"/>
-        <result property="nickname" column="nickname"/>
+        <result property="nickname" column="nick_name"/>
         <result property="loginType" column="login_type"/>
         <result property="ipAddress" column="ip_address"/>
         <result property="ipSource" column="ip_source"/>
@@ -63,8 +63,8 @@
         SELECT
         ua.id,
         ua.user_info_id,
-        ua.avatar,
-        ua.nickname,
+        avatar,
+        nick_name,
         ua.login_type,
         r.id as role_id,
         r.role_name,
@@ -76,7 +76,7 @@
         FROM (SELECT
         id,
         avatar,
-        nickname,
+        nick_name,
         is_disable FROM tb_user_info ui
         <where>
             <if test="conditionVO.loginType != null">
@@ -89,9 +89,9 @@
         </where>
         )
         ui
-        LEFT JOIN t_user_auth ua ON ua.user_info_id = ui.id
-        LEFT JOIN t_user_role ur ON ui.id = ur.user_id
-        LEFT JOIN t_role r ON ur.role_id = r.id
+        LEFT JOIN tb_user_auth ua ON ua.user_info_id = ui.id
+        LEFT JOIN tb_user_role ur ON ui.id = ur.user_id
+        LEFT JOIN tb_role r ON ur.role_id = r.id
     </select>
 
 </mapper>

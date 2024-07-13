@@ -14,15 +14,14 @@ import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Resource;
 import com.gewuyou.blog.common.model.RoleResource;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.ResourceVO;
+import com.gewuyou.blog.security.source.DynamicSecurityMetadataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.gewuyou.blog.common.constant.CommonConstant.FALSE;
@@ -39,9 +38,11 @@ import static com.gewuyou.blog.common.constant.CommonConstant.FALSE;
 public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements IResourceService {
 
     private final RoleResourceMapper roleResourceMapper;
+    private final DynamicSecurityMetadataSource dynamicSecurityMetadataSource;
 
-    public ResourceServiceImpl(RoleResourceMapper roleResourceMapper) {
+    public ResourceServiceImpl(RoleResourceMapper roleResourceMapper, DynamicSecurityMetadataSource dynamicSecurityMetadataSource) {
         this.roleResourceMapper = roleResourceMapper;
+        this.dynamicSecurityMetadataSource = dynamicSecurityMetadataSource;
     }
 
     /**
@@ -57,25 +58,30 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
                 .like(StringUtils.isNotBlank(conditionVO.getKeywords()), Resource::getResourceName,
                         conditionVO.getKeywords()));
         // 筛选出顶级资源列表
-        List<Resource> parents = listTopResource(resources);
+        var parents = listTopResourceDTO(resources);
         // 获取子资源列表
-        Map<Integer, List<Resource>> childrenMap = listResourceChildren(resources);
+        Map<Integer, List<ResourceDTO>> childrenMap = listResourceChildren(resources);
         // 将子资源绑定到父资源上
-        List<ResourceDTO> resourceDTOs = parents.stream().map(item -> {
-            ResourceDTO resourceDTO = BeanCopyUtil.copyObject(item, ResourceDTO.class);
-            List<ResourceDTO> child = BeanCopyUtil.copyList(childrenMap.get(item.getId()), ResourceDTO.class);
-            resourceDTO.setChildren(child);
-            childrenMap.remove(item.getId());
-            return resourceDTO;
-        }).collect(Collectors.toList());
+        List<ResourceDTO> resourceDTOs = parents
+                .stream()
+                .peek(
+                        item -> {
+                            var children = childrenMap.get(item.getId());
+                            if (Objects.nonNull(children)) {
+                                item.setChildren(children);
+                                childrenMap.remove(item.getId());
+                            } else {
+                                item.setChildren(List.of());
+                            }
+                        }
+                ).collect(Collectors.toList());
         // 将剩余资源添加到资源列表中
         if (CollectionUtils.isNotEmpty(childrenMap)) {
-            List<Resource> childrenList = new ArrayList<>();
-            childrenMap.values().forEach(childrenList::addAll);
-            List<ResourceDTO> childrenDTOs = childrenList.stream()
-                    .map(item -> BeanCopyUtil.copyObject(item, ResourceDTO.class))
-                    .toList();
-            resourceDTOs.addAll(childrenDTOs);
+            resourceDTOs.addAll(
+                    childrenMap.values().stream()
+                            .flatMap(Collection::stream)
+                            .toList()
+            );
         }
         return resourceDTOs;
     }
@@ -109,7 +115,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      */
     @Override
     public void saveOrUpdateResource(ResourceVO resourceVO) {
-
+        Resource resource = BeanCopyUtil.copyObject(resourceVO, Resource.class);
+        this.saveOrUpdate(resource);
+        dynamicSecurityMetadataSource.clearDataSource();
     }
 
     /**
@@ -122,11 +130,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         List<Resource> resources = baseMapper.selectList(new LambdaQueryWrapper<Resource>()
                 .select(Resource::getId, Resource::getResourceName, Resource::getParentId)
                 .eq(Resource::getIsAnonymous, FALSE));
-        List<Resource> parents = listTopResource(resources);
-        Map<Integer, List<Resource>> childrenMap = listResourceChildren(resources);
+        var parents = listTopResourceDTO(resources);
+        var childrenMap = listResourceChildren(resources);
         return parents.stream().map(item -> {
             List<LabelOptionDTO> list = new ArrayList<>();
-            List<Resource> children = childrenMap.get(item.getId());
+            var children = childrenMap.get(item.getId());
             if (CollectionUtils.isNotEmpty(children)) {
                 list = children.stream()
                         .map(resource -> LabelOptionDTO.builder()
@@ -149,11 +157,24 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param resources 资源列表
      * @return 子资源列表
      */
-    private Map<Integer, List<Resource>> listResourceChildren(List<Resource> resources) {
-        return resources
-                .stream()
+    private Map<Integer, List<ResourceDTO>> listResourceChildren(List<Resource> resources) {
+        return resources.stream()
                 .filter(item -> Objects.nonNull(item.getParentId()))
-                .collect(Collectors.groupingBy(Resource::getParentId));
+                .collect(Collectors.groupingBy(
+                        Resource::getParentId,
+                        Collectors.mapping(
+                                item -> {
+                                    ResourceDTO resourceDTO = BeanCopyUtil.copyObject(item, ResourceDTO.class);
+                                    var createDate = item.getCreateTime();
+                                    // 转换时间格式
+                                    if (Objects.nonNull(createDate)) {
+                                        resourceDTO.setCreateTime(DateUtil.convertToDate(item.getCreateTime()));
+                                    }
+                                    return resourceDTO;
+                                },
+                                Collectors.toList()
+                        )
+                ));
     }
 
     /**
@@ -162,10 +183,19 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param resources 资源列表
      * @return 父模块列表
      */
-    private List<Resource> listTopResource(List<Resource> resources) {
+    private List<ResourceDTO> listTopResourceDTO(List<Resource> resources) {
         return resources
                 .stream()
                 .filter(item -> Objects.isNull(item.getParentId()))
+                .map(item -> {
+                    var resourceDTO = BeanCopyUtil.copyObject(item, ResourceDTO.class);
+                    var createDate = item.getCreateTime();
+                    // 转换时间格式
+                    if (Objects.nonNull(createDate)) {
+                        resourceDTO.setCreateTime(DateUtil.convertToDate(createDate));
+                    }
+                    return resourceDTO;
+                })
                 .toList();
     }
 }

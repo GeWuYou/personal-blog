@@ -29,36 +29,37 @@ function shouldExclude(url) {
 }
 
 // 添加响应拦截器
-function responseInterceptor(response) {
-  // 2xx 范围内的状态码都会触发该函数。
-  let rememberMe = true
-  // 获取本地token
-  let localToken = localStorage.getItem('token')
-  if (localToken === null) {
-    rememberMe = false
-  }
-  // 获取响应头中的token
-  let token = response.headers.get('Authorization')
-  // 对响应数据做点什么
-  if (token !== null && token !== undefined) {
-    // 如果本地的token不为空且与响应中的token不同则更新token
-    if (rememberMe && localToken !== token) {
-      // 清理旧token
-      localStorage.removeItem('token')
-      // 重新设置token
-      localStorage.setItem('token', token)
-    }
-    if (!rememberMe && sessionStorage !== token) {
-      console.log('token是：' + token)
-      // 清理旧token
-      sessionStorage.removeItem('token')
-      console.log('已设置')
-      // 重新设置token
-      sessionStorage.setItem('token', token)
-    }
-  }
-  return response
-}
+// function responseInterceptor(response) {
+//   // 2xx 范围内的状态码都会触发该函数。
+//   let rememberMe = true
+//   // 获取本地token
+//   let localToken = localStorage.getItem('token')
+//   if (localToken === null) {
+//     rememberMe = false
+//   }
+//   // 获取响应头中的token
+//   let token = response.headers.get('Authorization')
+//   // 对响应数据做点什么
+//   if (token !== null && token !== undefined) {
+//     // 如果本地的token不为空且与响应中的token不同则更新token
+//     if (rememberMe && localToken !== token) {
+//       // 清理旧token
+//       localStorage.removeItem('token')
+//       // 重新设置token
+//       localStorage.setItem('token', token)
+//     }
+//     if (!rememberMe && sessionStorage !== token) {
+//       console.log('token是：' + token)
+//       // 清理旧token
+//       sessionStorage.removeItem('token')
+//       console.log('已设置')
+//       // 重新设置token
+//       sessionStorage.setItem('token', token)
+//     }
+//   }
+//   return response
+// }
 
 // 导出拦截器
-export { requestInterceptor, responseInterceptor }
+// export { requestInterceptor, responseInterceptor }
+export { requestInterceptor }

@@ -24,8 +24,8 @@
           </div>
           <div class="time">
             {{ item.createTime | dateTime }}
-            <span class="top" v-if="item.isTop == 1"> <i class="iconfont el-icon-myzhiding" /> 置顶 </span>
-            <span class="secret" v-if="item.status == 2"> <i class="iconfont el-icon-mymima" /> 私密 </span>
+            <span class="top" v-if="item.isTop === 1"> <i class="iconfont el-icon-myzhiding" /> 置顶 </span>
+            <span class="secret" v-if="item.status === 2"> <i class="iconfont el-icon-mymima" /> 私密 </span>
           </div>
           <div class="talk-content" v-html="item.content" />
           <el-row :gutter="4" class="talk-images" v-if="item.imgs">
@@ -45,11 +45,11 @@
       :page-size="size"
       :total="count"
       layout="prev, pager, next" />
-    <el-dialog :visible.sync="isdelete" width="30%">
+    <el-dialog :visible.sync="isDelete" width="30%">
       <div class="dialog-title-container" slot="title"><i class="el-icon-warning" style="color: #ff9900" />提示</div>
       <div style="font-size: 1rem">是否删除该说说？</div>
       <div slot="footer">
-        <el-button @click="isdelete = false">取 消</el-button>
+        <el-button @click="isDelete = false">取 消</el-button>
         <el-button type="primary" @click="deleteTalk"> 确 定</el-button>
       </div>
     </el-dialog>
@@ -57,6 +57,8 @@
 </template>
 
 <script>
+import { _delete, _get } from '@/api/api'
+
 export default {
   created() {
     this.current = this.$store.state.pageState.talkList
@@ -68,7 +70,7 @@ export default {
       size: 5,
       count: 0,
       status: null,
-      isdelete: false,
+      isDelete: false,
       talks: [],
       previews: [],
       talkId: null
@@ -76,35 +78,48 @@ export default {
   },
   methods: {
     handleCommand(command) {
-      var arr = command.split(',')
+      const arr = command.split(',')
       this.talkId = arr[1]
       switch (arr[0]) {
         case '1':
           this.$router.push({ path: '/talks/' + this.talkId })
           break
         case '2':
-          this.isdelete = true
+          this.isDelete = true
           break
       }
     },
     listTalks() {
-      this.axios
-        .get('/api/admin/talks', {
-          params: {
-            current: this.current,
-            size: this.size,
-            status: this.status
+      _get('/admin/talk/list', {
+        current: this.current,
+        size: this.size,
+        status: this.status
+      }, (data) => {
+        this.talks = data.records
+        this.talks.forEach((item) => {
+          if (item.imageList) {
+            this.previews.push(...item.imageList)
           }
         })
-        .then(({ data }) => {
-          this.talks = data.data.records
-          this.talks.forEach((item) => {
-            if (item.imgs) {
-              this.previews.push(...item.imgs)
-            }
-          })
-          this.count = data.data.count
-        })
+        this.count = data.count
+      })
+      // this.axios
+      //   .get('/api/admin/talks', {
+      //     params: {
+      //       current: this.current,
+      //       size: this.size,
+      //       status: this.status
+      //     }
+      //   })
+      //   .then(({ data }) => {
+      //     this.talks = data.data.records
+      //     this.talks.forEach((item) => {
+      //       if (item.imgs) {
+      //         this.previews.push(...item.imgs)
+      //       }
+      //     })
+      //     this.count = data.data.count
+      //   })
     },
     sizeChange(size) {
       this.previews = []
@@ -124,27 +139,39 @@ export default {
       this.listTalks()
     },
     deleteTalk() {
-      this.axios.delete('/api/admin/talks', { data: [this.talkId] }).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-          this.listTalks()
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
-        this.isdelete = false
-      })
+      _delete('/admin/talk', this.talkId, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+        this.listTalks()
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
+      }, null, () => this.isDelete = false)
+      // this.axios.delete('/api/admin/talks', { data: [this.talkId] }).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //     this.listTalks()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      //   this.isDelete = false
+      // })
     }
   },
   computed: {
     isActive() {
       return function(status) {
-        return this.status == status ? 'active-status' : 'status'
+        return this.status === status ? 'active-status' : 'status'
       }
     }
   }

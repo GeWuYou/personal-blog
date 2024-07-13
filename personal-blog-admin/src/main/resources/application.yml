@@ -52,6 +52,10 @@ eureka:
     eureka-server-connect-timeout-seconds: 10
     # 读取服务列表的超时时间, 默认 8, 单位秒
     eureka-server-read-timeout-seconds: 10
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 #jwt:
 #  issuer: personal-blog
 #  #JWT存储的请求头

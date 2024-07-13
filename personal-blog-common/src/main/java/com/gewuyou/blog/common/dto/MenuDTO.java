@@ -51,9 +51,9 @@ public class MenuDTO {
     private String icon;
 
     /**
-     * 菜单类型
+     * 创建时间
      */
-    @Schema(description = "菜单类型")
+    @Schema(description = "创建时间")
     private LocalDateTime createTime;
     /**
      * 菜单排序号

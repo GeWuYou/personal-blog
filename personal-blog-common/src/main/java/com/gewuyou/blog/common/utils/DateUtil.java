@@ -56,7 +56,7 @@ public class DateUtil {
      * @param date 需要转换的 Date
      * @return 转换后的 LocalDate
      */
-    private static LocalDate convertToLocalDate(Date date) {
+    public static LocalDate convertToLocalDate(Date date) {
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
@@ -66,7 +66,7 @@ public class DateUtil {
      * @param dateTime 需要转换的 LocalDateTime
      * @return 转换后的 Date
      */
-    private static Date convertToDate(LocalDateTime dateTime) {
+    public static Date convertToDate(LocalDateTime dateTime) {
         return Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 

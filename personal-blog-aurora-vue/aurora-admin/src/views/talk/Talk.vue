@@ -30,7 +30,7 @@
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
-          <el-button type="primary" size="small" @click="saveOrUpdateTalk" :disabled="talk.content == ''">
+          <el-button type="primary" size="small" @click="saveOrUpdateTalk" :disabled="talk.content === ''">
             发布
           </el-button>
         </div>
@@ -55,21 +55,31 @@
 <script>
 import * as imageConversion from 'image-conversion'
 import Editor from '@/components/Editor.vue'
+import { _get, _post } from '@/api/api'
 
 export default {
   components: {
     Editor
   },
   created() {
-    if (this.$route.params.talkId) {
-      this.axios.get('/api/admin/talks/' + this.$route.params.talkId).then(({ data }) => {
-        this.talk = data.data
-        if (data.data.imgs) {
-          data.data.imgs.forEach((item) => {
+    const talkId = this.$route.params.talkId
+    if (talkId && talkId !== ':talkId') {
+      _get('/admin/talk/' + this.$route.params.talkId, {}, (data) => {
+        this.talk = data
+        if (data.imageList) {
+          data.imageList.forEach((item) => {
             this.uploads.push({ url: item })
           })
         }
       })
+      // this.axios.get('/api/admin/talks/' + this.$route.params.talkId).then(({ data }) => {
+      //   this.talk = data.data
+      //   if (data.data.imgs) {
+      //     data.data.imgs.forEach((item) => {
+      //       this.uploads.push({ url: item })
+      //     })
+      //   }
+      // })
     }
   },
   data: function() {
@@ -95,7 +105,7 @@ export default {
     },
     handleRemove(file) {
       this.uploads.forEach((item, index) => {
-        if (item.url == file.url) {
+        if (item.url === file.url) {
           this.uploads.splice(index, 1)
         }
       })
@@ -114,12 +124,12 @@ export default {
       })
     },
     saveOrUpdateTalk() {
-      if (this.talk.content.trim() == '') {
+      if (this.talk.content.trim() === '') {
         this.$message.error('说说内容不能为空')
         return false
       }
       if (this.uploads.length > 0) {
-        var img = []
+        const img = []
         this.uploads.forEach((item) => {
           img.push(item.url)
         })
@@ -127,29 +137,43 @@ export default {
       } else {
         this.talk.images = ''
       }
-      this.axios.post('/api/admin/talks', this.talk).then(({ data }) => {
-        if (data.flag) {
-          this.$refs.editor.clear()
-          this.uploads = []
-          this.$router.push({ path: '/talk-list' })
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _post('/admin/talk', this.talk, (_, message) => {
+        this.$refs.editor.clear()
+        this.uploads = []
+        this.$router.push({ path: '/talk-list' })
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.post('/api/admin/talks', this.talk).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$refs.editor.clear()
+      //     this.uploads = []
+      //     this.$router.push({ path: '/talk-list' })
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
     }
   },
   computed: {
     dropdownTitle() {
-      var desc = ''
+      let desc = ''
       this.statuses.forEach((item) => {
-        if (item.status == this.talk.status) {
+        if (item.status === this.talk.status) {
           desc = item.desc
         }
       })

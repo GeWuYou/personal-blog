@@ -3,6 +3,7 @@ package com.gewuyou.blog.admin.config;
 import com.gewuyou.blog.admin.mapper.RoleMapper;
 import com.gewuyou.blog.common.dto.ResourceRoleDTO;
 import com.gewuyou.blog.security.service.interfaces.DynamicSecurityService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +39,21 @@ public class AdminSecurityConfig {
                 for (String role : resourceRoleDTO.getRoleList()) {
                     sb.append(role).append(",");
                 }
-                map.put(resourceRoleDTO.getUrl() + ":" + resourceRoleDTO.getRequestMethod(), new SecurityConfig(sb.substring(0, sb.length() - 1)));
+                // 匿名
+                if (resourceRoleDTO.getIsAnonymous().equals(Byte.valueOf("1"))) {
+                    map.put(resourceRoleDTO.getUrl() + ":" + resourceRoleDTO.getRequestMethod(),
+                            new SecurityConfig("anonymous"));
+                    continue;
+                }
+                // 如果权限为空，则默认不添加
+                if (StringUtils.isNotBlank(sb)) {
+                    map.put(resourceRoleDTO.getUrl() + ":" + resourceRoleDTO.getRequestMethod(),
+                            new SecurityConfig(sb.substring(0, sb.length() - 1)));
+                }
+                // else {
+                //     map.put(resourceRoleDTO.getUrl() + ":" + resourceRoleDTO.getRequestMethod(),
+                //             new SecurityConfig("anonymous"));
+                // }
             }
             return map;
         };

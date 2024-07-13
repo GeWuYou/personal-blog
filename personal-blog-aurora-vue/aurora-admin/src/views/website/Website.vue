@@ -11,7 +11,8 @@
               :show-file-list="false"
               :before-upload="beforeUpload"
               :on-success="handleAuthorAvatarSuccess">
-              <img v-if="websiteConfigForm.authorAvatar" :src="websiteConfigForm.authorAvatar" class="avatar" />
+              <img v-if="websiteConfigForm.authorAvatar" :src="websiteConfigForm.authorAvatar" class="avatar"
+                   alt="头像" />
               <i v-else class="el-icon-plus avatar-uploader-icon" />
             </el-upload>
           </el-form-item>
@@ -23,7 +24,7 @@
               :show-file-list="false"
               :before-upload="beforeUpload"
               :on-success="handleLogoSuccess">
-              <img v-if="websiteConfigForm.logo" :src="websiteConfigForm.logo" class="avatar" />
+              <img v-if="websiteConfigForm.logo" :src="websiteConfigForm.logo" class="avatar" alt="头像" />
               <i v-else class="el-icon-plus avatar-uploader-icon" />
             </el-upload>
           </el-form-item>
@@ -35,7 +36,7 @@
               :show-file-list="false"
               :before-upload="beforeUpload"
               :on-success="handleFaviconSuccess">
-              <img v-if="websiteConfigForm.favicon" :src="websiteConfigForm.favicon" class="avatar" />
+              <img v-if="websiteConfigForm.favicon" :src="websiteConfigForm.favicon" class="avatar" alt="头像" />
               <i v-else class="el-icon-plus avatar-uploader-icon" />
             </el-upload>
           </el-form-item>
@@ -222,6 +223,7 @@
 
 <script>
 import * as imageConversion from 'image-conversion'
+import { _get, _put } from '@/api/api'
 
 export default {
   created() {
@@ -236,9 +238,12 @@ export default {
   },
   methods: {
     getWebsiteConfig() {
-      this.axios.get('/api/admin/website/config').then(({ data }) => {
-        this.websiteConfigForm = data.data
+      _get('/admin/website/config', {}, (data) => {
+        this.websiteConfigForm = data
       })
+      // this.axios.get('/api/admin/website/config').then(({ data }) => {
+      //   this.websiteConfigForm = data.data
+      // })
     },
     handleAuthorAvatarSuccess(response) {
       this.websiteConfigForm.authorAvatar = response.data
@@ -272,19 +277,30 @@ export default {
       })
     },
     updateWebsiteConfig() {
-      this.axios.put('/api/admin/website/config', this.websiteConfigForm).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: '成功',
-            message: data.message
-          })
-        } else {
-          this.$notify.error({
-            title: '失败',
-            message: data.message
-          })
-        }
+      _put('/admin/website/config', this.websiteConfigForm, (_, message) => {
+        this.$notify.success({
+          title: '成功',
+          message: message
+        })
+      }, (message) => {
+        this.$notify.error({
+          title: '失败',
+          message: message
+        })
       })
+      // this.axios.put('/api/admin/website/config', this.websiteConfigForm).then(({ data }) => {
+      //   if (data.flag) {
+      //     this.$notify.success({
+      //       title: '成功',
+      //       message: data.message
+      //     })
+      //   } else {
+      //     this.$notify.error({
+      //       title: '失败',
+      //       message: data.message
+      //     })
+      //   }
+      // })
     }
   }
 }

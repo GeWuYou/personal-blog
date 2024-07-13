@@ -5,7 +5,7 @@
         <id property="id" column="id"/>
         <result property="roleName" column="role_name"/>
         <result property="createTime" column="create_time"/>
-        <result property="isDisable" column="is_disabled"/>
+        <result property="isDisable" column="is_disable"/>
         <collection property="resourceIds" ofType="java.lang.Integer">
             <constructor>
                 <arg column="resource_id"/>
@@ -21,6 +21,7 @@
         <id property="id" column="id"/>
         <result property="url" column="url"/>
         <result property="requestMethod" column="request_method"/>
+        <result property="isAnonymous" column="is_anonymous"/>
         <collection property="roleList" ofType="java.lang.String">
             <constructor>
                 <arg column="role_name"/>
@@ -38,10 +39,10 @@
         SELECT
         r.id AS id,
         role_name,
-        r.create_time AS create_time,
-        r.is_disable AS is_disable,
-        rr.resource_id AS resource_id,
-        rm.menu_id AS menu_id
+        r.create_time,
+        r.is_disable,
+        rr.resource_id,
+        rm.menu_id
         FROM(
         SELECT
         id,
@@ -55,8 +56,8 @@
                 role_name LIKE CONCAT('%', #{conditionVO.keywords}, '%')
             </if>
         </where>
+        LIMIT #{current}, #{size}
         ) r
-
         LEFT JOIN tb_role_resource rr ON r.id = rr.role_id
         LEFT JOIN tb_role_menu rm ON r.id = rm.role_id
         ORDER BY r.id
@@ -65,11 +66,12 @@
         SELECT re.id AS id,
                url,
                request_method,
-               role_name
+               role_name,
+               is_anonymous
         FROM tb_resource re
                  LEFT JOIN tb_role_resource rr ON re.id = rr.resource_id
                  LEFT JOIN tb_role ro ON rr.role_id = ro.id
         WHERE re.parent_id IS NOT NULL
-          AND is_anonymous = 0
+#           AND is_anonymous = 0
     </select>
 </mapper>

@@ -16,6 +16,7 @@ import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.TalkVO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -81,8 +82,10 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
         Page<TalkAdminDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
         List<TalkAdminDTO> talkAdminDTOs = baseMapper.listTalkAdminDTOs(page, conditionVO).getRecords();
         talkAdminDTOs.forEach(item -> {
-            if (Objects.nonNull(item.getImages())) {
+            if (StringUtils.isNotBlank(item.getImages())) {
                 item.setImageList(CommonUtil.castList(objectMapper.convertValue(item.getImages(), List.class), String.class));
+            } else {
+                item.setImageList(List.of());
             }
         });
         return new PageResultDTO<>(talkAdminDTOs, count);
@@ -97,8 +100,10 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
     @Override
     public TalkAdminDTO getBackTalkById(Integer talkId) {
         TalkAdminDTO talkAdminDTO = baseMapper.getTalkAdminDTOById(talkId);
-        if (Objects.nonNull(talkAdminDTO.getImages())) {
+        if (StringUtils.isNotBlank(talkAdminDTO.getImages())) {
             talkAdminDTO.setImageList(CommonUtil.castList(objectMapper.convertValue(talkAdminDTO.getImages(), List.class), String.class));
+        } else {
+            talkAdminDTO.setImageList(List.of());
         }
         return talkAdminDTO;
     }

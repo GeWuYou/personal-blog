@@ -74,7 +74,7 @@ public class UserAuthController {
      * @return 后台用户列表
      */
     @Operation(summary = "获取后台用户列表", description = "获取后台用户列表")
-    @GetMapping
+    @GetMapping("/list")
     public Result<PageResultDTO<UserAdminDTO>> listUsers(ConditionVO conditionVO) {
         return Result.success(userAuthService.listUsers(conditionVO));
     }

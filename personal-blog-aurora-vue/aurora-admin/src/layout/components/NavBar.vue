@@ -40,6 +40,7 @@
 
 <script>
 import { resetRouter } from '@/router'
+import { _post } from '@/api/api'
 
 export default {
   created() {
@@ -64,8 +65,8 @@ export default {
     },
     removeTab(tab) {
       this.$store.commit('removeTab', tab)
-      if (tab.path == this.$route.path) {
-        var tabList = this.$store.state.tabList
+      if (tab.path === this.$route.path) {
+        const tabList = this.$store.state.tabList
         this.$router.push({ path: tabList[tabList.length - 1].path })
       }
     },
@@ -73,16 +74,22 @@ export default {
       this.$store.commit('trigger')
     },
     handleCommand(command) {
-      if (command == 'setting') {
+      if (command === 'setting') {
         this.$router.push({ path: '/setting' })
       }
-      if (command == 'logout') {
-        this.axios.post('/api/users/logout').then(({ data }) => {
+      if (command === 'logout') {
+        _post('/admin/user/logout', {}, (_, message) => {
           this.$store.commit('logout')
           this.$store.commit('resetTab')
           resetRouter()
           this.$router.push({ path: '/login' })
         })
+        // this.axios.post('/api/users/logout').then(({ data }) => {
+        //   this.$store.commit('logout')
+        //   this.$store.commit('resetTab')
+        //   resetRouter()
+        //   this.$router.push({ path: '/login' })
+        // })
       }
     },
     closeAllTab() {
@@ -118,7 +125,7 @@ export default {
   computed: {
     isActive() {
       return function(tab) {
-        if (tab.path == this.$route.path) {
+        if (tab.path === this.$route.path) {
           return 'tabs-view-item-active'
         }
         return 'tabs-view-item'

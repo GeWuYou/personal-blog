@@ -117,7 +117,7 @@ function _put(url, data, success, failure = defaultFailureMessage, error = defau
 function _delete(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage, callback = () => {
 }) {
   instance.delete(url, {
-    params: data
+    data: data
   })
     .then(({ data }) => {
       if (data.success) {

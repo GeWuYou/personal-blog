@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -82,6 +83,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         }
         //  从token中获取当前登录用户UserDetails并强转为UserDetailsDto
         var userDetailsDTO = jwtService.getUserDetailsDTOFromToken(token);
+        // 如果获取不到用户信息，则说明登录过期
+        if (Objects.isNull(userDetailsDTO)) {
+            throw new GlobalException(ResponseInformation.LOGIN_EXPIRED);
+        }
+        // 刷新token
+        jwtService.refreshToken(userDetailsDTO);
         // 构建认证token
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(userDetailsDTO, null, userDetailsDTO.getAuthorities());

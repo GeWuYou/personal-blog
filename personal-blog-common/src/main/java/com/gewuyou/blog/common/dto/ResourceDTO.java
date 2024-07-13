@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,7 +61,7 @@ public class ResourceDTO {
      * 创建时间
      */
     @Schema(description = "创建时间")
-    private LocalDateTime createTime;
+    private Date createTime;
 
     /**
      * 子资源

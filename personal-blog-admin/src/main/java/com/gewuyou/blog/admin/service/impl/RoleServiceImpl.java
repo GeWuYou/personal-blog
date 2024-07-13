@@ -2,9 +2,10 @@ package com.gewuyou.blog.admin.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.RoleMapper;
+import com.gewuyou.blog.admin.mapper.RoleMenuMapper;
+import com.gewuyou.blog.admin.mapper.RoleResourceMapper;
 import com.gewuyou.blog.admin.mapper.UserRoleMapper;
 import com.gewuyou.blog.admin.service.IRoleMenuService;
 import com.gewuyou.blog.admin.service.IRoleResourceService;
@@ -20,6 +21,7 @@ import com.gewuyou.blog.common.model.RoleMenu;
 import com.gewuyou.blog.common.model.RoleResource;
 import com.gewuyou.blog.common.model.UserRole;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.RoleVO;
 import com.gewuyou.blog.security.source.DynamicSecurityMetadataSource;
@@ -50,16 +52,20 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
     private final DynamicSecurityMetadataSource dynamicSecurityMetadataSource;
     private final UserRoleMapper userRoleMapper;
+    private final RoleResourceMapper roleResourceMapper;
+    private final RoleMenuMapper roleMenuMapper;
 
     @Autowired
     public RoleServiceImpl(IRoleResourceService roleResourceService,
                            IRoleMenuService roleMenuService,
                            DynamicSecurityMetadataSource dynamicSecurityMetadataSource,
-                           UserRoleMapper userRoleMapper) {
+                           UserRoleMapper userRoleMapper, RoleResourceMapper roleResourceMapper, RoleMenuMapper roleMenuMapper) {
         this.roleResourceService = roleResourceService;
         this.roleMenuService = roleMenuService;
         this.dynamicSecurityMetadataSource = dynamicSecurityMetadataSource;
         this.userRoleMapper = userRoleMapper;
+        this.roleResourceMapper = roleResourceMapper;
+        this.roleMenuMapper = roleMenuMapper;
     }
 
 
@@ -91,8 +97,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         CompletableFuture<Long> asyncCount = CompletableFuture.supplyAsync(() ->
                 baseMapper.selectCount(queryWrapper)
         );
-        Page<RoleDTO> page = new Page<>(conditionVO.getCurrent(), conditionVO.getSize());
-        List<RoleDTO> roleDTOs = baseMapper.listRoleDTOs(page, conditionVO);
+        List<RoleDTO> roleDTOs = baseMapper.listRoleDTOs(PageUtil.getLimitCurrent(), PageUtil.getSize(), conditionVO);
         try {
             return new PageResultDTO<>(roleDTOs, asyncCount.get());
         } catch (InterruptedException | ExecutionException e) {
@@ -159,7 +164,21 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
                         .in(UserRole::getRoleId, roleIdList)
         );
         if (count > 0) {
-            throw new GlobalException(ResponseInformation.ROLE_IN_USE);
+            throw new GlobalException(ResponseInformation.ROLE_IN_USE_BY_USER);
+        }
+        count = roleResourceMapper.selectCount(
+                new LambdaQueryWrapper<RoleResource>()
+                        .in(RoleResource::getRoleId, roleIdList)
+        );
+        if (count > 0) {
+            throw new GlobalException(ResponseInformation.ROLE_IN_USE_BY_RESOURCE);
+        }
+        count = roleMenuMapper.selectCount(
+                new LambdaQueryWrapper<RoleMenu>()
+                        .in(RoleMenu::getRoleId, roleIdList)
+        );
+        if (count > 0) {
+            throw new GlobalException(ResponseInformation.ROLE_IN_USE_BY_MENU);
         }
         baseMapper.deleteBatchIds(roleIdList);
     }
