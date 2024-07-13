@@ -12,8 +12,8 @@
             <if test="jobSearchVO.jobGroup!=null">
                 AND j.job_group = #{jobSearchVO.jobGroup}
             </if>
-            <if test="jobSearchVO.jobStatus!=null">
-                AND j.job_status = #{jobSearchVO.jobStatus}
+            <if test="jobSearchVO.status!=null">
+                AND j.status = #{jobSearchVO.status}
             </if>
         </where>
     </select>
@@ -38,8 +38,8 @@
                 <if test="jobSearchVO.jobGroup!=null">
                     AND j.job_group = #{jobSearchVO.jobGroup}
                 </if>
-                <if test="jobSearchVO.jobStatus!=null">
-                    AND j.job_status = #{jobSearchVO.jobStatus}
+                <if test="jobSearchVO.status!=null">
+                    AND j.status = #{jobSearchVO.status}
                 </if>
             </if>
         </where>

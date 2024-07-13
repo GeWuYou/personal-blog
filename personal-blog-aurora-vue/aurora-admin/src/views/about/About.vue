@@ -25,7 +25,7 @@ export default {
   },
   methods: {
     getAbout() {
-      _get('/admin/about', {}, (data) => {
+      _get('/server/about', {}, (data) => {
         this.aboutContent = data.content
       })
       // this.axios.get('/api/about').then(({ data }) => {

@@ -3,6 +3,7 @@ package com.gewuyou.blog.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.MenuMapper;
 import com.gewuyou.blog.admin.mapper.RoleMenuMapper;
 import com.gewuyou.blog.admin.service.IMenuService;
@@ -15,6 +16,8 @@ import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Menu;
 import com.gewuyou.blog.common.model.RoleMenu;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.CollectionUtil;
+import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.IsHiddenVO;
@@ -22,7 +25,6 @@ import com.gewuyou.blog.common.vo.MenuVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -60,11 +62,11 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         // 获取用户菜单列表
         List<Menu> menus = baseMapper.listMenusByUserInfoId(UserUtil.getUserDetailsDTO().getUserInfoId());
         // 筛选出顶级菜单
-        List<Menu> topMenus = listTopMenus(menus);
+        var topMenuDTOs = listTopMenuDTOs(menus);
         // 筛选出分组后的二级菜单
-        Map<Integer, List<Menu>> menuMap = getMenuMap(menus);
+        var menuMapDTOs = listMenuDTOChildrenMap(menus);
         // 将顶级菜单列表转换为 UserMenuDTO 对象列表
-        return convertUserMenuList(topMenus, menuMap);
+        return convertUserMenuList(topMenuDTOs, menuMapDTOs);
     }
 
     /**
@@ -84,34 +86,21 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                                 Menu::getName,
                                 conditionVO.getKeywords()));
         // 筛选出顶级菜单
-        List<Menu> topMenus = listTopMenus(menus);
+        var topMenus = listTopMenuDTOs(menus);
         // 筛选出分组后的二级菜单并与关联顶级菜单id
-        Map<Integer, List<Menu>> childrenMap = getMenuMap(menus);
-        // 将菜单列表转换为 MenuDTO 对象列表
-        List<MenuDTO> menuDTOs = topMenus
-                .stream()
-                .map(item ->
-                {
-                    MenuDTO menuDTO = BeanCopyUtil.copyObject(item, MenuDTO.class);
-                    List<MenuDTO> list = BeanCopyUtil.copyList(childrenMap.get(item.getId()), MenuDTO.class).stream()
-                            .sorted(Comparator.comparing(MenuDTO::getOrderNum))
-                            .collect(Collectors.toList());
-                    menuDTO.setChildren(list);
-                    childrenMap.remove(item.getId());
-                    return menuDTO;
-                }).sorted(
-                        Comparator
-                                .comparing(MenuDTO::getOrderNum))
-                .collect(Collectors.toList());
+        var childrenMap = listMenuDTOChildrenMap(menus);
+        // 将子菜单绑定到父菜单下
+        var menuDTOs = CollectionUtil.processItemsWithChildren(topMenus, childrenMap, MenuDTO::getId, MenuDTO::setChildren, true);
         // 在childrenMap中剩余菜单是没有顶级菜单的，需要单独添加到菜单列表中
         if (CollectionUtils.isNotEmpty(childrenMap)) {
-            List<Menu> childrenList = new ArrayList<>();
-            childrenMap.values().forEach(childrenList::addAll);
-            List<MenuDTO> childrenDTOList = childrenList.stream()
-                    .map(item -> BeanCopyUtil.copyObject(item, MenuDTO.class))
-                    .sorted(Comparator.comparing(MenuDTO::getOrderNum))
-                    .toList();
-            menuDTOs.addAll(childrenDTOList);
+            menuDTOs
+                    .addAll(
+                            childrenMap
+                                    .values()
+                                    .stream()
+                                    .flatMap(Collection::stream)
+                                    .toList()
+                    );
         }
         // 返回菜单列表
         return menuDTOs;
@@ -179,20 +168,20 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                         .select(Menu::getId, Menu::getName, Menu::getParentId, Menu::getOrderNum)
         );
         // 筛选出顶级菜单
-        List<Menu> topMenus = listTopMenus(menus);
+        var topMenus = listTopMenuDTOs(menus);
         // 筛选出分组后的二级菜单并与关联顶级菜单id
-        Map<Integer, List<Menu>> childrenMap = getMenuMap(menus);
+        var childrenMap = listMenuDTOChildrenMap(menus);
         return topMenus
                 .stream()
                 .map(
                         item -> {
                             List<LabelOptionDTO> list = new ArrayList<>();
-                            List<Menu> children = childrenMap.get(item.getId());
+                            var children = childrenMap.get(item.getId());
                             // 判断当前需要转换的顶级菜单是否有子菜单
                             if (CollectionUtils.isNotEmpty(children)) {
                                 list = children
                                         .stream()
-                                        .sorted(Comparator.comparing(Menu::getOrderNum))
+                                        .sorted(Comparator.comparing(MenuDTO::getOrderNum))
                                         .map(
                                                 menu -> LabelOptionDTO.builder()
                                                         .id(menu.getId())
@@ -211,18 +200,18 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     /**
      * 将顶级菜单列表和菜单组映射转换为 UserMenuDTO 对象列表。
      *
-     * @param TopMenus 要转换的顶级菜单列表
-     * @param menuMap  菜单组映射
+     * @param TopMenuDTOs 要转换的顶级菜单列表
+     * @param menuDTOMap  菜单组映射
      * @return 转换后的 UserMenuDTO 对象的列表
      */
-    private List<UserMenuDTO> convertUserMenuList(List<Menu> TopMenus, Map<Integer, List<Menu>> menuMap) {
-        return TopMenus
+    private List<UserMenuDTO> convertUserMenuList(List<MenuDTO> TopMenuDTOs, Map<Integer, List<MenuDTO>> menuDTOMap) {
+        return TopMenuDTOs
                 .stream()
                 .map(
                         item -> {
                             UserMenuDTO userMenuDTO = new UserMenuDTO();
                             List<UserMenuDTO> childrenUserMenuDTO = new ArrayList<>();
-                            List<Menu> childrenMenu = menuMap.get(item.getId());
+                            var childrenMenu = menuDTOMap.get(item.getId());
                             // 判断当前需要转换的顶级菜单是否有子菜单
                             if (CollectionUtils.isEmpty(childrenMenu)) {
                                 userMenuDTO.setPath(item.getPath());
@@ -240,7 +229,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                                 userMenuDTO = BeanCopyUtil.copyObject(item, UserMenuDTO.class);
                                 childrenUserMenuDTO = childrenMenu
                                         .stream()
-                                        .sorted(Comparator.comparingInt(Menu::getOrderNum))
+                                        .sorted(Comparator.comparingInt(MenuDTO::getOrderNum))
                                         .map(menu -> {
                                             UserMenuDTO dto = BeanCopyUtil.copyObject(menu, UserMenuDTO.class);
                                             dto.setHidden(menu.getIsHidden().equals(CommonConstant.TRUE));
@@ -263,13 +252,22 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
      * @param menus 需要按父 ID 分组的菜单列表
      * @return 一个映射，其中键是父 ID，值是具有该父 ID 的菜单列表
      */
-    private Map<Integer, List<Menu>> getMenuMap(List<Menu> menus) {
+    private Map<Integer, List<MenuDTO>> listMenuDTOChildrenMap(List<Menu> menus) {
         return menus
                 .stream()
                 // 过滤出二级菜单
                 .filter(item -> Objects.nonNull(item.getParentId()))
                 // 按父菜单ID分组
-                .collect(Collectors.groupingBy(Menu::getParentId));
+                .collect(Collectors.groupingBy(Menu::getParentId,
+                        Collectors.mapping(item -> {
+                            var menuDTO = BeanCopyUtil.copyObject(item, MenuDTO.class);
+                            var createTime = item.getCreateTime();
+                            // 转换时间格式
+                            if (Objects.nonNull(createTime)) {
+                                menuDTO.setCreateTime(DateUtil.convertToDate(createTime));
+                            }
+                            return menuDTO;
+                        }, Collectors.toList())));
     }
 
     /**
@@ -278,13 +276,23 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
      * @param menus 要筛选和排序的菜单列表
      * @return 顶级菜单的排序列表
      */
-    private List<Menu> listTopMenus(List<Menu> menus) {
+    private List<MenuDTO> listTopMenuDTOs(List<Menu> menus) {
         return menus
                 .stream()
                 // 过滤出一级菜单
                 .filter(item -> Objects.isNull(item.getParentId()))
+
                 // 排序
                 .sorted(Comparator.comparingInt(Menu::getOrderNum))
+                .map(item -> {
+                    var menuDTO = BeanCopyUtil.copyObject(item, MenuDTO.class);
+                    var createTime = item.getCreateTime();
+                    // 转换时间格式
+                    if (Objects.nonNull(createTime)) {
+                        menuDTO.setCreateTime(DateUtil.convertToDate(createTime));
+                    }
+                    return menuDTO;
+                })
                 // 转为重新返回排序后的一级菜单
                 .collect(Collectors.toList());
     }

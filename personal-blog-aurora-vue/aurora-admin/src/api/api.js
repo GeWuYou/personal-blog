@@ -87,7 +87,7 @@ function _get(url, data, success, failure = defaultFailureMessage, error = defau
 function _put(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage, callback = () => {
 }) {
   // 发送put异步请求
-  instance.put(url, JSON.stringify(data), {
+  instance.put(url, data, {
     // 设置提交方式为Json提交
     headers: {
       'Content-Type': 'application/json'

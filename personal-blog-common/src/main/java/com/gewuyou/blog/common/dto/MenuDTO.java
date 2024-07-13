@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -54,7 +54,7 @@ public class MenuDTO {
      * 创建时间
      */
     @Schema(description = "创建时间")
-    private LocalDateTime createTime;
+    private Date createTime;
     /**
      * 菜单排序号
      */
@@ -66,13 +66,13 @@ public class MenuDTO {
      * 菜单是否禁用
      */
     @Schema(description = "菜单是否禁用")
-    private Integer isDisable;
+    private Byte isDisable;
     /**
      * 菜单是否隐藏
      */
 
     @Schema(description = "菜单是否隐藏")
-    private Integer isHidden;
+    private Byte isHidden;
     /**
      * 子菜单列表
      */

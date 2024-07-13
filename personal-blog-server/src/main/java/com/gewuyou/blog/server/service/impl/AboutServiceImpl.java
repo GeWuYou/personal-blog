@@ -2,6 +2,7 @@ package com.gewuyou.blog.server.service.impl;
 
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.common.dto.AboutDTO;
 import com.gewuyou.blog.common.model.About;
@@ -47,19 +48,26 @@ public class AboutServiceImpl extends ServiceImpl<AboutMapper, About> implements
      */
     @Override
     public AboutDTO getAbout() {
-        AboutDTO aboutDTO;
-        // 先尝试从缓存中获取
-        Object about = redisService.get(ABOUT);
-        if (Objects.nonNull(about)) {
-            aboutDTO = objectMapper.convertValue(about, AboutDTO.class);
+        try {
+            String content;
+            // 先尝试从缓存中获取
+            Object about = redisService.get(ABOUT);
+            if (Objects.nonNull(about)) {
+                content = objectMapper.readValue((String) about, String.class);
+            }
+            // 缓存中没有，从数据库中获取
+            else {
+                content = objectMapper.readValue(baseMapper.selectById(DEFAULT_ABOUT_ID).getContent(), String.class);
+                // 写入缓存
+                redisService.set(ABOUT, content);
+            }
+            return AboutDTO
+                    .builder()
+                    .content(content)
+                    .build();
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
-        // 缓存中没有，从数据库中获取
-        else {
-            String content = baseMapper.selectById(DEFAULT_ABOUT_ID).getContent();
-            aboutDTO = objectMapper.convertValue(content, AboutDTO.class);
-            // 写入缓存
-            redisService.set(ABOUT, content);
-        }
-        return aboutDTO;
+
     }
 }

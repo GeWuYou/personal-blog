@@ -14,6 +14,7 @@ import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Resource;
 import com.gewuyou.blog.common.model.RoleResource;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.CollectionUtil;
 import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.ResourceVO;
@@ -58,27 +59,17 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
                 .like(StringUtils.isNotBlank(conditionVO.getKeywords()), Resource::getResourceName,
                         conditionVO.getKeywords()));
         // 筛选出顶级资源列表
-        var parents = listTopResourceDTO(resources);
+        var topResources = listTopResourceDTOs(resources);
         // 获取子资源列表
-        Map<Integer, List<ResourceDTO>> childrenMap = listResourceChildren(resources);
+        var childrenMap = listResourceDTOChildrenMap(resources);
         // 将子资源绑定到父资源上
-        List<ResourceDTO> resourceDTOs = parents
-                .stream()
-                .peek(
-                        item -> {
-                            var children = childrenMap.get(item.getId());
-                            if (Objects.nonNull(children)) {
-                                item.setChildren(children);
-                                childrenMap.remove(item.getId());
-                            } else {
-                                item.setChildren(List.of());
-                            }
-                        }
-                ).collect(Collectors.toList());
+        var resourceDTOs = CollectionUtil.processItemsWithChildren(topResources, childrenMap, ResourceDTO::getId, ResourceDTO::setChildren, true);
         // 将剩余资源添加到资源列表中
         if (CollectionUtils.isNotEmpty(childrenMap)) {
             resourceDTOs.addAll(
-                    childrenMap.values().stream()
+                    childrenMap
+                            .values()
+                            .stream()
                             .flatMap(Collection::stream)
                             .toList()
             );
@@ -130,8 +121,8 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         List<Resource> resources = baseMapper.selectList(new LambdaQueryWrapper<Resource>()
                 .select(Resource::getId, Resource::getResourceName, Resource::getParentId)
                 .eq(Resource::getIsAnonymous, FALSE));
-        var parents = listTopResourceDTO(resources);
-        var childrenMap = listResourceChildren(resources);
+        var parents = listTopResourceDTOs(resources);
+        var childrenMap = listResourceDTOChildrenMap(resources);
         return parents.stream().map(item -> {
             List<LabelOptionDTO> list = new ArrayList<>();
             var children = childrenMap.get(item.getId());
@@ -157,14 +148,14 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param resources 资源列表
      * @return 子资源列表
      */
-    private Map<Integer, List<ResourceDTO>> listResourceChildren(List<Resource> resources) {
+    private Map<Integer, List<ResourceDTO>> listResourceDTOChildrenMap(List<Resource> resources) {
         return resources.stream()
                 .filter(item -> Objects.nonNull(item.getParentId()))
                 .collect(Collectors.groupingBy(
                         Resource::getParentId,
                         Collectors.mapping(
                                 item -> {
-                                    ResourceDTO resourceDTO = BeanCopyUtil.copyObject(item, ResourceDTO.class);
+                                    var resourceDTO = BeanCopyUtil.copyObject(item, ResourceDTO.class);
                                     var createDate = item.getCreateTime();
                                     // 转换时间格式
                                     if (Objects.nonNull(createDate)) {
@@ -183,7 +174,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param resources 资源列表
      * @return 父模块列表
      */
-    private List<ResourceDTO> listTopResourceDTO(List<Resource> resources) {
+    private List<ResourceDTO> listTopResourceDTOs(List<Resource> resources) {
         return resources
                 .stream()
                 .filter(item -> Objects.isNull(item.getParentId()))

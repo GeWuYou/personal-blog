@@ -37,7 +37,7 @@ public interface JobMapper extends BaseMapper<Job> {
      * @param jobSearchVO 定时任务调度搜索条件
      * @return 定时任务调度列表
      */
-    List<JobDTO> listJobs(Page<JobDTO> page, @Param("jobSearchVO") JobSearchVO jobSearchVO);
+    Page<JobDTO> listJobs(Page<JobDTO> page, @Param("jobSearchVO") JobSearchVO jobSearchVO);
 
     /**
      * 查询定时任务调度组列表

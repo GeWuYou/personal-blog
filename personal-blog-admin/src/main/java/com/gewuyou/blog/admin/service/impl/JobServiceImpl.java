@@ -137,9 +137,9 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
     public PageResultDTO<JobDTO> listJobDTOs(JobSearchVO jobSearchVO) {
         CompletableFuture<Long> asyncCount = CompletableFuture.supplyAsync(() -> baseMapper.countJobs(jobSearchVO));
         Page<JobDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
-        List<JobDTO> jobDTOs = baseMapper.listJobs(page, jobSearchVO);
+        Page<JobDTO> jobDTOs = baseMapper.listJobs(page, jobSearchVO);
         try {
-            return new PageResultDTO<>(jobDTOs, asyncCount.get());
+            return new PageResultDTO<>(jobDTOs.getRecords(), asyncCount.get());
         } catch (InterruptedException | ExecutionException e) {
             throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
         }

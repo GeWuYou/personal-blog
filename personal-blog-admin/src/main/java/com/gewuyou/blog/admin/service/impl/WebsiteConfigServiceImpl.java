@@ -52,7 +52,7 @@ public class WebsiteConfigServiceImpl extends ServiceImpl<WebsiteConfigMapper, W
     @Override
     public WebsiteConfigDTO getWebsiteConfig() {
         WebsiteConfigDTO websiteConfigDTO;
-        Object websiteConfig = redisService.get(WEBSITE_CONFIG);
+        WebsiteConfig websiteConfig = (WebsiteConfig) redisService.get(WEBSITE_CONFIG);
         if (websiteConfig == null) {
             websiteConfigDTO = objectMapper.convertValue(baseMapper.selectById(DEFAULT_CONFIG_ID), WebsiteConfigDTO.class);
         } else {

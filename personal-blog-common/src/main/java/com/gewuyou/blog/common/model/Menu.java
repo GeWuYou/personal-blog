@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 @Schema(name = "Menu对象", description = "菜单表")
 public class Menu extends BaseModel implements Serializable {
     @Builder
-    public Menu(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String name, String path, String component, String icon, Integer orderNum, Integer parentId, Integer isHidden) {
+    public Menu(LocalDateTime createTime, LocalDateTime updateTime, Integer id, String name, String path, String component, String icon, Integer orderNum, Integer parentId, Byte isHidden) {
         super(createTime, updateTime);
         this.id = id;
         this.name = name;
@@ -74,5 +74,5 @@ public class Menu extends BaseModel implements Serializable {
 
     @Schema(description = "是否隐藏 0表示否。1表示是")
     @TableField("is_hidden")
-    private Integer isHidden;
+    private Byte isHidden;
 }
