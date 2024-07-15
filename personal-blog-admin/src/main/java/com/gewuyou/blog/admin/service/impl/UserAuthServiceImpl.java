@@ -106,29 +106,33 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     @Override
     public List<UserAreaDTO> listUserAreas(ConditionVO conditionVO) {
         List<UserAreaDTO> userAreaDTOS = List.of();
-        // 根据类型获取用户区域分布
-        switch (Objects.requireNonNull(UserAreaTypeEnum.getUserAreaType(conditionVO.getType()))) {
-            case USER_TYPE:
-                // 从redis中获取用户区域分布
-                userAreaDTOS = redisService.getObject(USER_AREA, new TypeReference<>() {
-                });
-                return userAreaDTOS;
-            case VISITOR_TYPE:
-                Map<String, Object> visitorArea = redisService.hGetAll(VISITOR_AREA);
-                if (Objects.nonNull(visitorArea)) {
-                    userAreaDTOS = visitorArea
-                            .entrySet()
-                            .stream()
-                            .map(item ->
-                                    UserAreaDTO.builder()
-                                            .name(item.getKey())
-                                            .value(Long.valueOf(item.getValue().toString()))
-                                            .build()
-                            ).collect(Collectors.toList());
-                }
-            default:
-                log.error("未知的用户区域类型");
-                break;
+        try {
+            // 根据类型获取用户区域分布
+            switch (Objects.requireNonNull(UserAreaTypeEnum.getUserAreaType(conditionVO.getType()))) {
+                case USER_TYPE:
+                    // 从redis中获取用户区域分布
+                    userAreaDTOS = redisService.getObject(USER_AREA, new TypeReference<>() {
+                    });
+                    return userAreaDTOS;
+                case VISITOR_TYPE:
+                    Map<String, Object> visitorArea = redisService.hGetAll(VISITOR_AREA);
+                    if (Objects.nonNull(visitorArea)) {
+                        userAreaDTOS = visitorArea
+                                .entrySet()
+                                .stream()
+                                .map(item ->
+                                        UserAreaDTO.builder()
+                                                .name(item.getKey())
+                                                .value(Long.valueOf(item.getValue().toString()))
+                                                .build()
+                                ).collect(Collectors.toList());
+                    }
+                default:
+                    log.error("未知的用户区域类型");
+                    break;
+            }
+        } catch (Exception e) {
+            log.error("获取用户区域分布失败", e);
         }
         return userAreaDTOS;
     }

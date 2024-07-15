@@ -15,6 +15,7 @@ import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.ArticleTag;
 import com.gewuyou.blog.common.model.Tag;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.TagVO;
@@ -54,9 +55,21 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
         if (count == 0) {
             return new PageResultDTO<>();
         }
-        Page<TagAdminDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
-        List<TagAdminDTO> tags = baseMapper.listTagsAdminDTOs(page, conditionVO).getRecords();
-        return new PageResultDTO<>(tags, count);
+        Page<Tag> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
+        var tags = baseMapper.listTags(page, conditionVO);
+        var tagAdminDTOs = tags
+                .getRecords()
+                .stream()
+                .map(tag -> {
+                    var tagAdminDTO = BeanCopyUtil.copyObject(tag, TagAdminDTO.class);
+                    var createTime = tag.getCreateTime();
+                    if (Objects.nonNull(createTime)) {
+                        tagAdminDTO.setCreateTime(DateUtil.convertToDate(createTime));
+                    }
+                    return tagAdminDTO;
+                })
+                .toList();
+        return new PageResultDTO<>(tagAdminDTOs, count);
     }
 
     /**

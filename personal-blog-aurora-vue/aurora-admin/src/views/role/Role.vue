@@ -71,7 +71,8 @@
           <el-input v-model="roleForm.roleName" style="width: 250px" />
         </el-form-item>
         <el-form-item label="菜单权限">
-          <el-tree :data="menus" :default-checked-keys="roleForm.menuIds" show-checkbox node-key="id" ref="menuTree" />
+          <el-tree :data="menus"
+                   :default-checked-keys="roleForm.menuIds" show-checkbox node-key="id" ref="menuTree" />
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -290,7 +291,8 @@ export default {
         return false
       }
       this.roleForm.resourceIds = null
-      this.roleForm.menuIds = this.$refs.menuTree.getCheckedKeys().concat(this.$refs.menuTree.getHalfCheckedKeys())
+      // this.roleForm.menuIds = this.$refs.menuTree.getCheckedKeys().concat(this.$refs.menuTree.getHalfCheckedKeys())
+      this.roleForm.menuIds = this.$refs.menuTree.getCheckedKeys()
       _post('/admin/role', this.roleForm, (_, message) => {
         this.$notify.success({
           title: '成功',

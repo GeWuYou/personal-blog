@@ -5,24 +5,24 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * <p>
+ *
  * 标签表
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("tb_tag")
 @Schema(name = "Tag对象", description = "标签表")
 public class Tag extends BaseModel implements Serializable {

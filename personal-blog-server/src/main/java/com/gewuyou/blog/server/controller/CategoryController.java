@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * <p>
+ *
  * 分类表 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-23
  */
-@Tag(name = "<p> 分类表 前端控制器 </p>", description = "<p> 分类表 前端控制器 </p>")
+@Tag(name = "分类表 前端控制器", description = "分类表 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.SERVER_BASE_URL + "/category")
 public class CategoryController {

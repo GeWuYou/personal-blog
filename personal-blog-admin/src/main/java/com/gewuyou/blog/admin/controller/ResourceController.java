@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * <p>
+ *
  * 资源表 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21
  */
-@Tag(name = "<p> 资源表 前端控制器 </p>", description = "<p> 资源表 前端控制器 </p>")
+@Tag(name = "资源表 前端控制器", description = "资源表 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/resource")
 public class ResourceController {

@@ -14,14 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * <p>
+ *
  * 网站配置表 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-05-05
  */
-@Tag(name = "<p> 网站配置表 前端控制器 </p>", description = "<p> 网站配置表 前端控制器 </p>")
+@Tag(name = "网站配置表 前端控制器", description = "网站配置表 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/website")
 public class WebsiteConfigController {

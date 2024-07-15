@@ -8,9 +8,9 @@
                  JOIN tb_article_tag at ON t.id = at.tag_id
         WHERE at.article_id = #{articleId}
     </select>
-    <select id="listTagsAdminDTOs" resultType="com.gewuyou.blog.common.dto.TagAdminDTO">
+    <select id="listTags" resultType="com.gewuyou.blog.common.model.Tag">
         SELECT t.id AS id,
-        tage_name AS tagName,
+        tag_name AS tagName,
         COUNT(at.article_id) AS articleCount,
         t.create_time AS createTime
         FROM tb_tag t
@@ -20,6 +20,7 @@
                 tag_name LIKE CONCAT('%', #{conditionVO.keywords}, '%')
             </if>
         </where>
+        GROUP BY t.id, tag_name, t.create_time
         ORDER BY t.id
     </select>
 </mapper>

@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 用户信息控制器
@@ -89,6 +90,20 @@ public class UserInfoController {
     public Result<?> removeOnlineUser(@PathVariable("userInfoId") Long userInfoId) {
         userInfoService.removeOnlineUser(userInfoId);
         return Result.success();
+    }
+
+    /**
+     * 更新用户头像
+     *
+     * @param file 用户头像
+     * @return 更新结果
+     */
+    @Parameter(name = "file", description = "用户头像", in = ParameterIn.QUERY, required = true)
+    @Operation(summary = "更新用户头像", description = "更新用户头像")
+    @OperationLogging(type = OperationType.UPDATE)
+    @PostMapping("/avatar")
+    public Result<String> updateUserAvatar(MultipartFile file) {
+        return Result.success(userInfoService.updateUserAvatar(file));
     }
 
 }

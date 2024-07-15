@@ -4,10 +4,8 @@ package com.gewuyou.blog.server.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.common.dto.UserInfoDTO;
-import com.gewuyou.blog.common.enums.FilePathEnum;
 import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.service.IRedisService;
-import com.gewuyou.blog.common.strategy.context.UploadStrategyContext;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.EmailVO;
@@ -18,7 +16,6 @@ import com.gewuyou.blog.server.service.IUserInfoService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
 
@@ -35,13 +32,9 @@ import static com.gewuyou.blog.common.constant.RedisConstant.USER_CODE_KEY;
 @Service
 public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> implements IUserInfoService {
 
-
-    private final UploadStrategyContext uploadStrategyContext;
-
     private final IRedisService redisService;
 
-    public UserInfoServiceImpl(UploadStrategyContext uploadStrategyContext, IRedisService redisService) {
-        this.uploadStrategyContext = uploadStrategyContext;
+    public UserInfoServiceImpl(IRedisService redisService) {
         this.redisService = redisService;
     }
 
@@ -91,24 +84,6 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 .website(userInfoVO.getWebsite())
                 .build();
         baseMapper.updateById(userInfo);
-    }
-
-    /**
-     * 更新用户头像
-     *
-     * @param file 头像文件
-     * @return 头像url
-     */
-    @Override
-    public String updateUserAvatar(MultipartFile file) {
-        var avatar = uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.AVATAR.getPath());
-        var userInfo = UserInfo
-                .builder()
-                .id(UserUtil.getUserDetailsDTO().getUserInfoId())
-                .avatar(avatar)
-                .build();
-        baseMapper.updateById(userInfo);
-        return avatar;
     }
 
     /**

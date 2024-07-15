@@ -5,6 +5,9 @@ import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TalkDTO;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.server.service.ITalkService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,14 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * <p>
+ *
  * 说说表 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-23
  */
-@Tag(name = "<p> 说说表 前端控制器 </p>", description = "<p> 说说表 前端控制器 </p>")
+@Tag(name = "说说表 前端控制器", description = "说说表 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.SERVER_BASE_URL + "/talk")
 public class TalkController {
@@ -39,6 +42,7 @@ public class TalkController {
      *
      * @return 说说列表
      */
+    @Operation(summary = "查看说说列表", description = "查看说说列表")
     @GetMapping("/list")
     public Result<PageResultDTO<TalkDTO>> listTalks() {
         return Result.success(talkService.listTalkDTOs());
@@ -51,6 +55,8 @@ public class TalkController {
      * @param talkId 说说id
      * @return 说说详情
      */
+    @Parameter(name = "talkId", description = "说说id", in = ParameterIn.PATH, required = true)
+    @Operation(summary = "根据id查看说说详情", description = "根据id查看说说详情")
     @GetMapping("/{talkId}")
     public Result<TalkDTO> getTalkById(@PathVariable("talkId") Integer talkId) {
         return Result.success(talkService.getTalkById(talkId));

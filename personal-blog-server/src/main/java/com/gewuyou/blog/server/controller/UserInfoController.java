@@ -18,17 +18,16 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
- * <p>
+ *
  * 用户信息表 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-23
  */
-@Tag(name = "<p> 用户信息表 前端控制器 </p>", description = "<p> 用户信息表 前端控制器 </p>")
+@Tag(name = "用户信息表 前端控制器", description = "用户信息表 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.SERVER_BASE_URL + "/user-info")
 @Slf4j
@@ -61,6 +60,7 @@ public class UserInfoController {
      *
      * @param userInfo 用户信息
      */
+    @Operation(summary = "插入用户信息", description = "插入用户信息")
     @PostMapping("/insert")
     public void userInfoInsert(UserInfo userInfo) {
         log.info("userInfoInsert, userInfo: {}", userInfo);
@@ -71,6 +71,7 @@ public class UserInfoController {
      * 获取用户数量
      * @return 用户数量
      */
+    @Operation(summary = "获取用户数量", description = "获取用户数量")
     @GetMapping("/count")
     public Result<Long> selectCount() {
         return Result.success(userInfoService.selectCount());
@@ -83,6 +84,7 @@ public class UserInfoController {
      * @param userInfoVO 用户信息
      * @return 更新结果
      */
+    @Operation(summary = "更新用户信息", description = "更新用户信息")
     @OperationLogging(type = OperationType.UPDATE)
     @PutMapping
     public Result<?> updateUserInfo(@Valid @RequestBody UserInfoVO userInfoVO) {
@@ -91,23 +93,12 @@ public class UserInfoController {
     }
 
     /**
-     * 更新用户头像
-     *
-     * @param file 用户头像
-     * @return 更新结果
-     */
-    @OperationLogging(type = OperationType.UPDATE)
-    @PostMapping("/avatar")
-    public Result<String> updateUserAvatar(MultipartFile file) {
-        return Result.success(userInfoService.updateUserAvatar(file));
-    }
-
-    /**
      * 绑定邮箱
      *
      * @param emailVO 邮箱信息
      * @return 绑定结果
      */
+    @Operation(summary = "绑定邮箱", description = "绑定邮箱")
     @OperationLogging(type = OperationType.UPDATE)
     @PutMapping("/email")
     public Result<?> saveUserEmail(@Valid @RequestBody EmailVO emailVO) {
@@ -121,6 +112,7 @@ public class UserInfoController {
      * @param subscribeVO 订阅信息
      * @return 更新结果
      */
+    @Operation(summary = "更新订阅状态", description = "更新订阅状态")
     @OperationLogging(type = OperationType.UPDATE)
     @PutMapping("/subscribe")
     public Result<?> updateUserSubscribe(@RequestBody SubscribeVO subscribeVO) {
@@ -134,6 +126,8 @@ public class UserInfoController {
      * @param userInfoId 用户Id
      * @return 用户信息
      */
+    @Parameter(name = "userInfoId", description = "用户Id", in = ParameterIn.PATH, required = true)
+    @Operation(summary = "根据用户Id查询用户信息", description = "根据用户Id查询用户信息")
     @GetMapping("/{userInfoId}")
     public Result<UserInfoDTO> getUserInfoById(@PathVariable("userInfoId") Long userInfoId) {
         return Result.success(userInfoService.getUserInfoById(userInfoId));

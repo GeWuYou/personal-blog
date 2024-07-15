@@ -13,16 +13,15 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
- * <p>
+ *
  * 定时任务调度表
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21
  */
 @Getter
 @Setter
-
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("tb_job")

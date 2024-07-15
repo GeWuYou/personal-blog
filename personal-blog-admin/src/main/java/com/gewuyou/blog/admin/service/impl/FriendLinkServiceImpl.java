@@ -10,12 +10,14 @@ import com.gewuyou.blog.common.dto.FriendLinkAdminDTO;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.model.FriendLink;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.FriendLinkVO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 友链接服务 实现
@@ -39,8 +41,18 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
                         .like(StringUtils.isNotBlank(conditionVO.getKeywords()),
                                 FriendLink::getLinkName, conditionVO.getKeywords())
         );
-        List<FriendLinkAdminDTO> friendLinkAdminDTOList = BeanCopyUtil.copyList(friendLinkPage.getRecords(),
-                FriendLinkAdminDTO.class);
+        List<FriendLinkAdminDTO> friendLinkAdminDTOList = friendLinkPage
+                .getRecords()
+                .stream()
+                .map(friendLink -> {
+                    var friendLinkAdminDTO = BeanCopyUtil.copyObject(friendLink, FriendLinkAdminDTO.class);
+                    var createTime = friendLink.getCreateTime();
+                    if (Objects.nonNull(createTime)) {
+                        friendLinkAdminDTO.setCreateTime(DateUtil.convertToDate(createTime));
+                    }
+                    return friendLinkAdminDTO;
+                })
+                .toList();
         return new PageResultDTO<>(friendLinkAdminDTOList, friendLinkPage.getTotal());
     }
 

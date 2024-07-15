@@ -11,9 +11,9 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * <p>
+ *
  * 文章分类中间表
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21

@@ -29,14 +29,14 @@ import static com.gewuyou.blog.common.constant.MessageConstant.USER_NAME_OR_EMAI
 import static com.gewuyou.blog.common.constant.RegularConstant.USERNAME_REGULARITY;
 
 /**
- * <p>
+ *
  * 用户认证信息表 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21
  */
-@Tag(name = "<p> 用户认证信息表 前端控制器 </p>", description = "<p> 用户认证信息表 前端控制器 </p>")
+@Tag(name = "用户认证信息表 前端控制器", description = "用户认证信息表 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/user")
 public class UserAuthController {
@@ -129,6 +129,7 @@ public class UserAuthController {
      *
      * @return 退出登录结果
      */
+    @Operation(summary = "退出登录接口", description = "退出登录接口")
     @PostMapping("/logout")
     public Result<String> logout() {
         return Result.success(userAuthService.logout());

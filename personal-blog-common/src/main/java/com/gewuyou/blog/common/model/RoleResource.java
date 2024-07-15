@@ -11,9 +11,9 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * <p>
+ *
  * 角色资源中间表
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21

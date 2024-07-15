@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 import static com.gewuyou.blog.common.constant.CommonConstant.DEFAULT_CONFIG_ID;
 import static com.gewuyou.blog.common.constant.RedisConstant.WEBSITE_CONFIG;
 
@@ -53,10 +55,13 @@ public class WebsiteConfigServiceImpl extends ServiceImpl<WebsiteConfigMapper, W
     public WebsiteConfigDTO getWebsiteConfig() {
         WebsiteConfigDTO websiteConfigDTO;
         WebsiteConfig websiteConfig = (WebsiteConfig) redisService.get(WEBSITE_CONFIG);
-        if (websiteConfig == null) {
-            websiteConfigDTO = objectMapper.convertValue(baseMapper.selectById(DEFAULT_CONFIG_ID), WebsiteConfigDTO.class);
-        } else {
-            websiteConfigDTO = objectMapper.convertValue(websiteConfig, WebsiteConfigDTO.class);
+        if (Objects.isNull(websiteConfig)) {
+            websiteConfig = baseMapper.selectById(DEFAULT_CONFIG_ID);
+        }
+        try {
+            websiteConfigDTO = objectMapper.readValue(websiteConfig.getConfig(), WebsiteConfigDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new GlobalException(ResponseInformation.GET_WEBSITE_CONFIG_FAILED);
         }
         return websiteConfigDTO;
     }

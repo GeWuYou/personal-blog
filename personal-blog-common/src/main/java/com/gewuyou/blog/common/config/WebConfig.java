@@ -3,6 +3,7 @@ package com.gewuyou.blog.common.config;
 import com.gewuyou.blog.common.interceptor.AccessLimitInterceptor;
 import com.gewuyou.blog.common.interceptor.PaginationInterceptor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -19,6 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final AccessLimitInterceptor accessLimitInterceptor;
     private final PaginationInterceptor paginationInterceptor;
 
+    @Autowired
     public WebConfig(AccessLimitInterceptor accessLimitInterceptor, PaginationInterceptor paginationInterceptor) {
         this.accessLimitInterceptor = accessLimitInterceptor;
         this.paginationInterceptor = paginationInterceptor;

@@ -70,6 +70,7 @@ public enum ResponseInformation {
     ASYNC_EXCEPTION(500, "异步任务异常"),
     CREATE_TASK_FAILED(500, "创建任务失败"),
     DELETE_TASK_FAILED(500, "删除任务失败"),
+    GET_WEBSITE_CONFIG_FAILED(500, "获取网站配置失败"),
 
     /**
      * 错误参数

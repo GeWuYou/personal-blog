@@ -8,8 +8,8 @@
         pa.album_name AS albumName,
         pa.album_desc AS albumDesc,
         pa.album_cover AS albumCover,
-        COUNT(p.id) AS photoCount
-        pa.status AS status,
+        COUNT(p.id) AS photoCount,
+        pa.status AS status
         FROM
         (
         SELECT
@@ -21,8 +21,8 @@
         FROM tb_photo_album
         WHERE
         is_delete = 0
-        <if test="condition.keywords!=null">
-            AND album_name LIKE CONCAT('%', #{condition.keywords}, '%')
+        <if test="conditionVO.keywords!=null">
+            AND album_name LIKE CONCAT('%', #{conditionVO.keywords}, '%')
         </if>
         ORDER BY
         id DESC

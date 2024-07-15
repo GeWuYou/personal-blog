@@ -67,12 +67,12 @@
             drag
             :headers="headers"
             :before-upload="beforeUpload"
-            action="/api/admin/photos/albums/upload"
+            :action="uploadAction"
             multiple
             :on-success="uploadCover">
             <i class="el-icon-upload" v-if="albumForum.albumCover === ''" />
             <div class="el-upload__text" v-if="albumForum.albumCover === ''">将文件拖到此处，或<em>点击上传</em></div>
-            <img v-else :src="albumForum.albumCover" width="360px" height="180px" />
+            <img v-else :src="albumForum.albumCover" width="360px" height="180px" alt="album cover" />
           </el-upload>
         </el-form-item>
         <el-form-item label="发布形式">
@@ -123,7 +123,13 @@ export default {
       current: 1,
       size: 8,
       count: 0,
-      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') }
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
+      baseUrl: 'http://localhost:8082/api/v1'
+    }
+  },
+  computed: {
+    uploadAction() {
+      return this.baseUrl + '/admin/photo/album/upload'
     }
   },
   methods: {
@@ -235,7 +241,6 @@ export default {
         this.albumForum.id = data
         this.isDelete = true
       } else {
-        console.log(data)
         this.openModel(data)
       }
     },

@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * <p>
+ *
  * 关于表 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-05-05
  */
-@Tag(name = "<p> 关于表 前端控制器 </p>", description = "<p> 关于表 前端控制器 </p>")
+@Tag(name = "关于表 前端控制器", description = "关于表 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/about")
 public class AboutController {

@@ -12,14 +12,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * <p>
+ *
  * Unique访问统计表
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-05-04
  */
-
 @Getter
 @Setter
 @AllArgsConstructor

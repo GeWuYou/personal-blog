@@ -6,16 +6,19 @@ import com.gewuyou.blog.admin.mapper.UserAuthMapper;
 import com.gewuyou.blog.admin.mapper.UserInfoMapper;
 import com.gewuyou.blog.admin.service.IUserInfoService;
 import com.gewuyou.blog.admin.service.IUserRoleService;
+import com.gewuyou.blog.admin.strategy.context.UploadStrategyContext;
 import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.UserDetailsDTO;
 import com.gewuyou.blog.common.dto.UserOnlineDTO;
+import com.gewuyou.blog.common.enums.FilePathEnum;
 import com.gewuyou.blog.common.model.UserAuth;
 import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.model.UserRole;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
+import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.UserDisableVO;
 import com.gewuyou.blog.common.vo.UserRoleVO;
@@ -24,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Comparator;
 import java.util.List;
@@ -41,13 +45,15 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     private final UserAuthMapper userAuthMapper;
     private final JwtService jwtService;
     private final IRedisService redisService;
+    private final UploadStrategyContext uploadStrategyContext;
 
     @Autowired
-    public UserInfoServiceImpl(IUserRoleService userRoleService, UserAuthMapper userAuthMapper, JwtService jwtService, IRedisService redisService) {
+    public UserInfoServiceImpl(IUserRoleService userRoleService, UserAuthMapper userAuthMapper, JwtService jwtService, IRedisService redisService, UploadStrategyContext uploadStrategyContext) {
         this.userRoleService = userRoleService;
         this.userAuthMapper = userAuthMapper;
         this.jwtService = jwtService;
         this.redisService = redisService;
+        this.uploadStrategyContext = uploadStrategyContext;
     }
 
     /**
@@ -133,6 +139,24 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                         .eq(UserAuth::getUserInfoId, id)
         ).getId();
         jwtService.deleteLoginUser(userId);
+    }
+
+    /**
+     * 更新用户头像
+     *
+     * @param file 头像文件
+     * @return 头像url
+     */
+    @Override
+    public String updateUserAvatar(MultipartFile file) {
+        var avatar = uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.AVATAR.getPath());
+        var userInfo = UserInfo
+                .builder()
+                .id(UserUtil.getUserDetailsDTO().getUserInfoId())
+                .avatar(avatar)
+                .build();
+        baseMapper.updateById(userInfo);
+        return avatar;
     }
 
 }

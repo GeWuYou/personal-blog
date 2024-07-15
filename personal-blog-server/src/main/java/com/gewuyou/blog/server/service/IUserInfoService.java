@@ -6,7 +6,6 @@ import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.vo.EmailVO;
 import com.gewuyou.blog.common.vo.SubscribeVO;
 import com.gewuyou.blog.common.vo.UserInfoVO;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * <p>
@@ -47,13 +46,6 @@ public interface IUserInfoService extends IService<UserInfo> {
      */
     void updateUserInfo(UserInfoVO userInfoVO);
 
-    /**
-     * 更新用户头像
-     *
-     * @param file 头像文件
-     * @return 头像url
-     */
-    String updateUserAvatar(MultipartFile file);
 
     /**
      * 保存用户邮箱

@@ -12,16 +12,15 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * <p>
+ *
  * 照片
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21
  */
 @Getter
 @Setter
-
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("tb_photo")

@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
- * <p>
+ *
  * 定时任务调度日志表
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21

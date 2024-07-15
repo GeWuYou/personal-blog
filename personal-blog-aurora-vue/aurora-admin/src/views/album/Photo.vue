@@ -78,7 +78,7 @@
       <div class="upload-container">
         <el-upload
           v-show="uploads.length > 0"
-          action="/api/admin/photos/upload"
+          action="/api/v1/admin/photo/upload"
           list-type="picture-card"
           :file-list="uploads"
           multiple
@@ -92,7 +92,7 @@
           <el-upload
             v-show="uploads.length === 0"
             drag
-            action="/api/admin/photos/upload"
+            action="/api/v1/admin/photo/upload"
             multiple
             :headers="headers"
             :before-upload="beforeUpload"
@@ -233,7 +233,7 @@ export default {
       // })
     },
     listPhotos() {
-      _get('/admin/photo', {
+      _get('/admin/photo/list', {
         current: this.current,
         size: this.size,
         albumId: this.$route.params.albumId,

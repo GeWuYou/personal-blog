@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.admin.mapper.CategoryMapper">
 
-    <select id="listCategoryAdminDTOs" resultType="com.gewuyou.blog.common.dto.CategoryAdminDTO">
+    <select id="listCategories" resultType="com.gewuyou.blog.common.model.Category">
         SELECT
         c.id AS id,
         COUNT(a.id) AS articleCount,
         c.category_name AS categoryName,
-        c.create_time AS createTime,
+        c.create_time AS createTime
         FROM
         tb_category c
         LEFT JOIN tb_article a ON c.id = a.id
@@ -16,6 +16,8 @@
                 category_name LIKE CONCAT('%', #{conditionVO.keywords}, '%')
             </if>
         </where>
+        GROUP BY
+        c.id, c.category_name, c.create_time
         ORDER BY
         c.id
     </select>

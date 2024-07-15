@@ -3,7 +3,6 @@ package com.gewuyou.blog.admin.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.gewuyou.blog.common.dto.ArticleAdminDTO;
 import com.gewuyou.blog.common.model.Article;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -37,5 +36,5 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @param conditionVO 条件VO
      * @return 文章卡片列表DTO
      */
-    List<ArticleAdminDTO> listArticlesAdminDTOs(Page<ArticleAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
+    List<Article> listArticlesAdmins(Page<Article> page, @Param("conditionVO") ConditionVO conditionVO);
 }

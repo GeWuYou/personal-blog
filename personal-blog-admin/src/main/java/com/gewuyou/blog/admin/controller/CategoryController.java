@@ -11,6 +11,7 @@ import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.CategoryVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ import java.util.List;
  * @author gewuyou
  * @since 2024-06-01 下午10:47:07
  */
+@Tag(name = "分类前端控制器", description = "分类前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/category")
 public class CategoryController {

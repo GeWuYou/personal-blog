@@ -21,14 +21,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * <p>
+ *
  * 评论表 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-23
  */
-@Tag(name = "<p> 评论表 前端控制器 </p>", description = "<p> 评论表 前端控制器 </p>")
+@Tag(name = "评论表 前端控制器", description = "评论表 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.SERVER_BASE_URL + "/comment")
 public class CommentController {

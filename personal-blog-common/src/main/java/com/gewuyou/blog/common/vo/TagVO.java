@@ -2,13 +2,11 @@ package com.gewuyou.blog.common.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static com.gewuyou.blog.common.constant.MessageConstant.ID_NOT_EMPTY;
 import static com.gewuyou.blog.common.constant.MessageConstant.Tag_NOT_EMPTY;
 
 /**
@@ -28,7 +26,6 @@ public class TagVO {
      */
 
     @Schema(description = "标签id")
-    @NotNull(message = ID_NOT_EMPTY)
     private Long id;
 
     /**

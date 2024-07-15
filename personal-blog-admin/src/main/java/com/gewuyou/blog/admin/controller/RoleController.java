@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * <p>
+ *
  * 角色表 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21
  */
-@Tag(name = "<p> 角色表 前端控制器 </p>", description = "<p> 角色表 前端控制器 </p>")
+@Tag(name = "角色表 前端控制器", description = "角色表 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/role")
 public class RoleController {

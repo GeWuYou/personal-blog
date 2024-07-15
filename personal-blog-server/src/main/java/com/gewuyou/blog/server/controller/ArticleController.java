@@ -18,14 +18,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>
+ *
  * 文章表 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-23
  */
-@Tag(name = "<p> 文章表 前端控制器 </p>", description = "<p> 文章表 前端控制器 </p>")
+@Tag(name = "文章表 前端控制器", description = "文章表 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.SERVER_BASE_URL + "/article")
 public class ArticleController {
@@ -129,6 +129,7 @@ public class ArticleController {
      *
      * @return List<ArticleStatisticsDTO>
      */
+    @Operation(summary = "获取文章归档统计数据", description = "获取文章归档统计数据")
     @GetMapping("/list/statistics")
     public Result<List<ArticleStatisticsDTO>> listArticleStatistics() {
         return Result.success(articleService.listArticleStatistics());

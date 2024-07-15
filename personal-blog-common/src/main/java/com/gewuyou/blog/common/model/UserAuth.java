@@ -16,9 +16,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * <p>
+ *
  * 用户认证信息表
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21

@@ -42,7 +42,7 @@
             <result column="tag_name" property="tagName"/>
         </collection>
     </resultMap>
-    <select id="listArticlesAdminDTOs" resultType="com.gewuyou.blog.common.dto.ArticleAdminDTO">
+    <select id="listArticlesAdmins" resultType="com.gewuyou.blog.common.model.Article">
         SELECT
         a.id,
         article_cover AS articleCover,

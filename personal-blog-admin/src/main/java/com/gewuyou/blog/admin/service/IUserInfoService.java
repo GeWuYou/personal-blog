@@ -7,6 +7,7 @@ import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.UserDisableVO;
 import com.gewuyou.blog.common.vo.UserRoleVO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 用户信息服务接口
@@ -43,4 +44,12 @@ public interface IUserInfoService extends IService<UserInfo> {
      * @param userInfoId 用户ID
      */
     void removeOnlineUser(Long userInfoId);
+
+    /**
+     * 更新用户头像
+     *
+     * @param file 头像文件
+     * @return 头像url
+     */
+    String updateUserAvatar(MultipartFile file);
 }

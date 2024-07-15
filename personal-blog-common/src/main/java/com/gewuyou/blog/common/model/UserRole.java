@@ -11,9 +11,9 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * <p>
+ *
  * 用户角色中间表
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21
