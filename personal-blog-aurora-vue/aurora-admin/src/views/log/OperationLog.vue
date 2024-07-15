@@ -28,14 +28,14 @@
       <el-table-column prop="optModule" label="系统模块" align="center" width="120" />
       <el-table-column width="100" prop="optType" label="操作类型" align="center" />
       <el-table-column prop="optDesc" label="操作描述" align="center" width="150" />
-      <el-table-column prop="requetMethod" label="请求方式" align="center" width="100">
+      <el-table-column prop="requestMethod" label="请求方式" align="center" width="100">
         <template slot-scope="scope" v-if="scope.row.requestMethod">
           <el-tag :type="tagType(scope.row.requestMethod)">
             {{ scope.row.requestMethod }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="nickname" label="操作人员" align="center" />
+      <el-table-column prop="userName" label="操作人员" align="center" />
       <el-table-column prop="ipAddress" label="登录ip" align="center" width="130" />
       <el-table-column prop="ipSource" label="登录地址" align="center" width="150" />
       <el-table-column prop="createTime" label="操作日期" align="center" width="190">
@@ -89,7 +89,7 @@
           {{ optLog.responseData }}
         </el-form-item>
         <el-form-item label="操作人员：">
-          {{ optLog.nickname }}
+          {{ optLog.userName }}
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -178,7 +178,7 @@ export default {
       } else {
         param = { data: this.logIds }
       }
-      _delete('/admin/operation/log', param, (_, message) => {
+      _delete('/admin/operation/log', param.data, (_, message) => {
         this.$notify.success({
           title: '成功',
           message: message

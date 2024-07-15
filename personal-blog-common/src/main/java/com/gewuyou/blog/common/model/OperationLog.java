@@ -5,18 +5,16 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * <p>
+ *
  * 操作日志表
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21
@@ -25,6 +23,8 @@ import java.time.LocalDateTime;
 @Setter
 @TableName("tb_operation_log")
 @Schema(name = "OperationLog对象", description = "操作日志表")
+@NoArgsConstructor
+@AllArgsConstructor
 public class OperationLog extends BaseModel implements Serializable {
 
     @Builder

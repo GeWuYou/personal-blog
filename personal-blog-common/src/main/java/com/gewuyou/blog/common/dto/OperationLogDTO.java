@@ -1,16 +1,12 @@
 package com.gewuyou.blog.common.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 操作日志 DTO
@@ -28,7 +24,7 @@ public class OperationLogDTO {
      * 操作日志Id
      */
     @Schema(description = "操作日志Id")
-    private Integer id;
+    private Long id;
 
     /**
      * 操作模块
@@ -79,10 +75,10 @@ public class OperationLogDTO {
     private String responseData;
 
     /**
-     * 用户昵称
+     * 用户名
      */
     @Schema(description = "用户昵称")
-    private String nickname;
+    private String userName;
 
     /**
      * 操作人IP地址
@@ -100,7 +96,5 @@ public class OperationLogDTO {
      * 创建时间
      */
     @Schema(description = "创建时间")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime createTime;
+    private Date createTime;
 }

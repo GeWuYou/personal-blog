@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * <p>
+ *
  * 异常日志表	 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21
  */
-@Tag(name = "<p> 异常日志表	 前端控制器 </p>", description = "<p> 异常日志表	 前端控制器 </p>")
+@Tag(name = "异常日志表	 前端控制器", description = "异常日志表	 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/exception/log")
 public class ExceptionLogController {

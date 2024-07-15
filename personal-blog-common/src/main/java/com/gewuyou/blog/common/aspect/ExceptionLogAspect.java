@@ -4,12 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.event.ExceptionLogEvent;
-import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.ExceptionLog;
 import com.gewuyou.blog.common.utils.ExceptionUtil;
 import com.gewuyou.blog.common.utils.IpUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
@@ -32,6 +32,7 @@ import java.util.Objects;
  */
 @Aspect
 @Component
+@Slf4j
 public class ExceptionLogAspect {
     private final ObjectMapper objectMapper;
 
@@ -53,8 +54,7 @@ public class ExceptionLogAspect {
         HttpServletRequest request = (HttpServletRequest) Objects.requireNonNull(requestAttributes).resolveReference(RequestAttributes.REFERENCE_REQUEST);
         String ipAddress = IpUtil.getIpAddress(Objects.requireNonNull(request));
         String ipSource = IpUtil.getIpSource(ipAddress);
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Method method = signature.getMethod();
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         String className = joinPoint.getTarget().getClass().getName();
         String methodName = method.getName();
         String optMethod = className + "." + methodName;
@@ -72,7 +72,7 @@ public class ExceptionLogAspect {
                     .build();
             applicationContext.publishEvent(new ExceptionLogEvent(exceptionLog));
         } catch (JsonProcessingException ex) {
-            throw new GlobalException(ResponseInformation.LOG_BUILD_FAILED);
+            log.error("{}", ResponseInformation.LOG_BUILD_FAILED, ex);
         }
     }
 }

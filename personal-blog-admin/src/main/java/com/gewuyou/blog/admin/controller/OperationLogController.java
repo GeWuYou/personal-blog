@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * <p>
+ *
  * 操作日志表 前端控制器
- * </p>
+ *
  *
  * @author gewuyou
  * @since 2024-04-21
  */
-@Tag(name = "<p> 操作日志表 前端控制器 </p>", description = "<p> 操作日志表 前端控制器 </p>")
+@Tag(name = "操作日志表 前端控制器", description = "操作日志表 前端控制器")
 @RestController
 @RequestMapping(InterfacePermissionConstant.ADMIN_BASE_URL + "/operation/log")
 public class OperationLogController {
@@ -55,7 +55,7 @@ public class OperationLogController {
     @Operation(summary = "删除操作日志", description = "删除操作日志")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping
-    public Result<?> deleteOperationLogs(@RequestBody List<Integer> operationLogIds) {
+    public Result<?> deleteOperationLogs(@RequestBody List<Long> operationLogIds) {
         operationLogService.removeByIds(operationLogIds);
         return Result.success();
     }

@@ -6,13 +6,13 @@ import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.dto.UserDetailsDTO;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.event.OperationLogEvent;
-import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.OperationLog;
 import com.gewuyou.blog.common.utils.IpUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -38,6 +38,7 @@ import java.util.Objects;
  */
 @Aspect
 @Component
+@Slf4j
 public class OperationLoggingAspect {
 
     private final ObjectMapper objectMapper;
@@ -66,12 +67,18 @@ public class OperationLoggingAspect {
             String resultStr = objectMapper.writeValueAsString(result);
             buildAndSaveLog(joinPoint, operationLogging, resultStr);
         } catch (JsonProcessingException e) {
-            throw new GlobalException(ResponseInformation.LOG_BUILD_FAILED, e);
+            log.error("{}", ResponseInformation.LOG_BUILD_FAILED, e);
+        } finally {
+            startTime.remove();
         }
     }
 
     @AfterThrowing(pointcut = "@annotation(operationLogging)", throwing = "e")
     public void afterThrowing(JoinPoint joinPoint, OperationLogging operationLogging, Exception e) {
+        // 是否记录异常
+        if (operationLogging.logException()) {
+            return;
+        }
         String resultStr = e.getMessage();
         // 保留前2000个字符
         if (resultStr.length() > 2000) {
@@ -80,11 +87,99 @@ public class OperationLoggingAspect {
         buildAndSaveLog(joinPoint, operationLogging, resultStr);
     }
 
+
     private void buildAndSaveLog(JoinPoint joinPoint, OperationLogging operationLogging, String resultStr) {
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = (HttpServletRequest) Objects.requireNonNull(requestAttributes).resolveReference(RequestAttributes.REFERENCE_REQUEST);
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Method method = signature.getMethod();
+        var request = getCurrentHttpRequest();
+        if (Objects.isNull(request)) {
+            return;
+        }
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        var userDetailsDTO = getUserDetailsDTO();
+        // 如果是未登录用户，则不记录日志
+        if (Objects.isNull(userDetailsDTO)) {
+            return;
+        }
+        try {
+            var operationLog = createOperationLog(joinPoint, operationLogging, resultStr, request, method, userDetailsDTO);
+            // 保存日志
+            applicationContext.publishEvent(new OperationLogEvent(operationLog));
+        } catch (JsonProcessingException e) {
+            log.error("{}", ResponseInformation.LOG_BUILD_FAILED, e);
+        } finally {
+            startTime.remove();
+        }
+        // private void buildAndSaveLog(JoinPoint joinPoint, OperationLogging operationLogging, String resultStr) {
+        // RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        // HttpServletRequest request = (HttpServletRequest) Objects.requireNonNull(requestAttributes).resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        // MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        // Method method = signature.getMethod();
+        // String className = joinPoint.getTarget().getClass().getName();
+        // String methodName = method.getName();
+        // String optMethod = className + "." + methodName;
+        // // 获取类注解Tag
+        // Tag tag = joinPoint.getTarget().getClass().getAnnotation(Tag.class);
+        // // 获取方法注解Operation
+        // Operation operation = method.getAnnotation(Operation.class);
+        // UserDetailsDTO userDetailsDTO;
+        // // 如果是未登录用户，则不记录日志
+        // try {
+        //     userDetailsDTO = UserUtil.getUserDetailsDTO();
+        //     if (userDetailsDTO == null) {
+        //         return;
+        //     }
+        // } catch (Exception e) {
+        //     return;
+        // }
+        // String ipAddress = IpUtil.getIpAddress(Objects.requireNonNull(request));
+        // String ipSource = IpUtil.getIpSource(ipAddress);
+        // try {
+        //     // 是否记录请求参数
+        //     String requestParam = null;
+        //     if (operationLogging.logParams()) {
+        //         requestParam = objectMapper.writeValueAsString(joinPoint.getArgs());
+        //     }
+        //     // 是否记录返回结果
+        //     if (operationLogging.logResult()) {
+        //         resultStr = null;
+        //     }
+        //     OperationLog operationLog = OperationLog
+        //             .builder()
+        //             .optModule(tag.name())
+        //             .optUrl(Objects.requireNonNull(request).getRequestURI())
+        //             .optType(operationLogging.type().getValue())
+        //             .optMethod(optMethod)
+        //             .optDesc(operation.description())
+        //             .requestMethod(Objects.requireNonNull(request).getMethod())
+        //             .requestParam(requestParam)
+        //             .responseData(resultStr)
+        //             .userId(userDetailsDTO.getUserAuthId())
+        //             .userName(userDetailsDTO.getUsername())
+        //             .ipAddress(ipAddress)
+        //             .ipSource(ipSource)
+        //             .time(String.valueOf(startTime.get()))
+        //             .duration(Duration.between(startTime.get(), LocalDateTime.now()).toMillis())
+        //             .build();
+        //     // 保存日志
+        //     applicationContext.publishEvent(new OperationLogEvent(operationLog));
+        //     startTime.remove();
+        // } catch (JsonProcessingException e) {
+        //     log.error("操作日志记录构建失败", e);
+        // }
+    }
+
+    /**
+     * 创建操作日志对象
+     *
+     * @param joinPoint        切入点
+     * @param operationLogging 操作日志注解
+     * @param resultStr        返回结果
+     * @param request          请求对象
+     * @param method           方法对象
+     * @param userDetailsDTO   用户详情DTO
+     * @return 操作日志对象
+     * @throws JsonProcessingException JSON 处理异常
+     */
+    private OperationLog createOperationLog(JoinPoint joinPoint, OperationLogging operationLogging, String resultStr, HttpServletRequest request, Method method, UserDetailsDTO userDetailsDTO) throws JsonProcessingException {
         String className = joinPoint.getTarget().getClass().getName();
         String methodName = method.getName();
         String optMethod = className + "." + methodName;
@@ -92,40 +187,57 @@ public class OperationLoggingAspect {
         Tag tag = joinPoint.getTarget().getClass().getAnnotation(Tag.class);
         // 获取方法注解Operation
         Operation operation = method.getAnnotation(Operation.class);
-        UserDetailsDTO userDetailsDTO;
-        // 如果是未登录用户，则不记录日志
-        try {
-            userDetailsDTO = UserUtil.getUserDetailsDTO();
-        } catch (Exception e) {
-            return;
-        }
         String ipAddress = IpUtil.getIpAddress(Objects.requireNonNull(request));
         String ipSource = IpUtil.getIpSource(ipAddress);
-        try {
-            OperationLog operationLog = OperationLog
-                    .builder()
-                    .optModule(tag.name())
-                    .optUrl(Objects.requireNonNull(request).getRequestURI())
-                    .optType(operationLogging.type().getValue())
-                    .optMethod(optMethod)
-                    .optDesc(operation.description())
-                    .requestMethod(Objects.requireNonNull(request).getMethod())
-                    .requestParam(objectMapper.writeValueAsString(joinPoint.getArgs()))
-                    .responseData(resultStr)
-                    .userId(userDetailsDTO.getUserAuthId())
-                    .userName(userDetailsDTO.getUsername())
-                    .ipAddress(ipAddress)
-                    .ipSource(ipSource)
-                    .time(String.valueOf(startTime.get()))
-                    .duration(Duration.between(startTime.get(), LocalDateTime.now()).toMillis())
-                    .build();
-            // 保存日志
-            applicationContext.publishEvent(new OperationLogEvent(operationLog));
-            startTime.remove();
-        } catch (JsonProcessingException e) {
-            throw new GlobalException(ResponseInformation.LOG_BUILD_FAILED, e);
+
+        // 是否记录请求参数
+        String requestParam = null;
+        if (operationLogging.logParams()) {
+            requestParam = objectMapper.writeValueAsString(joinPoint.getArgs());
         }
+        // 是否记录返回结果
+        if (operationLogging.logResult()) {
+            resultStr = null;
+        }
+        return OperationLog
+                .builder()
+                .optModule(tag.name())
+                .optUrl(Objects.requireNonNull(request).getRequestURI())
+                .optType(operationLogging.type().getValue())
+                .optMethod(optMethod)
+                .optDesc(operation.description())
+                .requestMethod(Objects.requireNonNull(request).getMethod())
+                .requestParam(requestParam)
+                .responseData(resultStr)
+                .userId(userDetailsDTO.getUserAuthId())
+                .userName(userDetailsDTO.getUsername())
+                .ipAddress(ipAddress)
+                .ipSource(ipSource)
+                .time(String.valueOf(startTime.get()))
+                .duration(Duration.between(startTime.get(), LocalDateTime.now()).toMillis())
+                .build();
+    }
 
+    /**
+     * 获取用户详情DTO
+     *
+     * @return 用户详情DTO
+     */
+    private UserDetailsDTO getUserDetailsDTO() {
+        try {
+            return UserUtil.getUserDetailsDTO();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
+    /**
+     * 获取当前请求对象
+     *
+     * @return 当前请求对象
+     */
+    private HttpServletRequest getCurrentHttpRequest() {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        return Objects.isNull(requestAttributes) ? null : (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
     }
 }

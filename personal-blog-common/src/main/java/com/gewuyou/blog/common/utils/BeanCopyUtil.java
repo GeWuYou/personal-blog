@@ -33,6 +33,7 @@ public class BeanCopyUtil {
                 org.springframework.beans.BeanUtils.copyProperties(source, temp);
             }
         } catch (Exception e) {
+            log.error("详细信息：{}", ResponseInformation.OBJECT_COPY_FAILED.getMessage(), e);
             throw new GlobalException(ResponseInformation.OBJECT_COPY_FAILED);
         }
         return temp;
