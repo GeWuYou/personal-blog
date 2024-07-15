@@ -1,4 +1,4 @@
-package com.gewuyou.blog.common.strategy.impl;
+package com.gewuyou.blog.admin.strategy.impl;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;

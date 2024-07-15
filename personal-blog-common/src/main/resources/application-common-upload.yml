@@ -1,28 +1,20 @@
 upload:
   mode: oss
   oss:
-    url: http://example-bucket.com/
-    endpoint: https://oss-endpoint.example.com
-    accessKeyId: fakeAccessKeyId
-    secretAccessKey: fakeSecretAccessKey
-    bucketName: example-bucket
-
+    url: http://Bucket域名/
+    endpoint: OSS配置endpoint
+    accessKeyId: OSS配置accessKeyId
+    secretAccessKey: OSS配置accessKeySecret
+    bucketName: OSS配置bucketName
   minio:
-    url: http://127.0.0.1:9000/
-    endpoint: http://127.0.0.1:9000
-    accessKey: fakeAccessKey
-    secretKey: fakeSecretKey
-    bucketName: example-bucket
-
-#  oss:
-#    url: http://Bucket域名/
-#    endpoint: OSS配置endpoint
-#    accessKeyId: OSS配置accessKeyId
-#    secretAccessKey: OSS配置accessKeySecret
-#    bucketName: OSS配置bucketName
-#  minio:
-#    url: http://minio的ip:9000/
-#    endpoint: http://minio的ip:9000
-#    accesskey: 用户名
-#    secretKey: 密码
-#    bucketName: 桶的名称
+    url: http://minio的ip:9000/
+    endpoint: minio配置endpoint
+    accesskey: 用户名
+    secretKey: 密码
+    bucketName: 桶的名称
+  qiniu:
+    access-key: 七牛配置accessKey
+    secret-key: 七牛配置secretKey
+    bucket-name: 七牛配置bucketName
+    url: http://七牛域名/
+    endpoint: 七牛配置endpoint

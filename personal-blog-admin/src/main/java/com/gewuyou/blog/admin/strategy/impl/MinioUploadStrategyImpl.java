@@ -1,4 +1,4 @@
-package com.gewuyou.blog.common.strategy.impl;
+package com.gewuyou.blog.admin.strategy.impl;
 
 
 import com.gewuyou.blog.common.config.entity.MinioProperties;
@@ -21,7 +21,6 @@ import java.io.InputStream;
  */
 @Service("minioUploadStrategyImpl")
 @Slf4j
-
 public class MinioUploadStrategyImpl extends AbstractUploadStrategyImpl {
 
     private final MinioProperties minioProperties;

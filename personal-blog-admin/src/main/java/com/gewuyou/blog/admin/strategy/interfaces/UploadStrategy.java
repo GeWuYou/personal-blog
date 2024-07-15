@@ -1,4 +1,4 @@
-package com.gewuyou.blog.common.strategy.interfaces;
+package com.gewuyou.blog.admin.strategy.interfaces;
 
 import org.springframework.web.multipart.MultipartFile;
 

@@ -1,7 +1,7 @@
-package com.gewuyou.blog.common.strategy.context;
+package com.gewuyou.blog.admin.strategy.context;
 
+import com.gewuyou.blog.admin.strategy.interfaces.UploadStrategy;
 import com.gewuyou.blog.common.enums.UploadModeEnum;
-import com.gewuyou.blog.common.strategy.interfaces.UploadStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

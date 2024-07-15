@@ -3,8 +3,6 @@ package com.gewuyou.blog.common.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Arrays;
-
 /**
  * 上传模式枚举
  *
@@ -16,7 +14,9 @@ import java.util.Arrays;
 public enum UploadModeEnum {
     OSS("oss", "ossUploadStrategyImpl"),
 
-    MINIO("minio", "minioUploadStrategyImpl");
+    MINIO("minio", "minioUploadStrategyImpl"),
+
+    QINIU("qiniu", "qiNiuUploadStrategyImpl");
 
     private final String mode;
 

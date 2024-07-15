@@ -1,8 +1,8 @@
-package com.gewuyou.blog.common.strategy.impl;
+package com.gewuyou.blog.admin.strategy.impl;
 
+import com.gewuyou.blog.admin.strategy.interfaces.UploadStrategy;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
-import com.gewuyou.blog.common.strategy.interfaces.UploadStrategy;
 import com.gewuyou.blog.common.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

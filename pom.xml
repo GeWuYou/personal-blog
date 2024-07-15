@@ -50,6 +50,7 @@
         <minio.version>8.5.10</minio.version>
         <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version>
         <sensitive-word.version>0.16.1</sensitive-word.version>
+        <qiniu-java-sdk.version>7.13.0</qiniu-java-sdk.version>
     </properties>
 
     <dependencyManagement>

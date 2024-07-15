@@ -2,7 +2,7 @@ server:
   port: 8084
 spring:
   profiles:
-    include: common-datasource,common-log,common-rabbitmq,common-upload,common-private-mail,common-redis-cache
+    include: common-datasource,common-log,common-rabbitmq,common-private-mail,common-redis-cache
   application:
     name: personal-blog-server
 eureka:
