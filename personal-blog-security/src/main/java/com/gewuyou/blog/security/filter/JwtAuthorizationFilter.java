@@ -71,15 +71,20 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             throw new GlobalException(ResponseInformation.INVALID_TOKEN_REQUEST);
         }
         token = token.substring(prefix.length() + 1);
-        // 校验tokens是否有效
-        if (!jwtService.validateToken(token)) {
-            log.error("token校验失败：{}", token);
-            throw new GlobalException(ResponseInformation.INVALID_TOKEN);
-        }
-        // 校验token是否过期
-        if (jwtService.isTokenExpired(token)) {
-            log.error("token已过期：{}", token);
-            throw new GlobalException(ResponseInformation.TOKEN_EXPIRED);
+        // 如果校验失败说明登录已过期
+        try {
+            // 校验tokens是否有效
+            if (!jwtService.validateToken(token)) {
+                log.error("token校验失败：{}", token);
+                throw new GlobalException(ResponseInformation.INVALID_TOKEN);
+            }
+            // 校验token是否过期
+            if (jwtService.isTokenExpired(token)) {
+                log.error("token已过期：{}", token);
+                throw new GlobalException(ResponseInformation.TOKEN_EXPIRED);
+            }
+        } catch (GlobalException e) {
+            throw new GlobalException(ResponseInformation.LOGIN_EXPIRED);
         }
         //  从token中获取当前登录用户UserDetails并强转为UserDetailsDto
         var userDetailsDTO = jwtService.getUserDetailsDTOFromToken(token);

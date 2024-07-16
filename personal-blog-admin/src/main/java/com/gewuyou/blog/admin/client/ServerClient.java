@@ -1,17 +1,16 @@
 package com.gewuyou.blog.admin.client;
 
+import com.gewuyou.blog.admin.config.FeignClientConfiguration;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.ArticleRankDTO;
 import com.gewuyou.blog.common.dto.ArticleStatisticsDTO;
 import com.gewuyou.blog.common.dto.CategoryDTO;
+import com.gewuyou.blog.common.dto.WebsiteConfigDTO;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.model.Tag;
 import com.gewuyou.blog.common.model.UserInfo;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -22,16 +21,16 @@ import java.util.Map;
  * @author gewuyou
  * @since 2024-04-23 下午9:55:33
  */
-@FeignClient(name = "personal-blog-server", url = "http://localhost:8084" + InterfacePermissionConstant.SERVER_BASE_URL)
+@FeignClient(name = "personal-blog-server", url = "http://localhost:8084" + InterfacePermissionConstant.SERVER_BASE_URL, configuration = FeignClientConfiguration.class)
 public interface ServerClient {
+    @DeleteMapping("/dynamic-security-metadata-source/clear")
+    void clearConfigAttributeMap();
+
     @PostMapping("/user-info/insert")
     void userInfoInsert(UserInfo userInfo);
 
     @GetMapping("/user-info/count")
     Result<Long> selectUserInfoCount();
-
-    @GetMapping("/user-info/select/{id}")
-    UserInfo selectUserInfoById(@PathVariable(name = "id") Long id);
 
     @GetMapping("/article/count/not-deleted")
     Long selectArticleCountNotDeleted();
@@ -59,4 +58,7 @@ public interface ServerClient {
 
     @GetMapping("/comment/count/type/{type}")
     Long selectCommentCountByType(@PathVariable(name = "type") Byte type);
+
+    @GetMapping("/website/config")
+    Result<WebsiteConfigDTO> getWebsiteConfig();
 }

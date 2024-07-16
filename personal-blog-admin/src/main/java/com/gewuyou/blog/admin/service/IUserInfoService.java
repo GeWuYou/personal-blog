@@ -17,6 +17,14 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface IUserInfoService extends IService<UserInfo> {
     /**
+     * 根据id查询用户信息
+     *
+     * @param id 用户id
+     * @return 用户信息
+     */
+    UserInfo selectUserInfoById(Long id);
+
+    /**
      * 更新用户角色
      *
      * @param userRoleVO 用户角色VO

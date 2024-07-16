@@ -325,6 +325,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     @Override
     public ResponseInformation logout() {
         jwtService.deleteLoginUser(UserUtil.getUserDetailsDTO().getUserAuthId());
+        jwtService.deleteToken(UserUtil.getUserDetailsDTO().getUserAuthId());
         return ResponseInformation.LOGOUT_SUCCESS;
     }
 

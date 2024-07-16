@@ -2,6 +2,7 @@ package com.gewuyou.blog.admin;
 
 import com.gewuyou.blog.common.config.entity.MinioProperties;
 import com.gewuyou.blog.common.config.entity.OssConfigProperties;
+import com.gewuyou.blog.common.config.entity.QiNiuProperties;
 import com.gewuyou.blog.security.config.SecurityIgnoreUrl;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -13,8 +14,8 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 // 大坑，当配置了扫描路径后需要显式的指定所有需要扫描的路径
 @ComponentScan(basePackages = {"com.gewuyou.blog.common", "com.gewuyou.blog.admin", "com.gewuyou.blog.security"})
-@MapperScan(basePackages = {"com.gewuyou.blog.admin.mapper", "com.gewuyou.blog.common.mapper"})
-@EnableConfigurationProperties({SecurityIgnoreUrl.class, MinioProperties.class, OssConfigProperties.class})
+@MapperScan(basePackages = {"com.gewuyou.blog.admin.mapper", "com.gewuyou.blog.common.mapper", "com.gewuyou.blog.security.mapper"})
+@EnableConfigurationProperties({SecurityIgnoreUrl.class, MinioProperties.class, OssConfigProperties.class, QiNiuProperties.class})
 @EnableFeignClients
 public class PersonalBlogAdminApplication {
 

@@ -81,6 +81,7 @@ public class DynamicAuthorizationManager implements AuthorizationManager<Request
             log.info("当前请求的权限：{}, 请求的URL：{}", attribute.getAttribute(), request.getRequestURI());
             // 允许匿名访问
             if ("anonymous".equals(attribute.getAttribute())) {
+                log.info("允许匿名访问：{}", request.getRequestURI());
                 return new AuthorizationDecision(true);
             }
             if (permissions.contains(attribute.getAttribute())) {

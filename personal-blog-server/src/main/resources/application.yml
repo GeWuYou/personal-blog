@@ -2,9 +2,21 @@ server:
   port: 8084
 spring:
   profiles:
-    include: common-datasource,common-log,common-rabbitmq,common-private-mail,common-redis-cache
+    include: common-datasource,common-log,common-rabbitmq,common-private-mail,common-redis-cache,common-security
   application:
     name: personal-blog-server
+  # 放行的url
+  security:
+    ignore:
+      urls:
+        - /server/user-info/select/**
+        - /swagger-ui/**
+        - /v3/api-docs/**
+        - /swagger-resources/**
+        - /doc.html
+        - /webjars/**
+        - /druid/**
+        - /favicon.ico
 eureka:
   client:
     service-url:

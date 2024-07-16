@@ -68,6 +68,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.gewuyou</groupId>
+            <artifactId>personal-blog-security</artifactId>
+            <version>${personal-blog-security.version}</version>
+        </dependency>
     </dependencies>
 
 	<build>

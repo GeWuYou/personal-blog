@@ -3,7 +3,6 @@ package com.gewuyou.blog.admin.controller;
 import com.gewuyou.blog.admin.service.IWebsiteConfigService;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
-import com.gewuyou.blog.common.dto.WebsiteConfigDTO;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.WebsiteConfigVO;
@@ -11,7 +10,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
@@ -31,18 +33,6 @@ public class WebsiteConfigController {
     public WebsiteConfigController(IWebsiteConfigService websiteConfigService) {
         this.websiteConfigService = websiteConfigService;
     }
-
-    /**
-     * 获取网站配置
-     *
-     * @return 网站配置
-     */
-    @Operation(summary = "获取网站配置", description = "获取网站配置")
-    @GetMapping("/config")
-    public Result<WebsiteConfigDTO> getWebsiteConfig() {
-        return Result.success(websiteConfigService.getWebsiteConfig());
-    }
-
     /**
      * 更新网站配置
      *

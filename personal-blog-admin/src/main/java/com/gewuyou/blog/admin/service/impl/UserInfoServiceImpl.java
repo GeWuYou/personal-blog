@@ -57,6 +57,17 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     }
 
     /**
+     * 根据id查询用户信息
+     *
+     * @param id 用户id
+     * @return 用户信息
+     */
+    @Override
+    public UserInfo selectUserInfoById(Long id) {
+        return baseMapper.selectById(id);
+    }
+
+    /**
      * 更新用户角色
      *
      * @param userRoleVO 用户角色VO
@@ -139,6 +150,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                         .eq(UserAuth::getUserInfoId, id)
         ).getId();
         jwtService.deleteLoginUser(userId);
+        jwtService.deleteToken(userId);
     }
 
     /**

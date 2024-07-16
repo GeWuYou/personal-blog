@@ -88,11 +88,13 @@
         </el-form-item>
         <el-form-item label="资源权限">
           <el-tree
+            ref="resourceTree"
+            node-key="id"
             :data="resources"
+            :empty-text="loading ? '加载中...' : '暂无数据'"
             :default-checked-keys="roleForm.resourceIds"
             show-checkbox
-            node-key="id"
-            ref="resourceTree" />
+          />
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -231,9 +233,9 @@ export default {
       // })
     },
     openMenuModel(role) {
-      this.$nextTick(function() {
-        this.$refs.menuTree.setCheckedKeys([])
-      })
+      // 打开对话框
+      this.roleMenu = true
+      // 设置 roleForm
       this.$refs.roleTitle.innerHTML = role ? '修改角色' : '新增角色'
       if (role != null) {
         this.roleForm = JSON.parse(JSON.stringify(role))
@@ -245,14 +247,28 @@ export default {
           menuIds: []
         }
       }
-      this.roleMenu = true
+      this.$nextTick(() => {
+        this.$refs.menuTree.setCheckedKeys(this.roleForm.menuIds)
+      })
+
+
     },
     openResourceModel(role) {
-      this.$nextTick(function() {
-        this.$refs.resourceTree.setCheckedKeys([])
-      })
-      this.roleForm = JSON.parse(JSON.stringify(role))
+      // 打开对话框
       this.roleResource = true
+      // 设置 roleForm
+      this.roleForm = JSON.parse(JSON.stringify(role))
+      this.$nextTick(() => {
+        // 刷新资源树
+        this.$refs.resourceTree.setCheckedKeys(this.roleForm.resourceIds)
+      })
+
+      // this.$nextTick(function() {
+      //   this.$refs.resourceTree.setCheckedKeys([])
+      // })
+      // console.log(role)
+      // this.roleForm = JSON.parse(JSON.stringify(role))
+      // this.roleResource = true
     },
     saveOrUpdateRoleResource() {
       this.roleForm.menuIds = null

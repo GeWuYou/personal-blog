@@ -101,7 +101,7 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
         CompletableFuture<Long> asyncCategoryCount = CompletableFuture.supplyAsync(serverClient::selectCategoryCount);
         CompletableFuture<Long> asyncTagCount = CompletableFuture.supplyAsync(serverClient::selectTagCount);
         CompletableFuture<Long> asyncTalkCount = CompletableFuture.supplyAsync(serverClient::selectTalkCount);
-        CompletableFuture<WebsiteConfigDTO> asyncWebsiteConfig = CompletableFuture.supplyAsync(websiteConfigService::getWebsiteConfig);
+        CompletableFuture<WebsiteConfigDTO> asyncWebsiteConfig = CompletableFuture.supplyAsync(serverClient.getWebsiteConfig()::getData);
         CompletableFuture<Long> asyncViewCount = CompletableFuture.supplyAsync(() -> {
             Object count = redisService.get(BLOG_VIEWS_COUNT);
             return Long.parseLong(Optional.ofNullable(count).orElse(0).toString());

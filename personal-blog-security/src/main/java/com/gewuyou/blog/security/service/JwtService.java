@@ -19,11 +19,11 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.gewuyou.blog.common.constant.RedisConstant.LOGIN_USER;
+import static com.gewuyou.blog.common.constant.RedisConstant.TOKEN;
 
 /**
  * Jwt服务
@@ -66,19 +66,12 @@ public class JwtService {
      */
     private static final String USERNAME = "userName";
 
-    /**
-     * Jwt创建时间字段
-     */
-    private static final String JWT_CREATE_TIME = "Jwt_creat_time";
-
-
     private final IRedisService redisService;
 
     @Autowired
     private JwtService(IRedisService redisService) {
         this.redisService = redisService;
     }
-
 
 
     /**
@@ -122,22 +115,51 @@ public class JwtService {
         claims.put(USERNAME, userDetailsDTO.getUsername());
         claims.put(USER_ID, userDetailsDTO.getUserAuthId());
         claims.put("Authorities", userDetailsDTO.getAuthorities());
-        // 创建jwt创建时间
-        claims.put(JWT_CREATE_TIME, new Date());
         // 创建token
-        return createToken(claims, tokenExpiration);
+        var token = createToken(claims);
+        // 缓存token
+        cacheToken(userDetailsDTO.getUserAuthId(), token);
+        return token;
+    }
+
+    /**
+     * 缓存登录token
+     *
+     * @param userAuthId 用户认证id
+     * @param token      令牌
+     */
+    private void cacheToken(Long userAuthId, String token) {
+        redisService.hSet(TOKEN, userAuthId.toString(), token, tokenExpiration);
+    }
+
+    /**
+     * 获取登录token
+     *
+     * @param userAuthId 用户认证id
+     * @return java.lang.String 登录token
+     */
+    public String getToken(Long userAuthId) {
+        return (String) redisService.hGet(TOKEN, userAuthId.toString());
+    }
+
+    /**
+     * 删除登录token
+     *
+     * @param userAuthId 用户认证id
+     */
+    public void deleteToken(Long userAuthId) {
+        redisService.hDel(TOKEN, userAuthId.toString());
     }
 
     /**
      * 从数据声明中生成令牌
      *
      * @param claims     数据键值对
-     * @param extendTime 延长时间
      * @return java.lang.String
      * @apiNote
      * @since 2023/7/2 19:50
      */
-    public String createToken(Map<String, Object> claims, long extendTime) {
+    public String createToken(Map<String, Object> claims) {
         return Jwts.builder()
                 .claims()
                 .add(claims)
@@ -146,8 +168,8 @@ public class JwtService {
                 // .id(UUID.randomUUID().toString().replace("-", ""))
                 // 设置颁发者
                 .issuer(issuer)
-                .issuedAt((Date) claims.get(JWT_CREATE_TIME))
-                .expiration(generateExpirationTime((Date) claims.get(JWT_CREATE_TIME), extendTime))
+                // 登录状态由redis缓存，所以不需要设置过期时间
+                // .expiration(generateExpirationTime((Date) claims.get(JWT_CREATE_TIME), extendTime))
                 .and()
                 .signWith(getKey())
                 .compact();
@@ -188,19 +210,6 @@ public class JwtService {
     }
 
     /**
-     * 生成token的失效时间
-     *
-     * @param startTime  开始时间
-     * @param extendTime 延长时间
-     * @return java.util.Date token到期时间
-     * @apiNote
-     * @since 2023/7/2 19:44
-     */
-    private Date generateExpirationTime(Date startTime, long extendTime) {
-        return new Date(startTime.getTime() + extendTime * 1000);
-    }
-
-    /**
      * 判断token是否失效
      *
      * @param token 令牌
@@ -228,25 +237,13 @@ public class JwtService {
      * @since 2023/7/2 20:33
      */
     public boolean isTokenExpired(String token) {
-        Date expiredDate = getExpiredDate(token);
-        return expiredDate.before(new Date());
-    }
-
-
-    /**
-     * 从token中解析过期时间
-     *
-     * @param token 令牌
-     * @return java.util.Date 过期时间
-     * @apiNote
-     * @since 2023/7/2 20:37
-     */
-    private Date getExpiredDate(String token) {
-        Claims claims = parseToken(token);
-        if (claims == null) {
-            throw new IllegalArgumentException();
+        var userDetailsDTO = getUserDetailsDTOFromToken(token);
+        LocalDateTime expireTime = userDetailsDTO.getExpireTime();
+        LocalDateTime currentTime = LocalDateTime.now();
+        if (expireTime == null) {
+            return true;
         }
-        return claims.getExpiration();
+        return currentTime.isAfter(expireTime);
     }
 
 

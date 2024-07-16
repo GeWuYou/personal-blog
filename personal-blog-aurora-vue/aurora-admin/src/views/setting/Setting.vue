@@ -5,7 +5,7 @@
         <div class="info-container">
           <el-upload
             class="avatar-uploader"
-            action="/api/users/avatar"
+            :action="avatarUpload"
             :show-file-list="false"
             :headers="headers"
             :on-success="updateAvatar">
@@ -73,7 +73,8 @@ export default {
         confirmPassword: ''
       },
       activeName: 'info',
-      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') }
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
+      baseUrl: 'http://localhost:8082/api/v1'
     }
   },
   methods: {
@@ -177,6 +178,9 @@ export default {
   computed: {
     avatar() {
       return this.$store.state.userInfo.avatar
+    },
+    avatarUpload() {
+      return this.baseUrl + '/admin/user-info/avatar'
     }
   }
 }

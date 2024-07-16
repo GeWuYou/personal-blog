@@ -3,7 +3,6 @@ package com.gewuyou.blog.server.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.gewuyou.blog.common.dto.ResourceRoleDTO;
 import com.gewuyou.blog.common.dto.RoleDTO;
 import com.gewuyou.blog.common.model.Role;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -38,11 +37,4 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @return 角色列表
      */
     List<RoleDTO> listRoleDTOs(Page<RoleDTO> page, @Param("conditionVO") ConditionVO conditionVO);
-
-    /**
-     * 查询资源角色列表
-     *
-     * @return 资源角色列表
-     */
-    List<ResourceRoleDTO> getResourceRoleDTOs();
 }

@@ -49,8 +49,7 @@ public class UserAuthController {
     @Autowired
     public UserAuthController(
             IUserAuthService userAuthService,
-            HttpSession httpSession
-    ) {
+            HttpSession httpSession) {
         this.userAuthService = userAuthService;
         this.httpSession = httpSession;
     }

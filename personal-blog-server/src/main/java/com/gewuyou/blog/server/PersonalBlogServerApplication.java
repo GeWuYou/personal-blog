@@ -1,7 +1,6 @@
 package com.gewuyou.blog.server;
 
-import com.gewuyou.blog.common.config.entity.MinioProperties;
-import com.gewuyou.blog.common.config.entity.OssConfigProperties;
+import com.gewuyou.blog.security.config.SecurityIgnoreUrl;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,9 +9,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.gewuyou.blog.server", "com.gewuyou.blog.common"})
-@MapperScan(basePackages = {"com.gewuyou.blog.server.mapper", "com.gewuyou.blog.common.mapper"})
-@EnableConfigurationProperties({MinioProperties.class, OssConfigProperties.class})
+@ComponentScan(basePackages = {"com.gewuyou.blog.server", "com.gewuyou.blog.common", "com.gewuyou.blog.security"})
+@MapperScan(basePackages = {"com.gewuyou.blog.server.mapper", "com.gewuyou.blog.common.mapper", "com.gewuyou.blog.security.mapper"})
+@EnableConfigurationProperties({SecurityIgnoreUrl.class})
 @EnableFeignClients
 public class PersonalBlogServerApplication {
 

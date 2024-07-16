@@ -1,9 +1,9 @@
-package com.gewuyou.blog.admin.service;
+package com.gewuyou.blog.server.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gewuyou.blog.common.dto.WebsiteConfigDTO;
 import com.gewuyou.blog.common.model.WebsiteConfig;
-import com.gewuyou.blog.common.vo.WebsiteConfigVO;
 
 /**
  * <p>
@@ -16,9 +16,9 @@ import com.gewuyou.blog.common.vo.WebsiteConfigVO;
 public interface IWebsiteConfigService extends IService<WebsiteConfig> {
 
     /**
-     * 更新网站配置
+     * 获取网站配置
      *
-     * @param websiteConfigVO 网站配置VO
+     * @return 网站配置DTO
      */
-    void updateWebsiteConfig(WebsiteConfigVO websiteConfigVO);
+    WebsiteConfigDTO getWebsiteConfig();
 }

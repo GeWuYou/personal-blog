@@ -4,6 +4,7 @@ package com.gewuyou.blog.admin.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gewuyou.blog.admin.client.ServerClient;
 import com.gewuyou.blog.admin.mapper.ResourceMapper;
 import com.gewuyou.blog.admin.mapper.RoleResourceMapper;
 import com.gewuyou.blog.admin.service.IResourceService;
@@ -40,10 +41,12 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
 
     private final RoleResourceMapper roleResourceMapper;
     private final DynamicSecurityMetadataSource dynamicSecurityMetadataSource;
+    private final ServerClient serverClient;
 
-    public ResourceServiceImpl(RoleResourceMapper roleResourceMapper, DynamicSecurityMetadataSource dynamicSecurityMetadataSource) {
+    public ResourceServiceImpl(RoleResourceMapper roleResourceMapper, DynamicSecurityMetadataSource dynamicSecurityMetadataSource, ServerClient serverClient) {
         this.roleResourceMapper = roleResourceMapper;
         this.dynamicSecurityMetadataSource = dynamicSecurityMetadataSource;
+        this.serverClient = serverClient;
     }
 
     /**
@@ -109,6 +112,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         Resource resource = BeanCopyUtil.copyObject(resourceVO, Resource.class);
         this.saveOrUpdate(resource);
         dynamicSecurityMetadataSource.clearDataSource();
+        serverClient.clearConfigAttributeMap();
     }
 
     /**

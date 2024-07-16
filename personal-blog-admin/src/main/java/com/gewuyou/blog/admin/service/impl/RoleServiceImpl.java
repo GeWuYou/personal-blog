@@ -3,6 +3,7 @@ package com.gewuyou.blog.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gewuyou.blog.admin.client.ServerClient;
 import com.gewuyou.blog.admin.mapper.RoleMapper;
 import com.gewuyou.blog.admin.mapper.RoleMenuMapper;
 import com.gewuyou.blog.admin.mapper.RoleResourceMapper;
@@ -54,18 +55,20 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     private final UserRoleMapper userRoleMapper;
     private final RoleResourceMapper roleResourceMapper;
     private final RoleMenuMapper roleMenuMapper;
+    private final ServerClient serverClient;
 
     @Autowired
     public RoleServiceImpl(IRoleResourceService roleResourceService,
                            IRoleMenuService roleMenuService,
                            DynamicSecurityMetadataSource dynamicSecurityMetadataSource,
-                           UserRoleMapper userRoleMapper, RoleResourceMapper roleResourceMapper, RoleMenuMapper roleMenuMapper) {
+                           UserRoleMapper userRoleMapper, RoleResourceMapper roleResourceMapper, RoleMenuMapper roleMenuMapper, ServerClient serverClient) {
         this.roleResourceService = roleResourceService;
         this.roleMenuService = roleMenuService;
         this.dynamicSecurityMetadataSource = dynamicSecurityMetadataSource;
         this.userRoleMapper = userRoleMapper;
         this.roleResourceMapper = roleResourceMapper;
         this.roleMenuMapper = roleMenuMapper;
+        this.serverClient = serverClient;
     }
 
 
@@ -137,6 +140,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
                     .collect(Collectors.toList());
             roleResourceService.saveBatch(roleResourceList);
             dynamicSecurityMetadataSource.clearDataSource();
+            serverClient.clearConfigAttributeMap();
         }
         if (Objects.nonNull(roleVO.getMenuIds())) {
             if (Objects.nonNull(roleVO.getId())) {

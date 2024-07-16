@@ -6,7 +6,7 @@
           <el-form-item label="作者头像">
             <el-upload
               class="avatar-uploader"
-              action="/api/admin/config/images"
+              :action="avatarUpload"
               :headers="headers"
               :show-file-list="false"
               :before-upload="beforeUpload"
@@ -19,19 +19,19 @@
           <el-form-item label="网站logo">
             <el-upload
               class="avatar-uploader"
-              action="/api/admin/config/images"
+              :action="avatarUpload"
               :headers="headers"
               :show-file-list="false"
               :before-upload="beforeUpload"
               :on-success="handleLogoSuccess">
-              <img v-if="websiteConfigForm.logo" :src="websiteConfigForm.logo" class="avatar" alt="头像" />
+              <img v-if="websiteConfigForm.logo" :src="websiteConfigForm.logo" class="avatar" alt="网站Logo" />
               <i v-else class="el-icon-plus avatar-uploader-icon" />
             </el-upload>
           </el-form-item>
           <el-form-item label="favicon">
             <el-upload
               class="avatar-uploader"
-              action="/api/admin/config/images"
+              :action="avatarUpload"
               :headers="headers"
               :show-file-list="false"
               :before-upload="beforeUpload"
@@ -139,12 +139,13 @@
               <el-form-item label="用户头像">
                 <el-upload
                   class="avatar-uploader"
-                  action="/api/admin/config/images"
+                  :action="avatarUpload"
                   :headers="headers"
                   :show-file-list="false"
                   :before-upload="beforeUpload"
                   :on-success="handleUserAvatarSuccess">
-                  <img v-if="websiteConfigForm.userAvatar" :src="websiteConfigForm.userAvatar" class="avatar" />
+                  <img v-if="websiteConfigForm.userAvatar" :src="websiteConfigForm.userAvatar" class="avatar"
+                       alt="默认用户头像" />
                   <i v-else class="el-icon-plus avatar-uploader-icon" />
                 </el-upload>
               </el-form-item>
@@ -153,12 +154,13 @@
               <el-form-item label="游客头像">
                 <el-upload
                   class="avatar-uploader"
-                  action="/api/admin/config/images"
+                  :action="avatarUpload"
                   :headers="headers"
                   :show-file-list="false"
                   :before-upload="beforeUpload"
                   :on-success="handleTouristAvatarSuccess">
-                  <img v-if="websiteConfigForm.touristAvatar" :src="websiteConfigForm.touristAvatar" class="avatar" />
+                  <img v-if="websiteConfigForm.touristAvatar" :src="websiteConfigForm.touristAvatar" class="avatar"
+                       alt="游客头像" />
                   <i v-else class="el-icon-plus avatar-uploader-icon" />
                 </el-upload>
               </el-form-item>
@@ -182,17 +184,18 @@
               <el-radio :label="0">关闭</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-row style="width: 600px" v-show="websiteConfigForm.isReward == 1">
+          <el-row style="width: 600px" v-show="websiteConfigForm.isReward === 1">
             <el-col :md="12">
               <el-form-item label="微信收款码">
                 <el-upload
                   class="avatar-uploader"
-                  action="/api/admin/config/images"
+                  :action="avatarUpload"
                   :headers="headers"
                   :show-file-list="false"
                   :before-upload="beforeUpload"
                   :on-success="handleWeiXinSuccess">
-                  <img v-if="websiteConfigForm.weiXinQRCode" :src="websiteConfigForm.weiXinQRCode" class="avatar" />
+                  <img v-if="websiteConfigForm.weiXinQRCode" :src="websiteConfigForm.weiXinQRCode" class="avatar"
+                       alt="微信收款码" />
                   <i v-else class="el-icon-plus avatar-uploader-icon" />
                 </el-upload>
               </el-form-item>
@@ -201,12 +204,13 @@
               <el-form-item label="支付宝收款码">
                 <el-upload
                   class="avatar-uploader"
-                  action="/api/admin/config/images"
+                  :action="avatarUpload"
                   :headers="headers"
                   :show-file-list="false"
                   :before-upload="beforeUpload"
                   :on-success="handleAlipaySuccess">
-                  <img v-if="websiteConfigForm.alipayQRCode" :src="websiteConfigForm.alipayQRCode" class="avatar" />
+                  <img v-if="websiteConfigForm.alipayQRCode" :src="websiteConfigForm.alipayQRCode" class="avatar"
+                       alt="支付宝收款码" />
                   <i v-else class="el-icon-plus avatar-uploader-icon" />
                 </el-upload>
               </el-form-item>
@@ -233,12 +237,18 @@ export default {
     return {
       websiteConfigForm: {},
       activeName: 'info',
-      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') }
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
+      baseUrl: 'http://localhost:8082/api/v1'
+    }
+  },
+  computed: {
+    avatarUpload() {
+      return this.baseUrl + '/config/images'
     }
   },
   methods: {
     getWebsiteConfig() {
-      _get('/admin/website/config', {}, (data) => {
+      _get('/server/website/config', {}, (data) => {
         this.websiteConfigForm = data
       })
       // this.axios.get('/api/admin/website/config').then(({ data }) => {

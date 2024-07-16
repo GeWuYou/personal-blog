@@ -5,8 +5,8 @@ spring:
   security:
     ignore:
       urls:
-        - /server/*
         - /admin/user/login
+        - /admin/
         - /admin/report
         - /swagger-ui/**
         - /v3/api-docs/**

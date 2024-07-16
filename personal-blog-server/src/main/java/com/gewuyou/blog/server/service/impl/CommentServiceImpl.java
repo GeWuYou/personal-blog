@@ -9,7 +9,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.common.dto.*;
-import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.CommentTypeEnum;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
@@ -23,12 +22,12 @@ import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.CommentVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.ReviewVO;
-import com.gewuyou.blog.server.consumer.client.AdminClient;
 import com.gewuyou.blog.server.mapper.ArticleMapper;
 import com.gewuyou.blog.server.mapper.CommentMapper;
 import com.gewuyou.blog.server.mapper.TalkMapper;
 import com.gewuyou.blog.server.mapper.UserInfoMapper;
 import com.gewuyou.blog.server.service.ICommentService;
+import com.gewuyou.blog.server.service.IWebsiteConfigService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
@@ -58,13 +57,13 @@ import static com.gewuyou.blog.common.enums.CommentTypeEnum.ARTICLE;
 @Service
 public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> implements ICommentService {
 
+    private final IWebsiteConfigService websiteConfigService;
     @Value("${website.url}")
     private String websiteUrl;
     private static final List<Byte> types = new ArrayList<>();
     private final ArticleMapper articleMapper;
     private final TalkMapper talkMapper;
     private final UserInfoMapper userInfoMapper;
-    private final AdminClient adminClient;
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
 
@@ -72,16 +71,15 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
             ArticleMapper articleMapper,
             TalkMapper talkMapper,
             UserInfoMapper userInfoMapper,
-            AdminClient adminClient,
             RabbitTemplate rabbitTemplate,
-            ObjectMapper objectMapper
-    ) {
+            ObjectMapper objectMapper,
+            IWebsiteConfigService websiteConfigService) {
         this.articleMapper = articleMapper;
         this.talkMapper = talkMapper;
         this.userInfoMapper = userInfoMapper;
-        this.adminClient = adminClient;
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
+        this.websiteConfigService = websiteConfigService;
     }
 
     @PostConstruct
@@ -109,8 +107,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     @Override
     public void saveComment(CommentVO commentVO) {
         this.checkCommentVO(commentVO);
-        Result<WebsiteConfigDTO> websiteConfigResult = adminClient.getWebsiteConfig();
-        WebsiteConfigDTO websiteConfigDTO = websiteConfigResult.getData();
+        WebsiteConfigDTO websiteConfigDTO = websiteConfigService.getWebsiteConfig();
         Byte isCommentReview = websiteConfigDTO.getIsCommentReview();
         commentVO.setCommentContent(HTMLUtil.filter(commentVO.getCommentContent()));
         Comment comment = Comment

@@ -1,8 +1,8 @@
 package com.gewuyou.blog.admin.service.impl;
 
-import com.gewuyou.blog.admin.client.ServerClient;
 import com.gewuyou.blog.admin.mapper.RoleMapper;
 import com.gewuyou.blog.admin.mapper.UserAuthMapper;
+import com.gewuyou.blog.admin.service.IUserInfoService;
 import com.gewuyou.blog.common.dto.UserDetailsDTO;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
@@ -34,22 +34,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserAuthMapper userAuthMapper;
 
-    private final ServerClient serverClient;
-
     private final HttpServletRequest request;
 
     private final RoleMapper roleMapper;
+    private final IUserInfoService userInfoService;
 
     @Autowired
     public UserDetailsServiceImpl(
             UserAuthMapper userAuthMapper,
-            ServerClient serverClient,
             RoleMapper roleMapper,
-            HttpServletRequest request) {
+            HttpServletRequest request, IUserInfoService userInfoService) {
         this.userAuthMapper = userAuthMapper;
-        this.serverClient = serverClient;
         this.roleMapper = roleMapper;
         this.request = request;
+        this.userInfoService = userInfoService;
     }
 
     @Override
@@ -89,7 +87,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetailsDTO encapsulateAndSaveUser(UserAuth userAuth, HttpServletRequest request) {
         log.debug("已执行封装并保存用户信息");
         // 查询用户信息
-        UserInfo userInfo = serverClient.selectUserInfoById(userAuth.getUserInfoId());
+        UserInfo userInfo = userInfoService.selectUserInfoById(userAuth.getUserInfoId());
         log.info("userInfo: {}", userInfo);
         // 查询用户角色
         List<String> roles = roleMapper.listRolesByUserInfoId(userInfo.getId());

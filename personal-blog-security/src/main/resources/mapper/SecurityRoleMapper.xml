@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gewuyou.blog.security.mapper.SecurityRoleMapper">
+    <resultMap id="resourceRoleResultMap" type="com.gewuyou.blog.common.dto.ResourceRoleDTO">
+        <id property="id" column="id"/>
+        <result property="url" column="url"/>
+        <result property="requestMethod" column="request_method"/>
+        <result property="isAnonymous" column="is_anonymous"/>
+        <collection property="roleList" ofType="java.lang.String">
+            <constructor>
+                <arg column="role_name"/>
+            </constructor>
+        </collection>
+    </resultMap>
+    <select id="getResourceRoleDTOs" resultMap="resourceRoleResultMap">
+        SELECT re.id AS id,
+               url,
+               request_method,
+               role_name,
+               is_anonymous
+        FROM tb_resource re
+                 LEFT JOIN tb_role_resource rr ON re.id = rr.resource_id
+                 LEFT JOIN tb_role ro ON rr.role_id = ro.id
+        WHERE re.parent_id IS NOT NULL
+#           AND is_anonymous = 0
+    </select>
+</mapper>
