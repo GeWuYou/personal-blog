@@ -5,6 +5,7 @@ spring:
   security:
     ignore:
       urls:
+        - /admin/blog/**
         - /admin/user/login
         - /admin/
         - /admin/report
@@ -18,26 +19,8 @@ spring:
   application:
     name: personal-blog-admin
   profiles:
-    include: common-log,common-private-mail,common-datasource,common-json,common-upload-private,common-security,common-redis-cache
-#  data:
-#    redis:
-#      # 数据库设置为0号数据库
-#      database: 0
-#      host: 192.168.200.129
-#      port: 6379
-#  cache:
-#    redis:
-#      # 指定是否缓存空值。默认情况下，如果一个方法返回了空值（null），则不会将其缓存起来。
-#      # 将该配置设置为true，可以缓存空值。
-#      cache-null-values: true
-#      # 指定是否启用缓存统计。当设置为true时，Spring Boot会收集关于缓存的统计信息，如缓存命中率、缓存请求次数等。
-#      enable-statistics: false
-#      # 键前缀
-#      key-prefix: cache_
-#      # 指定缓存过期时间
-#      time-to-live: 60s
-#      # 指定是否使用全局键前缀
-#      use-key-prefix: false
+    #    记得切换配置admin-upload-private 为admin-upload
+    include: common-log,common-private-mail,common-datasource,common-json,admin-upload-private,common-security,common-redis-cache
 eureka:
   instance:
     prefer-ip-address: true
@@ -55,14 +38,3 @@ eureka:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-#jwt:
-#  issuer: personal-blog
-#  #JWT存储的请求头
-#  header: Authorization
-#  #令牌前缀
-#  prefix: Bearer
-#  secret: "dtPhqyaNgQZlFqmTTG9IVKR7923QLmm3R7uAi3OKSeo="
-#  expirationTime:
-#    access: 1800000
-#    refresh: 86400000

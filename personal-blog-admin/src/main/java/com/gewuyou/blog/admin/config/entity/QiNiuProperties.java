@@ -1,4 +1,4 @@
-package com.gewuyou.blog.common.config.entity;
+package com.gewuyou.blog.admin.config.entity;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

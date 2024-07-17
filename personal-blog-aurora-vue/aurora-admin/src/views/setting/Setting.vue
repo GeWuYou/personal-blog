@@ -86,7 +86,7 @@ export default {
       }
     },
     updateAvatar(response) {
-      if (response.flag) {
+      if (response.success) {
         this.$message.success(response.message)
         this.$store.commit('updateAvatar', response.data)
       } else {

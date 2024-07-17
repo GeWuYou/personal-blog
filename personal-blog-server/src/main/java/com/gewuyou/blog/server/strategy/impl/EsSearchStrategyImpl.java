@@ -1,8 +1,8 @@
 package com.gewuyou.blog.server.strategy.impl;
 
+import com.gewuyou.blog.client.SearchClient;
 import com.gewuyou.blog.common.dto.EsArticleDTO;
 import com.gewuyou.blog.common.strategy.interfaces.SearchStrategy;
-import com.gewuyou.blog.server.consumer.client.SearchClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

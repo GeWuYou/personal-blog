@@ -245,7 +245,7 @@ export default {
       }
     },
     deleteAlbum() {
-      _delete('/admin/photo/album' + this.albumForum.id, {}, (_, message) => {
+      _delete('/admin/photo/album/' + this.albumForum.id, {}, (_, message) => {
         this.$notify.success({
           title: '成功',
           message: message

@@ -1,6 +1,5 @@
 package com.gewuyou.blog.common.aspect;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.event.ExceptionLogEvent;
@@ -71,7 +70,7 @@ public class ExceptionLogAspect {
                     .ipSource(ipSource)
                     .build();
             applicationContext.publishEvent(new ExceptionLogEvent(exceptionLog));
-        } catch (JsonProcessingException ex) {
+        } catch (Exception ex) {
             log.error("{}", ResponseInformation.LOG_BUILD_FAILED, ex);
         }
     }

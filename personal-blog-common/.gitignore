@@ -33,4 +33,3 @@ build/
 .vscode/
 ### Project ###
 src/main/resources/application-common-private-mail.yml
-src/main/resources/application-common-upload-private.yml

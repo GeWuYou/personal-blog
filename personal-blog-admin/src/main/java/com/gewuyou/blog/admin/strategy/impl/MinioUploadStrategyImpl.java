@@ -1,7 +1,7 @@
 package com.gewuyou.blog.admin.strategy.impl;
 
 
-import com.gewuyou.blog.common.config.entity.MinioProperties;
+import com.gewuyou.blog.admin.config.entity.MinioProperties;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.StatObjectArgs;

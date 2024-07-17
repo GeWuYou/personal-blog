@@ -78,7 +78,7 @@
       <div class="upload-container">
         <el-upload
           v-show="uploads.length > 0"
-          action="/api/v1/admin/photo/upload"
+          :action="uploadPhotoAction"
           list-type="picture-card"
           :file-list="uploads"
           multiple
@@ -92,7 +92,7 @@
           <el-upload
             v-show="uploads.length === 0"
             drag
-            action="/api/v1/admin/photo/upload"
+            :action="uploadPhotoAction"
             multiple
             :headers="headers"
             :before-upload="beforeUpload"
@@ -212,7 +212,13 @@ export default {
       current: 1,
       size: 18,
       count: 0,
-      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') }
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
+      baseUrl: 'http://localhost:8082/api/v1'
+    }
+  },
+  computed: {
+    uploadPhotoAction() {
+      return this.baseUrl + '/admin/photo/upload'
     }
   },
   methods: {

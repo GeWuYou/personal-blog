@@ -2,7 +2,7 @@ package com.gewuyou.blog.admin.strategy.impl;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
-import com.gewuyou.blog.common.config.entity.OssConfigProperties;
+import com.gewuyou.blog.admin.config.entity.OssConfigProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;

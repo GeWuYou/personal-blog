@@ -18,3 +18,9 @@ upload:
     bucket-name: 七牛配置bucketName
     url: http://七牛域名/
     endpoint: 七牛配置endpoint
+  local:
+    url: 本地路径
+spring:
+  web:
+    resources:
+      static-locations: file:${upload.local.url}

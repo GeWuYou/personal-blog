@@ -16,7 +16,10 @@ public enum UploadModeEnum {
 
     MINIO("minio", "minioUploadStrategyImpl"),
 
+    Local("local", "localUploadStrategyImpl"),
+
     QINIU("qiniu", "qiNiuUploadStrategyImpl");
+
 
     private final String mode;
 

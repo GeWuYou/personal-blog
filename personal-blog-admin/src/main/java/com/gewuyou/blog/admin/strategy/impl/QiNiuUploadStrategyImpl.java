@@ -1,6 +1,6 @@
 package com.gewuyou.blog.admin.strategy.impl;
 
-import com.gewuyou.blog.common.config.entity.QiNiuProperties;
+import com.gewuyou.blog.admin.config.entity.QiNiuProperties;
 import com.qiniu.common.QiniuException;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
