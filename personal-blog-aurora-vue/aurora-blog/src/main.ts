@@ -13,7 +13,7 @@ import { registerObSkeleton } from '@/components/LoadingSkeleton'
 import 'prismjs/themes/prism.css'
 import 'prismjs'
 import 'element-plus/theme-chalk/index.css'
-import { components, plugins } from './plugins/element-plus'
+import { components } from './plugins/element-plus'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import infiniteScroll from 'vue3-infinite-scroll-better'
 import v3ImgPreview from 'v3-img-preview'
@@ -87,9 +87,9 @@ axios.interceptors.response.use(
 components.forEach((component) => {
   app.component(component.name, component)
 })
-plugins.forEach((plugin) => {
-  app.use(plugin)
-})
+// plugins.forEach((plugin) => {
+//   app.use(plugin)
+// })
 registerSvgIcon(app)
 registerObSkeleton(app)
 app.mount('#app')

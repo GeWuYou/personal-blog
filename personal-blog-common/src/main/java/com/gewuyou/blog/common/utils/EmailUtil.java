@@ -1,6 +1,8 @@
 package com.gewuyou.blog.common.utils;
 
 import com.gewuyou.blog.common.dto.EmailDTO;
+import com.gewuyou.blog.common.enums.ResponseInformation;
+import com.gewuyou.blog.common.exception.GlobalException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +60,7 @@ public class EmailUtil {
      * @return 发送成功返回true，失败返回false
      * @since 2024/4/16 下午8:26
      */
-    public boolean sendSimpleEmail(String to, String subject, String content) {
+    public void sendSimpleEmail(String to, String subject, String content) {
         try {
             // 创建MimeMessage对象
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -74,10 +76,9 @@ public class EmailUtil {
             messageHelper.setText(content);
             // 发送邮件
             javaMailSender.send(message);
-            return true;
         } catch (MessagingException | UnsupportedEncodingException e) {
             log.error("邮件发送失败", e);
-            return false;
+            throw new GlobalException(ResponseInformation.SEND_EMAIL_FAILED);
         }
     }
 
@@ -101,6 +102,7 @@ public class EmailUtil {
             javaMailSender.send(mimeMessage);
         } catch (MessagingException | UnsupportedEncodingException e) {
             log.error("邮件发送失败", e);
+            throw new GlobalException(ResponseInformation.SEND_EMAIL_FAILED);
         }
     }
 }

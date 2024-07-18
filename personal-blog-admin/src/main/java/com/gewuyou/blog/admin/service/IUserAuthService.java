@@ -10,6 +10,7 @@ import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.model.UserAuth;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.LoginVO;
+import com.gewuyou.blog.common.vo.QQLoginVO;
 import com.gewuyou.blog.common.vo.RegisterVO;
 
 import java.util.List;
@@ -34,23 +35,20 @@ public interface IUserAuthService extends IService<UserAuth> {
 
 
     /**
-     * 发送注册邮件
+     * 发送验证码到邮箱
      *
      * @param email      邮件地址
      * @param sessionId  会话ID
-     * @param isRegister (邮箱)是否注册
-     * @return 是否发送成功
      */
-    boolean sendEmail(String email, String sessionId, boolean isRegister);
+    void sendCodeToEmail(String email, String sessionId);
 
     /**
      * 验证邮箱并注册
      *
      * @param registerVO 注册数据传输类
      * @param sessionId  会话ID
-     * @return 是否注册成功
      */
-    boolean verifyEmailAndRegister(RegisterVO registerVO, String sessionId);
+    void verifyEmailAndRegister(RegisterVO registerVO, String sessionId);
 
     /**
      * 验证验证码
@@ -68,9 +66,8 @@ public interface IUserAuthService extends IService<UserAuth> {
      *
      * @param email    邮箱
      * @param password 密码
-     * @return 是否重置成功
      */
-    boolean resetPassword(String email, String password);
+    void resetPassword(String email, String password);
 
     /**
      * 检查用户名是否存在
@@ -103,4 +100,12 @@ public interface IUserAuthService extends IService<UserAuth> {
      * @return 是否登出成功
      */
     ResponseInformation logout();
+
+    /**
+     * QQ登录
+     *
+     * @param qqLoginVO QQ登录信息
+     * @return 用户信息
+     */
+    UserInfoDTO qqLogin(QQLoginVO qqLoginVO);
 }

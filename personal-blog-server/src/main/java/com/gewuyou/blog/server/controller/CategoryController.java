@@ -50,7 +50,7 @@ public class CategoryController {
      * @return 分类数量
      */
     @RequestMapping("/count")
-    public Long selectCount() {
-        return categoryService.selectCount();
+    public Result<Long> selectCount() {
+        return Result.success(categoryService.selectCount());
     }
 }

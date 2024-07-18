@@ -21,7 +21,7 @@ import { useI18n } from 'vue-i18n'
 import { useTagStore } from '@/stores/tag'
 import { TagItem, TagList } from '@/components/Tag'
 import { useCommonStore } from '@/stores/common'
-import api from '@/api/function'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'Tag',
@@ -37,9 +37,12 @@ export default defineComponent({
       commonStore.resetHeaderImage()
     })
     const fetchTags = () => {
-      api.getAllTags().then(({ data }) => {
-        tagStore.tags = data.data
+      _get('/server/tag/list', {}, (data: any) => {
+        tagStore.tags = data
       })
+      // api.getAllTags().then(({ data }) => {
+      //   tagStore.tags = data.data
+      // })
     }
     return {
       tags: toRef(tagStore.$state, 'tags'),

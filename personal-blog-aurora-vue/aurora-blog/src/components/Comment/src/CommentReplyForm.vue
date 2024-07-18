@@ -34,7 +34,7 @@ import { useUserStore } from '@/stores/user'
 import { useCommentStore } from '@/stores/comment'
 import { useAppStore } from '@/stores/app'
 import { useRoute } from 'vue-router'
-import api from '@/api/function'
+import { _post } from '@/api/api'
 
 export default defineComponent({
   components: {
@@ -78,27 +78,46 @@ export default defineComponent({
         commentContent: reactiveData.commentContent
       }
       params.topicId = arr[2]
-      api.saveComment(params).then(({ data }) => {
-        if (data.flag) {
-          emit('changeShow')
-          fetchReplies()
-          let isCommentReview = appStore.websiteConfig.isCommentReview
-          if (isCommentReview) {
-            proxy.$notify({
-              title: 'Warning',
-              message: '评论成功,正在审核中',
-              type: 'warning'
-            })
-          } else {
-            proxy.$notify({
-              title: 'Success',
-              message: '回复成功',
-              type: 'success'
-            })
-          }
-          reactiveData.commentContent = ''
+      _post('/server/comment', params, () => {
+        emit('changeShow')
+        fetchReplies()
+        let isCommentReview = appStore.websiteConfig.isCommentReview
+        if (isCommentReview) {
+          proxy.$notify({
+            title: 'Warning',
+            message: '评论成功,正在审核中',
+            type: 'warning'
+          })
+        } else {
+          proxy.$notify({
+            title: 'Success',
+            message: '回复成功',
+            type: 'success'
+          })
         }
+        reactiveData.commentContent = ''
       })
+      // api.saveComment(params).then(({ data }) => {
+      //   if (data.flag) {
+      //     emit('changeShow')
+      //     fetchReplies()
+      //     let isCommentReview = appStore.websiteConfig.isCommentReview
+      //     if (isCommentReview) {
+      //       proxy.$notify({
+      //         title: 'Warning',
+      //         message: '评论成功,正在审核中',
+      //         type: 'warning'
+      //       })
+      //     } else {
+      //       proxy.$notify({
+      //         title: 'Success',
+      //         message: '回复成功',
+      //         type: 'success'
+      //       })
+      //     }
+      //     reactiveData.commentContent = ''
+      //   }
+      // })
     }
     const fetchReplies = async () => {
       switch (commentStore.type) {

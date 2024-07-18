@@ -1,9 +1,10 @@
 // 导入异步请求包
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import { requestInterceptor } from '@/api/interceptor'
 
 // 默认的错误信息
-const defaultErrorMessage = (error: any): void => {
-  console.log(error)
+const defaultErrorMessage = (error: any): Promise<never> => {
+  return Promise.reject(error)
 }
 
 // 默认的失败信息
@@ -11,10 +12,10 @@ const defaultFailureMessage = (message: string): void => console.log(message)
 
 // 创建一个axios实例
 const instance: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:8082/api/v1/server',  // 请求的基础路径
+  baseURL: 'http://localhost:8082/api/v1/',  // 请求的基础路径
   timeout: 10000  // 超时，401
 })
-
+instance.interceptors.request.use(requestInterceptor)
 // 定义响应数据类型
 interface ResponseData<T = any> {
   success: boolean;
@@ -76,7 +77,7 @@ function _get<T>(url: string, data: any, success: (data: T, message: string, cod
  * @param error 错误响应回调
  */
 function _put<T>(url: string, data: any, success: (data: T, message: string, code: number) => void, failure: (message: string, code: number) => void = defaultFailureMessage, error: (error: any) => void = defaultErrorMessage): void {
-  instance.put(url, JSON.stringify(data), {
+  instance.put(url, data, {
     headers: {
       'Content-Type': 'application/json'
     }

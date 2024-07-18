@@ -15,7 +15,7 @@
     <div class="article">
       <div class="article-thumbnail">
         <img v-if="article.articleCover" v-lazy="article.articleCover" alt="" />
-        <img v-else src="@/assets/default-cover.jpg" />
+        <img v-else src="@/assets/default-cover.jpg" alt="默认封面" />
         <span class="thumbnail-screen" :style="gradientBackground" />
       </div>
       <div class="article-content">
@@ -85,9 +85,12 @@ import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import emitter from '@/utils/mitt'
+import ObSkeleton from '@/components/LoadingSkeleton/src/Skeleton.vue'
+import SvgIcon from '@/components/SvgIcon/index.vue'
 
 export default defineComponent({
   name: 'ArticleCard',
+  components: { SvgIcon, ObSkeleton },
   props: ['data'],
   setup(props) {
     const proxy: any = getCurrentInstance()?.appContext.config.globalProperties
@@ -106,7 +109,7 @@ export default defineComponent({
           isAccess = true
         }
       })
-      if (props.data.status === 2 && isAccess == false) {
+      if (props.data.status === 2 && !isAccess) {
         if (userStore.userInfo === '') {
           proxy.$notify({
             title: 'Warning',

@@ -79,16 +79,19 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, toRef, getCurrentInstance } from 'vue'
+import { computed, defineComponent, getCurrentInstance, toRef } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { useArticleStore } from '@/stores/article'
 import { useI18n } from 'vue-i18n'
 import emitter from '@/utils/mitt'
+import SvgIcon from '@/components/SvgIcon/index.vue'
+import ObSkeleton from '@/components/LoadingSkeleton/src/Skeleton.vue'
 
 export default defineComponent({
   name: 'HorizontalArticle',
+  components: { ObSkeleton, SvgIcon },
   setup() {
     const proxy: any = getCurrentInstance()?.appContext.config.globalProperties
     const appStore = useAppStore()
@@ -107,7 +110,7 @@ export default defineComponent({
           isAccess = true
         }
       })
-      if (articleStore.topArticle.status == 2 && isAccess == false) {
+      if (articleStore.topArticle.status == 2 && !isAccess) {
         if (userStore.userInfo === '') {
           proxy.$notify({
             title: 'Warning',

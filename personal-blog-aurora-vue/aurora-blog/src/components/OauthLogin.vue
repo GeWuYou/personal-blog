@@ -14,7 +14,7 @@ import { defineComponent, getCurrentInstance } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { useUserStore } from '@/stores/user'
-import api from '@/api/function'
+import { _post } from '@/api/api'
 
 export default defineComponent({
   name: 'OauthLoginModel',
@@ -32,18 +32,28 @@ export default defineComponent({
             openId: openId,
             accessToken: accessToken
           }
-          api.qqLogin(params).then(({ data }) => {
-            if (data.flag) {
-              userStore.userInfo = data.data
-              userStore.token = data.data.token
-              sessionStorage.setItem('token', data.data.token)
-              proxy.$notify({
-                title: 'Success',
-                message: '登录成功',
-                type: 'success'
-              })
-            }
+          _post('/admin/user/oauth/qq', params, (data: any) => {
+            userStore.userInfo = data
+            userStore.token = data.token
+            sessionStorage.setItem('token', data.token)
+            proxy.$notify({
+              title: 'Success',
+              message: '登录成功',
+              type: 'success'
+            })
           })
+          // api.qqLogin(params).then(({ data }) => {
+          //   if (data.flag) {
+          //     userStore.userInfo = data.data
+          //     userStore.token = data.data.token
+          //     sessionStorage.setItem('token', data.data.token)
+          //     proxy.$notify({
+          //       title: 'Success',
+          //       message: '登录成功',
+          //       type: 'success'
+          //     })
+          //   }
+          // })
           if (userStore.currentUrl === '') {
             router.push({ path: '/' })
           } else {

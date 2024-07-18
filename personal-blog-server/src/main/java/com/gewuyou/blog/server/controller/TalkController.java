@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- *
  * 说说表 前端控制器
- *
  *
  * @author gewuyou
  * @since 2024-04-23
@@ -61,8 +59,9 @@ public class TalkController {
     public Result<TalkDTO> getTalkById(@PathVariable("talkId") Integer talkId) {
         return Result.success(talkService.getTalkById(talkId));
     }
+
     @RequestMapping("/count")
-    public Long selectCount() {
-        return talkService.selectCount();
+    public Result<Long> selectCount() {
+        return Result.success(talkService.selectCount());
     }
 }

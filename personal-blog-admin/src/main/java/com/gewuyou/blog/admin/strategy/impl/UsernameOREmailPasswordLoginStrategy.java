@@ -1,5 +1,6 @@
 package com.gewuyou.blog.admin.strategy.impl;
 
+import com.gewuyou.blog.admin.strategy.interfaces.LoginStrategy;
 import com.gewuyou.blog.common.dto.UserDetailsDTO;
 import com.gewuyou.blog.common.dto.UserInfoDTO;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Service;
  * @since 2024-04-25 下午8:13:21
  */
 @Service("usernameOrEmailPasswordLoginStrategy")
-public class UsernameOREmailPasswordLoginStrategy extends AbstractOrdinaryLoginStrategy {
+public class UsernameOREmailPasswordLoginStrategy implements LoginStrategy {
 
     private final AuthenticationManager authenticationManager;
 
@@ -55,9 +56,6 @@ public class UsernameOREmailPasswordLoginStrategy extends AbstractOrdinaryLoginS
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         // 生成token
         String token = jwtService.generateToken((UserDetailsDTO) userDetails);
-        // 设置cookie
-        // response.addHeader("Set-Cookie", "refreshToken=" + refreshToken + ";path=/;HttpOnly");
-        // response.addHeader("Set-Cookie", "accessToken=" + accessToken + ";path=/;HttpOnly");
         // 将信息类转换为dto
         UserDetailsDTO userDetailsDTO = (UserDetailsDTO) userDetails;
         // 将dto转换为info

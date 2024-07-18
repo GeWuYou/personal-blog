@@ -108,7 +108,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public TopAndFeaturedArticlesDTO listTopAndFeaturedArticles() {
         List<ArticleCardDTO> articleCardDTOS = baseMapper.listTopAndFeaturedArticles();
         if (articleCardDTOS.isEmpty()) {
-            return new TopAndFeaturedArticlesDTO();
+            return TopAndFeaturedArticlesDTO
+                    .builder()
+                    .featuredArticles(List.of())
+                    .build();
         } else if (articleCardDTOS.size() > 3) {
             articleCardDTOS = articleCardDTOS.subList(0, 3);
         }
@@ -186,10 +189,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
         // 判断文章是否是私密的
         if (article.getStatus().equals(PRIVATE.getStatus())) {
-            boolean isAccess = redisService.sIsMember(ARTICLE_ACCESS + UserUtil.getUserDetailsDTO().getUserAuthId(), articleId);
-            if (!isAccess) {
-                throw new GlobalException(ResponseInformation.ARTICLE_NOT_ACCESS);
+            try {
+                boolean isAccess = redisService.sIsMember(ARTICLE_ACCESS + UserUtil.getUserDetailsDTO().getUserAuthId(), articleId);
+                if (!isAccess) {
+                    throw new GlobalException(ResponseInformation.ARTICLE_PASSWORD_AUTHENTICATION_FAILED);
+                }
+            } catch (Exception e) {
+                throw new GlobalException(ResponseInformation.ARTICLE_PASSWORD_AUTHENTICATION_FAILED);
             }
+
         }
         // 更新文章访问量
         this.updateArticleViewsCount(articleId);

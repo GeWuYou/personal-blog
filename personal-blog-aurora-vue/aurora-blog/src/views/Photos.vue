@@ -48,7 +48,7 @@ import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { Profile, Sidebar } from '../components/Sidebar'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import { v3ImgPreviewFn } from 'v3-img-preview'
-import api from '@/api/function'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'Photos',
@@ -81,15 +81,24 @@ export default defineComponent({
         current: reactiveData.current,
         size: reactiveData.size
       }
-      api.getPhotosBuAlbumId(reactiveData.albumId, params).then(({ data }) => {
-        if (data.data.photos.length > 0) {
+      _get('/server/photo/' + reactiveData.albumId, params, (data: any) => {
+        if (data.photos.length > 0) {
           reactiveData.current++
-          reactiveData.photoAlbumName = data.data.photoAlbumName
-          reactiveData.photos.push(...data.data.photos)
+          reactiveData.photoAlbumName = data.photoAlbumName
+          reactiveData.photos.push(...data.photos)
         } else {
           reactiveData.noResult = true
         }
       })
+      // api.getPhotosBuAlbumId(reactiveData.albumId, params).then(({ data }) => {
+      //   if (data.data.photos.length > 0) {
+      //     reactiveData.current++
+      //     reactiveData.photoAlbumName = data.data.photoAlbumName
+      //     reactiveData.photos.push(...data.data.photos)
+      //   } else {
+      //     reactiveData.noResult = true
+      //   }
+      // })
     }
     return {
       ...toRefs(reactiveData),

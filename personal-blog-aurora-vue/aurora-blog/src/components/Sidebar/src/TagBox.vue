@@ -22,7 +22,7 @@ import { SubTitle } from '@/components/Title'
 import { useTagStore } from '@/stores/tag'
 import { TagItem, TagList } from '@/components/Tag'
 import { useI18n } from 'vue-i18n'
-import api from '@/api/function'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'ObTag',
@@ -34,9 +34,12 @@ export default defineComponent({
       fetchTopTenTags()
     })
     const fetchTopTenTags = () => {
-      api.getTopTenTags().then(({ data }) => {
-        tagStore.homeTags = data.data
+      _get('/server/tag/topTen', {}, (data: any) => {
+        tagStore.homeTags = data
       })
+      // api.getTopTenTags().then(({ data }) => {
+      //   tagStore.homeTags = data.data
+      // })
     }
     return {
       tags: toRef(tagStore.$state, 'homeTags'),

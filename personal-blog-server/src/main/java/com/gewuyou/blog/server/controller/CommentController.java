@@ -21,9 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- *
  * 评论表 前端控制器
- *
  *
  * @author gewuyou
  * @since 2024-04-23
@@ -93,13 +91,14 @@ public class CommentController {
 
     /**
      * 根据类型获取评论数量
+     *
      * @param type 类型
      * @return Long
      */
     @Parameter(name = "type", description = "类型", in = ParameterIn.PATH, required = true)
     @Operation(summary = "根据类型获取评论数量", description = "根据类型获取评论数量")
     @GetMapping("/count/type/{type}")
-    public Long selectCommentCountByType(@PathVariable("type") Byte type) {
-        return commentService.selectCommentCountByType(type);
+    public Result<Long> selectCommentCountByType(@PathVariable("type") Byte type) {
+        return Result.success(commentService.selectCommentCountByType(type));
     }
 }

@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IUserAuthService;
+import com.gewuyou.blog.common.annotation.AccessLimit;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -29,9 +31,7 @@ import static com.gewuyou.blog.common.constant.MessageConstant.USER_NAME_OR_EMAI
 import static com.gewuyou.blog.common.constant.RegularConstant.USERNAME_REGULARITY;
 
 /**
- *
  * 用户认证信息表 前端控制器
- *
  *
  * @author gewuyou
  * @since 2024-04-21
@@ -92,35 +92,17 @@ public class UserAuthController {
     }
 
     /**
-     * 发送邮件注册接口
+     * 发送验证码
      *
-     * @param registerEmailVO 注册邮箱DTO
+     * @param TargetEmailVO 目标邮箱DTO
      * @return 发送结果
      */
-    @Operation(summary = "发送邮件注册接口", description = "发送邮件注册接口")
-    @PostMapping("/register/email")
-    public Result<String> sendRegisterEmail(@Validated @RequestBody RegisterEmailVO registerEmailVO) {
-        if (userAuthService.sendEmail(registerEmailVO.getEmail(), httpSession.getId(), false)) {
-            return Result.success(ResponseInformation.VERIFICATION_CODE_HAS_BEEN_SENT);
-        } else {
-            return Result.failure(ResponseInformation.SEND_REGISTER_EMAIL_FAILED);
-        }
-    }
-
-    /**
-     * 发送重置密码邮件接口
-     *
-     * @param registerEmailVO 注册邮箱DTO
-     * @return 发送结果
-     */
-    @Operation(summary = "发送重置密码邮件接口", description = "发送重置密码邮件接口")
-    @PostMapping("/reset-password/email")
-    public Result<String> sendResetPasswordEmail(@Validated @RequestBody RegisterEmailVO registerEmailVO) {
-        if (userAuthService.sendEmail(registerEmailVO.getEmail(), httpSession.getId(), true)) {
-            return Result.success(ResponseInformation.VERIFICATION_CODE_HAS_BEEN_SENT);
-        } else {
-            return Result.failure(ResponseInformation.SEND_REGISTER_EMAIL_FAILED);
-        }
+    @Operation(summary = "发送验证码", description = "发送验证码")
+    @AccessLimit(seconds = 60, maxCount = 1)
+    @PostMapping("/code")
+    public Result<String> sendCodeToEmail(@Validated @RequestBody TargetEmailVO TargetEmailVO) {
+        userAuthService.sendCodeToEmail(TargetEmailVO.getEmail(), httpSession.getId());
+        return Result.success(ResponseInformation.VERIFICATION_CODE_HAS_BEEN_SENT);
     }
 
     /**
@@ -144,11 +126,8 @@ public class UserAuthController {
     @Operation(summary = "注册接口", description = "注册接口")
     @PostMapping("/register")
     public Result<String> register(@Validated @RequestBody RegisterVO registerVO) {
-        if (userAuthService.verifyEmailAndRegister(registerVO, httpSession.getId())) {
-            return Result.success(ResponseInformation.REGISTER_SUCCESS);
-        } else {
-            return Result.failure(ResponseInformation.VERIFICATION_CODE_ERROR);
-        }
+        userAuthService.verifyEmailAndRegister(registerVO, httpSession.getId());
+        return Result.success(ResponseInformation.REGISTER_SUCCESS);
     }
 
     /**
@@ -184,13 +163,10 @@ public class UserAuthController {
         if (email == null) {
             return Result.failure(ResponseInformation.PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST);
         }
-        if (userAuthService.resetPassword(email, doResetPasswordVO.getPassword())) {
-            // 重置密码成功，清除会话中的标记
-            httpSession.removeAttribute(SESSION_TAGS);
-            return Result.success(ResponseInformation.RESET_PASSWORD_SUCCESS);
-        } else {
-            return Result.failure(ResponseInformation.SERVER_ERROR);
-        }
+        userAuthService.resetPassword(email, doResetPasswordVO.getPassword());
+        // 清除会话中的标记
+        httpSession.removeAttribute(SESSION_TAGS);
+        return Result.success(ResponseInformation.RESET_PASSWORD_SUCCESS);
     }
 
     /**
@@ -214,5 +190,10 @@ public class UserAuthController {
         } else {
             return Result.success();
         }
+    }
+
+    @PostMapping("/oauth/qq")
+    public Result<UserInfoDTO> qqLogin(@Valid @RequestBody QQLoginVO qqLoginVO) {
+        return Result.success(userAuthService.qqLogin(qqLoginVO));
     }
 }

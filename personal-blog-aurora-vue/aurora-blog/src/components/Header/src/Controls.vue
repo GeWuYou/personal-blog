@@ -123,12 +123,12 @@ import { useCommonStore } from '@/stores/common'
 import { useUserStore } from '@/stores/user'
 import { useRoute, useRouter } from 'vue-router'
 import ThemeToggle from '@/components/ToggleSwitch/ThemeToggle.vue'
-import api from '@/api/function'
 import SearchModel from '@/components/SearchModel.vue'
 import { useSearchStore } from '@/stores/search'
 import config from '@/config/config'
 import { useI18n } from 'vue-i18n'
 import emitter from '@/utils/mitt'
+import { _post, _put } from '@/api/api'
 
 export default defineComponent({
   name: 'Controls',
@@ -184,34 +184,57 @@ export default defineComponent({
       let params = new URLSearchParams()
       params.append('username', loginInfo.username)
       params.append('password', loginInfo.password)
-      api.login(params).then(({ data }) => {
-        if (data.flag) {
-          userStore.userInfo = data.data
-          sessionStorage.setItem('token', data.data.token)
-          userStore.token = data.data.token
-          proxy.$notify({
-            title: 'Success',
-            message: '登录成功',
-            type: 'success'
-          })
-          reactiveDate.loginDialogVisible = false
-        }
+      _post('/admin/user/login', params, (data: any, message: any) => {
+        userStore.userInfo = data
+        sessionStorage.setItem('token', data.token)
+        userStore.token = data.token
+        proxy.$notify({
+          title: 'Success',
+          message: message,
+          type: 'success'
+        })
+        reactiveDate.loginDialogVisible = false
       })
+      // api.login(params).then(({ data }) => {
+      //   if (data.flag) {
+      //     userStore.userInfo = data.data
+      //     sessionStorage.setItem('token', data.data.token)
+      //     userStore.token = data.data.token
+      //     proxy.$notify({
+      //       title: 'Success',
+      //       message: '登录成功',
+      //       type: 'success'
+      //     })
+      //     reactiveDate.loginDialogVisible = false
+      //   }
+      // })
     }
     const logout = () => {
-      api.logout().then(({ data }) => {
-        if (data.flag) {
-          userStore.userInfo = ''
-          userStore.token = ''
-          userStore.accessArticles = []
-          sessionStorage.removeItem('token')
-          proxy.$notify({
-            title: 'Success',
-            message: '登出成功',
-            type: 'success'
-          })
-        }
+      _post('/admin/user/logout', {}, () => {
+        userStore.userInfo = ''
+        userStore.token = ''
+        userStore.accessArticles = []
+        sessionStorage.removeItem('token')
+        proxy.$notify({
+          title: 'Success',
+          message: '登出成功',
+          type: 'success'
+        })
       })
+
+      // api.logout().then(({ data }) => {
+      //   if (data.flag) {
+      //     userStore.userInfo = ''
+      //     userStore.token = ''
+      //     userStore.accessArticles = []
+      //     sessionStorage.removeItem('token')
+      //     proxy.$notify({
+      //       title: 'Success',
+      //       message: '登出成功',
+      //       type: 'success'
+      //     })
+      //   }
+      // })
     }
     const openUserCenter = () => {
       userStore.userVisible = true
@@ -235,15 +258,24 @@ export default defineComponent({
       reactiveDate.forgetPasswordDialogVisible = true
     }
     const sendCode = () => {
-      api.sendValidationCode(loginInfo.username).then(({ data }) => {
-        if (data.flag) {
-          proxy.$notify({
-            title: 'Success',
-            message: '验证码已发送',
-            type: 'success'
-          })
-        }
+      _post('/admin/user/code', {
+        email: loginInfo.username
+      }, (_, message: any) => {
+        proxy.$notify({
+          title: 'Success',
+          message: message,
+          type: 'success'
+        })
       })
+      // api.sendValidationCode(loginInfo.username).then(({ data }) => {
+      //   if (data.flag) {
+      //     proxy.$notify({
+      //       title: 'Success',
+      //       message: '验证码已发送',
+      //       type: 'success'
+      //     })
+      //   }
+      // })
     }
     const register = () => {
       let params = {
@@ -251,17 +283,26 @@ export default defineComponent({
         username: loginInfo.username,
         password: loginInfo.password
       }
-      api.register(params).then(({ data }) => {
-        if (data.flag) {
-          proxy.$notify({
-            title: 'Success',
-            message: '注册成功',
-            type: 'success'
-          })
-          reactiveDate.registerDialogVisible = false
-          reactiveDate.loginDialogVisible = true
-        }
+      _post('/admin/user/register', params, () => {
+        proxy.$notify({
+          title: 'Success',
+          message: '注册成功',
+          type: 'success'
+        })
+        reactiveDate.registerDialogVisible = false
+        reactiveDate.loginDialogVisible = true
       })
+      // api.register(params).then(({ data }) => {
+      //   if (data.flag) {
+      //     proxy.$notify({
+      //       title: 'Success',
+      //       message: '注册成功',
+      //       type: 'success'
+      //     })
+      //     reactiveDate.registerDialogVisible = false
+      //     reactiveDate.loginDialogVisible = true
+      //   }
+      // })
     }
     const handleOpenModel: any = (status: boolean) => {
       searchStore.setOpenModal(status)
@@ -287,17 +328,26 @@ export default defineComponent({
       }
     }
     const updatePassword = () => {
-      api.updatePassword(loginInfo).then(({ data }) => {
-        if (data.flag) {
-          proxy.$notify({
-            title: 'Success',
-            message: '修改成功',
-            type: 'success'
-          })
-          reactiveDate.forgetPasswordDialogVisible = false
-          reactiveDate.loginDialogVisible = true
-        }
+      _put('/admin/user/reset-password', loginInfo, () => {
+        proxy.$notify({
+          title: 'Success',
+          message: '修改成功',
+          type: 'success'
+        })
+        reactiveDate.forgetPasswordDialogVisible = false
+        reactiveDate.loginDialogVisible = true
       })
+      // api.updatePassword(loginInfo).then(({ data }) => {
+      //   if (data.flag) {
+      //     proxy.$notify({
+      //       title: 'Success',
+      //       message: '修改成功',
+      //       type: 'success'
+      //     })
+      //     reactiveDate.forgetPasswordDialogVisible = false
+      //     reactiveDate.loginDialogVisible = true
+      //   }
+      // })
     }
     const accessArticle = () => {
       if (reactiveDate.articlePassword.trim().length == 0) {
@@ -308,18 +358,26 @@ export default defineComponent({
         })
         return
       }
-      api
-        .accessArticle({
-          articleId: reactiveDate.articleId,
-          articlePassword: reactiveDate.articlePassword
-        })
-        .then(({ data }) => {
-          if (data.flag) {
-            reactiveDate.articlePasswordDialogVisible = false
-            userStore.accessArticles.push(reactiveDate.articleId)
-            router.push({ path: '/articles/' + reactiveDate.articleId })
-          }
-        })
+      _post('/server/article/verify', {
+        articleId: reactiveDate.articleId,
+        articlePassword: reactiveDate.articlePassword
+      }, () => {
+        reactiveDate.articlePasswordDialogVisible = false
+        userStore.accessArticles.push(reactiveDate.articleId)
+        router.push({ path: '/articles/' + reactiveDate.articleId })
+      })
+      // api
+      //   .accessArticle({
+      //     articleId: reactiveDate.articleId,
+      //     articlePassword: reactiveDate.articlePassword
+      //   })
+      //   .then(({ data }) => {
+      //     if (data.flag) {
+      //       reactiveDate.articlePasswordDialogVisible = false
+      //       userStore.accessArticles.push(reactiveDate.articleId)
+      //       router.push({ path: '/articles/' + reactiveDate.articleId })
+      //     }
+      //   })
     }
     return {
       handleOpenModel,

@@ -36,6 +36,7 @@ spring:
               - "http://localhost:8081"
               - "http://localhost:8083"
               - "http://localhost:8084"
+              - "http://localhost:8085"
               - "http://localhost:8086"
             allowedMethods: # 允许的跨域ajax的请求方式
               - "GET"

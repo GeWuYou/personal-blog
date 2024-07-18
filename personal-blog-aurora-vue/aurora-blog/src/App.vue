@@ -45,6 +45,7 @@ import Dia from '@/components/Dia.vue'
 import AuroraNavigator from '@/components/AuroraNavigator.vue'
 import UserCenter from '@/components/UserCenter.vue'
 import api from './api/function'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'App',
@@ -83,25 +84,32 @@ export default defineComponent({
       fetchWebsiteConfig()
       let wrapperHeight = screen.height
       const footerEl = document.getElementById('footer')
-      const footerHeight = footerEl?.getBoundingClientRect().height
-      if (typeof footerHeight === 'number') {
-        wrapperHeight = wrapperHeight - footerHeight * 2
-      }
+      const footerHeight = footerEl ? footerEl.getBoundingClientRect().height : 0
+      wrapperHeight -= footerHeight * 2
       wrapperStyle.value = {
         'min-height': wrapperHeight + 'px'
       }
       appStore.initializeTheme(appStore.themeConfig.theme)
     }
     const fetchWebsiteConfig = () => {
-      api.getWebsiteConfig().then(({ data }) => {
-        appStore.viewCount = data.data.viewCount
-        appStore.articleCount = data.data.articleCount
-        appStore.talkCount = data.data.talkCount
-        appStore.categoryCount = data.data.categoryCount
-        appStore.tagCount = data.data.tagCount
-        appStore.websiteConfig = data.data.websiteConfigDTO
-        initFavicon(data.data.websiteConfigDTO.favicon)
+      _get('/admin/system', {}, (data: any) => {
+        appStore.viewCount = data.viewCount
+        appStore.articleCount = data.articleCount
+        appStore.talkCount = data.talkCount
+        appStore.categoryCount = data.categoryCount
+        appStore.tagCount = data.tagCount
+        appStore.websiteConfig = data.websiteConfigDTO
+        initFavicon(data.websiteConfigDTO.favicon)
       })
+      // api.getWebsiteConfig().then(({ data }) => {
+      //   appStore.viewCount = data.data.viewCount
+      //   appStore.articleCount = data.data.articleCount
+      //   appStore.talkCount = data.data.talkCount
+      //   appStore.categoryCount = data.data.categoryCount
+      //   appStore.tagCount = data.data.tagCount
+      //   appStore.websiteConfig = data.data.websiteConfigDTO
+      //   initFavicon(data.data.websiteConfigDTO.favicon)
+      // })
     }
     const copyEventHandler = (event: any) => {
       if (document.getSelection() instanceof Selection) {

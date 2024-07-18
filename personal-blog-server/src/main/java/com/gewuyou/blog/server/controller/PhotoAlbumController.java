@@ -38,7 +38,7 @@ public class PhotoAlbumController {
      * @return 相册列表
      */
     @Operation(summary = "获取相册列表", description = "获取相册列表")
-    @GetMapping
+    @GetMapping("/list")
     public Result<List<PhotoAlbumDTO>> listPhotoAlbums() {
         return Result.success(photoAlbumService.listPhotoAlbumDTOs());
     }

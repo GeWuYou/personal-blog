@@ -38,7 +38,7 @@
           <svg-icon icon-class="chevron" />
         </span>
         <ul class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          <template v-if="haveArticles === true">
+          <template v-if="haveArticles">
             <li v-for="article in articles" :key="article.id">
               <ArticleCard class="home-article" :data="article" />
             </li>
@@ -80,8 +80,8 @@ import { useArticleStore } from '@/stores/article'
 import { useCategoryStore } from '@/stores/Category'
 import { useI18n } from 'vue-i18n'
 import Paginator from '@/components/Paginator.vue'
-import api from '@/api/function'
 import markdownToHtml from '@/utils/markdown'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'Home',
@@ -132,7 +132,22 @@ export default defineComponent({
       articleOffset.value = articleListEl && articleListEl instanceof HTMLElement ? articleListEl.offsetTop + 120 : 0
     })
     const fetchTopAndFeatured = () => {
-      api.getTopAndFeaturedArticles(articleStore)
+      _get('/server/article/top-and-featured', {}, (data: any) => {
+        if (data.topArticle !== null) {
+          data.topArticle.articleContent = markdownToHtml(data.topArticle.articleContent)
+            .replace(/<\/?[^>]*>/g, '')
+            .replace(/[|]*\n/, '')
+            .replace(/&npsp;/gi, '')
+        }
+        data.featuredArticles.forEach((item: any) => {
+          item.articleContent = markdownToHtml(item.articleContent)
+            .replace(/<\/?[^>]*>/g, '')
+            .replace(/[|]*\n/, '')
+            .replace(/&npsp;/gi, '')
+        })
+        articleStore.topArticle = data.topArticle
+        articleStore.featuredArticles = data.featuredArticles
+      })
     }
     const fetchArticles = () => {
       activeTab.value = userStore.tab
@@ -140,53 +155,87 @@ export default defineComponent({
       pagination.current = userStore.page
       if (userStore.tab === 0) {
         reactiveData.haveArticles = false
-        api
-          .getArticles({
+        _get('/server/article/list',
+          {
             current: pagination.current,
             size: pagination.size
-          })
-          .then(({ data }) => {
-            if (data.flag) {
-              data.data.records.forEach((item: any) => {
-                item.articleContent = markdownToHtml(item.articleContent)
-                  .replace(/<\/?[^>]*>/g, '')
-                  .replace(/[|]*\n/, '')
-                  .replace(/&npsp;/gi, '')
-              })
-              articleStore.articles = data.data.records
-              pagination.total = data.data.count
-              reactiveData.haveArticles = true
-            }
-          })
+          }, (data: any) => {
+            data.records.forEach((item: any) => {
+              item.articleContent = markdownToHtml(item.articleContent)
+                .replace(/<\/?[^>]*>/g, '')
+                .replace(/[|]*\n/, '')
+                .replace(/&npsp;/gi, '')
+            })
+            articleStore.articles = data.records
+            pagination.total = data.count
+            reactiveData.haveArticles = true
+          }
+        )
+        // api
+        //   .getArticles({
+        //     current: pagination.current,
+        //     size: pagination.size
+        //   })
+        //   .then(({ data }) => {
+        //     if (data.flag) {
+        //       data.data.records.forEach((item: any) => {
+        //         item.articleContent = markdownToHtml(item.articleContent)
+        //           .replace(/<\/?[^>]*>/g, '')
+        //           .replace(/[|]*\n/, '')
+        //           .replace(/&npsp;/gi, '')
+        //       })
+        //       articleStore.articles = data.data.records
+        //       pagination.total = data.data.count
+        //       reactiveData.haveArticles = true
+        //     }
+        //   })
       } else {
         fetchArticlesByCategoryId(userStore.tab)
       }
     }
     const fetchArticlesByCategoryId = (categoryId: any) => {
       reactiveData.haveArticles = false
-      api
-        .getArticlesByCategoryId({
-          current: pagination.current,
-          size: pagination.size,
-          categoryId: categoryId
+      _get('/server/article/list/capacityId', {
+        current: pagination.current,
+        size: pagination.size,
+        categoryId: categoryId
+      }, (data: any) => {
+        data.records.forEach((item: any) => {
+          item.articleContent = markdownToHtml(item.articleContent)
+            .replace(/<\/?[^>]*>/g, '')
+            .replace(/[|]*\n/, '')
+            .replace(/&npsp;/gi, '')
         })
-        .then(({ data }) => {
-          data.data.records.forEach((item: any) => {
-            item.articleContent = markdownToHtml(item.articleContent)
-              .replace(/<\/?[^>]*>/g, '')
-              .replace(/[|]*\n/, '')
-              .replace(/&npsp;/gi, '')
-          })
-          articleStore.articles = data.data.records
-          pagination.total = data.data.count
-          reactiveData.haveArticles = true
-        })
+        articleStore.articles = data.records
+        pagination.total = data.count
+        reactiveData.haveArticles = true
+      })
+      // api
+      //   .getArticlesByCategoryId({
+      //     current: pagination.current,
+      //     size: pagination.size,
+      //     categoryId: categoryId
+      //   })
+      //   .then(({ data }) => {
+      //     data.data.records.forEach((item: any) => {
+      //       item.articleContent = markdownToHtml(item.articleContent)
+      //         .replace(/<\/?[^>]*>/g, '')
+      //         .replace(/[|]*\n/, '')
+      //         .replace(/&npsp;/gi, '')
+      //     })
+      //     articleStore.articles = data.data.records
+      //     pagination.total = data.data.count
+      //     reactiveData.haveArticles = true
+      //   })
     }
     const fetchCategories = () => {
       categoryStore.categories = []
-      api.getAllCategories().then(({ data }) => {
-        categoryStore.categories.push(...data.data)
+      _get('/server/category/list', {}, (data: any) => {
+        categoryStore.categories.push(...data)
       })
+      // api.getAllCategories().then(({ data }) => {
+      //   categoryStore.categories.push(...data.data)
+      // })
     }
     const expandHandler = () => {
       expanderClass.value.expanded = !expanderClass.value.expanded
@@ -210,8 +259,8 @@ export default defineComponent({
         top: articleOffset.value
       })
     }
-    const activeTabStyle = (catagoryId: any) => {
-      if (catagoryId === activeTab.value) return { background: appStore.themeConfig.header_gradient_css }
+    const activeTabStyle = (categoryId: any) => {
+      if (categoryId === activeTab.value) return { background: appStore.themeConfig.header_gradient_css }
       return {}
     }
     const pageChangeHanlder = (current: number) => {

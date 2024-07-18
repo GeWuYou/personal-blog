@@ -69,7 +69,7 @@ import Paginator from '@/components/Paginator.vue'
 import Avatar from '../components/Avatar.vue'
 import { v3ImgPreviewFn } from 'v3-img-preview'
 import { useRouter } from 'vue-router'
-import api from '@/api/function'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'talkList',
@@ -97,15 +97,24 @@ export default defineComponent({
         current: pagination.current,
         size: pagination.size
       }
-      api.getTalks(params).then(({ data }) => {
-        reactiveData.talks = data.data.records
-        pagination.total = data.data.count
+      _get('/server/talk/list', params, (data: any) => {
+        reactiveData.talks = data.records
+        pagination.total = data.count
         reactiveData.talks.forEach((item: any) => {
           if (item.imgs) {
             reactiveData.images.push(...item.imgs)
           }
         })
       })
+      // api.getTalks(params).then(({ data }) => {
+      //   reactiveData.talks = data.data.records
+      //   pagination.total = data.data.count
+      //   reactiveData.talks.forEach((item: any) => {
+      //     if (item.imgs) {
+      //       reactiveData.images.push(...item.imgs)
+      //     }
+      //   })
+      // })
     }
     const formatTime = (data: any): string => {
       let hours = new Date(data).getHours()

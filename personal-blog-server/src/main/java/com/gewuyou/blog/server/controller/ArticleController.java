@@ -157,8 +157,8 @@ public class ArticleController {
      */
     @Operation(summary = "获取文章总数(不包括删除的文章)", description = "获取文章总数(不包括删除的文章)")
     @GetMapping("/count/not-deleted")
-    public Long selectCountNotDeleted() {
-        return articleService.selectCountNotDeleted();
+    public Result<Long> selectCountNotDeleted() {
+        return Result.success(articleService.selectCountNotDeleted());
     }
 
 

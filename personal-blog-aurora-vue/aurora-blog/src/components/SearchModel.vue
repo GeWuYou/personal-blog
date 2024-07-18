@@ -245,8 +245,8 @@ import { useSearchStore } from '@/stores/search'
 import { computed, defineComponent, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import api from '@/api/function'
 import { useLocalStore } from '@/stores/local'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'SearchModel',
@@ -373,11 +373,11 @@ export default defineComponent({
         let params = {
           keywords: e.target.value
         }
-        api.searchArticles(params).then(({ data }) => {
+        _get('/server/article/search', params, (data: any) => {
           if (curIndex < index) {
             return
           }
-          searchResults.value = data.data
+          searchResults.value = data
           if (searchResults.value.length > 0) {
             resetIndex(searchResults.value.length)
             isEmpty.value = false
@@ -385,6 +385,18 @@ export default defineComponent({
             isEmpty.value = true
           }
         })
+        // api.searchArticles(params).then(({ data }) => {
+        //   if (curIndex < index) {
+        //     return
+        //   }
+        //   searchResults.value = data.data
+        //   if (searchResults.value.length > 0) {
+        //     resetIndex(searchResults.value.length)
+        //     isEmpty.value = false
+        //   } else {
+        //     isEmpty.value = true
+        //   }
+        // })
       } else {
         if (curIndex < index) {
           return

@@ -4,17 +4,16 @@ package com.gewuyou.blog.admin.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.admin.client.ServerClient;
 import com.gewuyou.blog.admin.mapper.UserAuthMapper;
 import com.gewuyou.blog.admin.mapper.UserRoleMapper;
 import com.gewuyou.blog.admin.service.IUserAuthService;
 import com.gewuyou.blog.admin.strategy.context.LoginStrategyContext;
 import com.gewuyou.blog.common.constant.CommonConstant;
-import com.gewuyou.blog.common.dto.PageResultDTO;
-import com.gewuyou.blog.common.dto.UserAdminDTO;
-import com.gewuyou.blog.common.dto.UserAreaDTO;
-import com.gewuyou.blog.common.dto.UserInfoDTO;
+import com.gewuyou.blog.common.dto.*;
 import com.gewuyou.blog.common.enums.LoginTypeEnum;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.enums.RoleEnum;
@@ -24,15 +23,19 @@ import com.gewuyou.blog.common.model.UserAuth;
 import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.model.UserRole;
 import com.gewuyou.blog.common.service.IRedisService;
-import com.gewuyou.blog.common.utils.EmailUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.LoginVO;
+import com.gewuyou.blog.common.vo.QQLoginVO;
 import com.gewuyou.blog.common.vo.RegisterVO;
 import com.gewuyou.blog.security.service.JwtService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +45,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.gewuyou.blog.common.constant.RabbitMQConstant.EMAIL_EXCHANGE;
 import static com.gewuyou.blog.common.constant.RedisConstant.USER_AREA;
 import static com.gewuyou.blog.common.constant.RedisConstant.VISITOR_AREA;
 
@@ -59,8 +63,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
 
     private final UserRoleMapper userRoleMapper;
 
-    private final EmailUtil emailUtil;
-
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
@@ -77,24 +79,26 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
 
     private final LoginStrategyContext loginStrategyContext;
     private final JwtService jwtService;
+    private final RabbitTemplate rabbitTemplate;
+    private final ObjectMapper objectMapper;
 
 
     @Autowired
     public UserAuthServiceImpl(
             IRedisService redisService,
             UserRoleMapper userRoleMapper,
-            EmailUtil emailUtil,
             BCryptPasswordEncoder bCryptPasswordEncoder,
             ServerClient serverClient,
             LoginStrategyContext loginStrategyContext,
-            JwtService jwtService) {
+            JwtService jwtService, RabbitTemplate rabbitTemplate, @Qualifier("objectMapper") ObjectMapper objectMapper) {
         this.redisService = redisService;
         this.userRoleMapper = userRoleMapper;
-        this.emailUtil = emailUtil;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.serverClient = serverClient;
         this.loginStrategyContext = loginStrategyContext;
         this.jwtService = jwtService;
+        this.rabbitTemplate = rabbitTemplate;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -142,23 +146,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      *
      * @param email      邮件地址
      * @param sessionId  会话ID
-     * @param isRegister (邮箱)是否注册
-     * @return 是否发送成功
      */
     @Override
-    public boolean sendEmail(String email, String sessionId, boolean isRegister) {
-        // 判断邮箱是否存在
-        // 如果邮箱已注册，但是数据库中没有该邮箱，则抛出异常
-        Optional<UserAuth> optionalUser = baseMapper.selectByEmail(email);
-        if (isRegister && optionalUser.isEmpty()) {
-            throw new GlobalException(ResponseInformation.USER_EMAIL_NOT_REGISTERED);
-        }
-        // 如果邮箱未注册，但是数据库中存在该邮箱，则抛出异常
-        if (!isRegister && optionalUser.isPresent()) {
-            throw new GlobalException(ResponseInformation.USER_EMAIL_HAS_BEEN_REGISTERED);
-        }
+    public void sendCodeToEmail(String email, String sessionId) {
+        // 先判断邮箱是否合法
         // 设置redis缓存key，用于验证邮箱
-        String redisKey = "email:" + email + ":sessionId:" + sessionId + ":isRegister:" + isRegister;
+        String redisKey = "email:" + email + ":sessionId:" + sessionId;
         // 先判断redis中是否存在该key
         if (Boolean.TRUE.equals(redisService.hasKey(redisKey))) {
             // 获取指定键的剩余过期时间
@@ -175,18 +168,24 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
         }
         // 生成对应的验证码
         int code = random.nextInt(899999) + 100000;
-        // 发送邮件
-        boolean successfullySent = emailUtil.sendSimpleEmail(
-                email,
-                "验证码",
-                "您的验证码是：" + code + "\n验证码有效期为五分钟\n如果不是您获取的验证码，请忽略该邮件!");
-        if (successfullySent) {
-            // 将验证码存入redis
-            redisService.set(redisKey, String.valueOf(code), 300, TimeUnit.SECONDS);
-            return true;
-        } else {
-            return false;
+        var emailDTO = EmailDTO
+                .builder()
+                .email(email)
+                .subject("验证码")
+                .template("common.html")
+                .contentMap(Map.of("content", "您的验证码是：" + code + "\n验证码有效期为五分钟\n如果不是您获取的验证码，请忽略该邮件!"));
+        try {
+            // 发送邮件
+            rabbitTemplate
+                    .convertAndSend(EMAIL_EXCHANGE, "*",
+                            new Message(
+                                    objectMapper.writeValueAsBytes(emailDTO), new MessageProperties()));
+        } catch (JsonProcessingException e) {
+            log.error("发送邮件失败", e);
+            throw new GlobalException(ResponseInformation.JSON_SERIALIZE_ERROR);
         }
+        // 将验证码存入redis
+        redisService.set(redisKey, String.valueOf(code), 300, TimeUnit.SECONDS);
     }
 
     /**
@@ -194,22 +193,25 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      *
      * @param registerVO 注册数据传输类
      * @param sessionId  会话ID
-     * @return 是否注册成功
      */
     @Override
     @Transactional
-    public boolean verifyEmailAndRegister(RegisterVO registerVO, String sessionId) {
+    public void verifyEmailAndRegister(RegisterVO registerVO, String sessionId) {
+        Optional<UserAuth> optionalUser = baseMapper.selectByEmail(registerVO.getEmail());
+        // 如果邮箱已注册，则抛出异常
+        if (optionalUser.isPresent()) {
+            throw new GlobalException(ResponseInformation.USER_EMAIL_HAS_BEEN_REGISTERED);
+        }
         // 验证验证码
         if (!verifyCode(registerVO.getEmail(), registerVO.getVerifyCode(), sessionId, false)) {
-            return false;
+            throw new GlobalException(ResponseInformation.VERIFY_CODE_ERROR);
         }
         // 创建用户数据对象
         UserInfo userInfo = UserInfo.builder()
                 .nickName(CommonConstant.DEFAULT_NICKNAME + IdWorker.getId())
-                // .avatar(auroraInfoService.getWebsiteConfig().getUserAvatar())
+                .avatar(serverClient.getWebsiteConfig().getData().getUserAvatar())
                 .build();
         serverClient.userInfoInsert(userInfo);
-
         // 创建用户角色对象
         UserRole userRole = UserRole.builder()
                 .userId(userInfo.getId())
@@ -226,7 +228,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
                 .createTime(LocalDateTime.now())
                 .build();
         baseMapper.insert(userAuth);
-        return true;
     }
 
 
@@ -266,16 +267,15 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      *
      * @param email    邮箱
      * @param password 密码
-     * @return 是否重置成功
      */
     @Override
-    public boolean resetPassword(String email, String password) {
-        try {
-            baseMapper.updatePasswordByEmail(email, bCryptPasswordEncoder.encode(password));
-        } catch (Exception e) {
-            return false;
+    public void resetPassword(String email, String password) {
+        Optional<UserAuth> optionalUser = baseMapper.selectByEmail(email);
+        // 如果邮箱未注册，则抛出异常
+        if (optionalUser.isEmpty()) {
+            throw new GlobalException(ResponseInformation.USER_EMAIL_HAS_BEEN_REGISTERED);
         }
-        return true;
+        baseMapper.updatePasswordByEmail(email, bCryptPasswordEncoder.encode(password));
     }
 
     /**
@@ -327,6 +327,17 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
         jwtService.deleteLoginUser(UserUtil.getUserDetailsDTO().getUserAuthId());
         jwtService.deleteToken(UserUtil.getUserDetailsDTO().getUserAuthId());
         return ResponseInformation.LOGOUT_SUCCESS;
+    }
+
+    /**
+     * QQ登录
+     *
+     * @param qqLoginVO QQ登录信息
+     * @return 用户信息
+     */
+    @Override
+    public UserInfoDTO qqLogin(QQLoginVO qqLoginVO) {
+        return loginStrategyContext.executeLoginStrategy(qqLoginVO, LoginTypeEnum.QQ);
     }
 
 }

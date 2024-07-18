@@ -5,6 +5,7 @@ import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.security.config.SecurityIgnoreUrl;
 import com.gewuyou.blog.security.service.JwtService;
+import com.gewuyou.blog.security.source.DynamicSecurityMetadataSource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +35,7 @@ import java.util.stream.Stream;
 @Component
 @Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+    private final DynamicSecurityMetadataSource dynamicSecurityMetadataSource;
     @Value("${jwt.header}")
     private String header;
 
@@ -47,11 +50,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     public JwtAuthorizationFilter(
             AuthenticationManager authenticationManager,
             SecurityIgnoreUrl securityIgnoreUrl,
-            JwtService jwtService
-    ) {
+            JwtService jwtService,
+            DynamicSecurityMetadataSource dynamicSecurityMetadataSource) {
         super(authenticationManager);
         this.securityIgnoreUrl = securityIgnoreUrl;
         this.jwtService = jwtService;
+        this.dynamicSecurityMetadataSource = dynamicSecurityMetadataSource;
     }
 
     @Override
@@ -62,6 +66,15 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             log.info("已放行路径：{}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
+        }
+        // 判断当前请求是否是匿名请求
+        var attributes = dynamicSecurityMetadataSource.getAttributes(request);
+        for (ConfigAttribute attribute : attributes) {
+            // 允许匿名访问
+            if ("anonymous".equals(attribute.getAttribute())) {
+                filterChain.doFilter(request, response);
+                return;
+            }
         }
         log.info("验证路径：{}", request.getRequestURI());
         // 从header中获取token

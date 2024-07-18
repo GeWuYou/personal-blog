@@ -1,11 +1,11 @@
 import axios from 'axios'
-import { _get } from '@/api/api'
+import { _get, _post } from '@/api/api'
 import { useArticleStore } from '@/stores/article'
 import markdownToHtml from '@/utils/markdown'
 
 export default {
   getTopAndFeaturedArticles: (articleStore: ReturnType<typeof useArticleStore>) => {
-    return _get('/api/article/top-and-featured', {}, (data: any) => {
+    return _get('/server/article/top-and-featured', {}, (data: any) => {
       data.topArticle.articleContent = markdownToHtml(data.topArticle.articleContent)
         .replace(/<\/?[^>]*>/g, '')
         .replace(/[|]*\n/, '')
@@ -44,12 +44,12 @@ export default {
   getAllArchives: (params: any) => {
     return axios.get('/api/archives/all', { params: params })
   },
-  login: (params: any) => {
-    return axios.post('/api/users/login', params)
-  },
-  saveComment: (params: any) => {
-    return axios.post('/api/comments/save', params)
-  },
+  // login: (params: any) => {
+  //   return axios.post('/api/users/login', params)
+  // },
+  // saveComment: (params: any) => {
+  //   return axios.post('/api/comments/save', params)
+  // },
   getComments: (params: any) => {
     return axios.get('/api/comments', { params: params })
   },
@@ -81,9 +81,9 @@ export default {
   bindingEmail: (params: any) => {
     return axios.put('/api/users/email', params)
   },
-  register: (params: any) => {
-    return axios.post('/api/admin/users/register', params)
-  },
+  // register: (params: any) => {
+  //   return axios.post('/api/admin/users/register', params)
+  // },
   searchArticles: (params: any) => {
     return axios.get('/api/article/search', {
       params: params
@@ -100,11 +100,13 @@ export default {
   getWebsiteConfig: () => {
     return axios.get('/api')
   },
-  qqLogin: (params: any) => {
-    return axios.post('/api/users/oauth/qq', params)
-  },
+  // qqLogin: (params: any) => {
+  //   return axios.post('/api/users/oauth/qq', params)
+  // },
   report: () => {
-    axios.post('/api/admin/report')
+    _post('/admin/report', {}, () => {
+      console.log('report success')
+    })
   },
   getTalks: (params: any) => {
     return axios.get('/api/talks', {
@@ -114,16 +116,16 @@ export default {
   getTalkById: (id: any) => {
     return axios.get('/api/talks/' + id)
   },
-  logout: () => {
-    return axios.post('/api/users/logout')
-  },
+  // logout: () => {
+  //   return axios.post('/api/users/logout')
+  // },
   getRepliesByCommentId: (commentId: any) => {
     return axios.get(`/api/comments/${commentId}/replies`)
   },
-  updatePassword: (params: any) => {
-    return axios.put('/api/users/password', params)
-  },
-  accessArticle: (params: any) => {
-    return axios.post('/api/article/access', params)
-  }
+  // updatePassword: (params: any) => {
+  //   return axios.put('/api/users/password', params)
+  // },
+  // accessArticle: (params: any) => {
+  //   return axios.post('/api/article/access', params)
+  // }
 }

@@ -26,8 +26,8 @@ import { Profile, Sidebar } from '../components/Sidebar'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import { Comment } from '../components/Comment'
 import { useCommentStore } from '@/stores/comment'
-import api from '@/api/function'
 import emitter from '@/utils/mitt'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'Message',
@@ -75,25 +75,38 @@ export default defineComponent({
         current: pageInfo.current,
         size: pageInfo.size
       }
-      api.getComments(params).then(({ data }) => {
+      _get('/server/comment/list', params, (data: any) => {
         if (reactiveData.isReload) {
-          reactiveData.comments = data.data.records
+          reactiveData.comments = data.records
           reactiveData.isReload = false
         } else {
-          reactiveData.comments.push(...data.data.records)
+          reactiveData.comments.push(...data.records)
         }
-        if (data.data.count <= reactiveData.comments.length) {
-          reactiveData.haveMore = false
-        } else {
-          reactiveData.haveMore = true
-        }
+        reactiveData.haveMore = data.count > reactiveData.comments.length
         pageInfo.current++
       })
+      // api.getComments(params).then(({ data }) => {
+      //   if (reactiveData.isReload) {
+      //     reactiveData.comments = data.data.records
+      //     reactiveData.isReload = false
+      //   } else {
+      //     reactiveData.comments.push(...data.data.records)
+      //   }
+      //   if (data.data.count <= reactiveData.comments.length) {
+      //     reactiveData.haveMore = false
+      //   } else {
+      //     reactiveData.haveMore = true
+      //   }
+      //   pageInfo.current++
+      // })
     }
     const fetchReplies = (index: any) => {
-      api.getRepliesByCommentId(reactiveData.comments[index].id).then(({ data }) => {
-        reactiveData.comments[index].replyDTOs = data.data
+      _get('/server/comment/' + reactiveData.comments[index].id + '/replies', {}, (data: any) => {
+        reactiveData.comments[index].replyDTOs = data
       })
+      // api.getRepliesByCommentId(reactiveData.comments[index].id).then(({ data }) => {
+      //   reactiveData.comments[index].replyDTOs = data.data
+      // })
     }
     return {
       ...toRefs(reactiveData),

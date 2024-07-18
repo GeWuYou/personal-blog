@@ -167,10 +167,12 @@ import { v3ImgPreviewFn } from 'v3-img-preview'
 import api from '@/api/function'
 import markdownToHtml from '@/utils/markdown'
 import ObSkeleton from '@/components/LoadingSkeleton/src/Skeleton.vue'
+import { _get } from '@/api/api'
+import SvgIcon from '@/components/SvgIcon/index.vue'
 
 export default defineComponent({
   name: 'Article',
-  components: { ObSkeleton, Sidebar, Comment, SubTitle, ArticleCard, Profile, Sticky, Navigator },
+  components: { SvgIcon, ObSkeleton, Sidebar, Comment, SubTitle, ArticleCard, Profile, Sticky, Navigator },
   setup() {
     const proxy: any = getCurrentInstance()?.appContext.config.globalProperties
     const commonStore = useCommonStore()
@@ -251,7 +253,7 @@ export default defineComponent({
       if (nodes.length) {
         for (let i = 0; i < nodes.length; i++) {
           let node = nodes[i]
-          let reg = /^H[1-4]{1}$/
+          let reg = /^H[1-4]$/
           if (reg.exec(node.tagName)) {
             node.id = i
           }
@@ -277,24 +279,11 @@ export default defineComponent({
     }
     const fetchArticle = () => {
       loading.value = true
-      api.getArticleById(reactiveData.articleId).then(({ data }) => {
-        if (data.code === 52003) {
-          proxy.$notify({
-            title: 'Error',
-            message: '文章密码认证未通过',
-            type: 'error'
-          })
-          router.push({ path: '/出错啦' })
-          return
-        }
-        if (data.data === null) {
-          router.push({ path: '/出错啦' })
-          return
-        }
-        commonStore.setHeaderImage(data.data.articleCover)
+      _get('/server/article/' + reactiveData.articleId, {}, (data: any) => {
+        commonStore.setHeaderImage(data.articleCover)
         new Promise((resolve) => {
-          data.data.articleContent = markdownToHtml(data.data.articleContent)
-          resolve(data.data)
+          data.articleContent = markdownToHtml(data.data.articleContent)
+          resolve(data)
         }).then((article: any) => {
           reactiveData.article = article
           reactiveData.wordNum = Math.round(deleteHTMLTag(article.articleContent).length / 100) / 10 + 'k'
@@ -306,24 +295,78 @@ export default defineComponent({
           })
         })
         new Promise((resolve) => {
-          data.data.preArticleCard.articleContent = markdownToHtml(data.data.preArticleCard.articleContent)
+          data.preArticleCard.articleContent = markdownToHtml(data.preArticleCard.articleContent)
             .replace(/<\/?[^>]*>/g, '')
             .replace(/[|]*\n/, '')
             .replace(/&npsp;/gi, '')
-          resolve(data.data.preArticleCard)
+          resolve(data.preArticleCard)
         }).then((preArticleCard: any) => {
           reactiveData.preArticleCard = preArticleCard
         })
         new Promise((resolve) => {
-          data.data.nextArticleCard.articleContent = markdownToHtml(data.data.nextArticleCard.articleContent)
+          data.nextArticleCard.articleContent = markdownToHtml(data.nextArticleCard.articleContent)
             .replace(/<\/?[^>]*>/g, '')
             .replace(/[|]*\n/, '')
             .replace(/&npsp;/gi, '')
-          resolve(data.data.nextArticleCard)
+          resolve(data.nextArticleCard)
         }).then((nextArticleCard) => {
           reactiveData.nextArticleCard = nextArticleCard
         })
+      }, (message: any) => {
+        proxy.$notify({
+          title: 'Error',
+          message: message,
+          type: 'error'
+        })
+        router.push({ path: '/出错啦' })
       })
+      // api.getArticleById(reactiveData.articleId).then(({ data }) => {
+      //   if (data.code === 52003) {
+      //     proxy.$notify({
+      //       title: 'Error',
+      //       message: '文章密码认证未通过',
+      //       type: 'error'
+      //     })
+      //     router.push({ path: '/出错啦' })
+      //     return
+      //   }
+      //   if (data.data === null) {
+      //     router.push({ path: '/出错啦' })
+      //     return
+      //   }
+      //   commonStore.setHeaderImage(data.data.articleCover)
+      //   new Promise((resolve) => {
+      //     data.data.articleContent = markdownToHtml(data.data.articleContent)
+      //     resolve(data.data)
+      //   }).then((article: any) => {
+      //     reactiveData.article = article
+      //     reactiveData.wordNum = Math.round(deleteHTMLTag(article.articleContent).length / 100) / 10 + 'k'
+      //     reactiveData.readTime = Math.round(deleteHTMLTag(article.articleContent).length / 400) + 'mins'
+      //     loading.value = false
+      //     nextTick(() => {
+      //       Prism.highlightAll()
+      //       initTocbot()
+      //     })
+      //   })
+      //   new Promise((resolve) => {
+      //     data.data.preArticleCard.articleContent = markdownToHtml(data.data.preArticleCard.articleContent)
+      //       .replace(/<\/?[^>]*>/g, '')
+      //       .replace(/[|]*\n/, '')
+      //       .replace(/&npsp;/gi, '')
+      //     resolve(data.data.preArticleCard)
+      //   }).then((preArticleCard: any) => {
+      //     reactiveData.preArticleCard = preArticleCard
+      //   })
+      //   new Promise((resolve) => {
+      //     data.data.nextArticleCard.articleContent = markdownToHtml(data.data.nextArticleCard.articleContent)
+      //       .replace(/<\/?[^>]*>/g, '')
+      //       .replace(/[|]*\n/, '')
+      //       .replace(/&npsp;/gi, '')
+      //     resolve(data.data.nextArticleCard)
+      //   }).then((nextArticleCard) => {
+      //     reactiveData.nextArticleCard = nextArticleCard
+      //   })
+      // })
     }
     const fetchComments = () => {
       const params = {
@@ -332,21 +375,34 @@ export default defineComponent({
         current: pageInfo.current,
         size: pageInfo.size
       }
-      api.getComments(params).then(({ data }) => {
+      _get('/server/comment/list', params, (data: any) => {
         if (reactiveData.isReload) {
-          reactiveData.comments = data.data.records
+          reactiveData.comments = data.records
           reactiveData.isReload = false
         } else {
-          reactiveData.comments.push(...data.data.records)
+          reactiveData.comments.push(...data.records)
         }
-        reactiveData.haveMore = data.data.count > reactiveData.comments.length
+        reactiveData.haveMore = data.count > reactiveData.comments.length
         pageInfo.current++
       })
+      // api.getComments(params).then(({ data }) => {
+      //   if (reactiveData.isReload) {
+      //     reactiveData.comments = data.data.records
+      //     reactiveData.isReload = false
+      //   } else {
+      //     reactiveData.comments.push(...data.data.records)
+      //   }
+      //   reactiveData.haveMore = data.data.count > reactiveData.comments.length
+      //   pageInfo.current++
+      // })
     }
     const fetchReplies = (index: any) => {
-      api.getRepliesByCommentId(reactiveData.comments[index].id).then(({ data }) => {
-        reactiveData.comments[index].replyDTOs = data.data
+      _get('/server/comment/' + reactiveData.comments[index].id + '/replies', {}, (data: any) => {
+        reactiveData.comments[index].replyDTOs = data
       })
+      // api.getRepliesByCommentId(reactiveData.comments[index].id).then(({ data }) => {
+      //   reactiveData.comments[index].replyDTOs = data.data
+      // })
     }
     const handleAuthorClick = (link: string) => {
       if (link === '') link = window.location.href

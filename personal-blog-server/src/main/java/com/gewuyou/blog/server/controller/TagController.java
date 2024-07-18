@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- *
  * 标签表 前端控制器
- *
  *
  * @author gewuyou
  * @since 2024-04-23
@@ -41,8 +39,8 @@ public class TagController {
      */
     @Operation(summary = "获取标签总数", description = "获取标签总数")
     @GetMapping("/count")
-    public Long selectCount() {
-        return tagService.selectCount();
+    public Result<Long> selectCount() {
+        return Result.success(tagService.selectCount());
     }
 
     /**

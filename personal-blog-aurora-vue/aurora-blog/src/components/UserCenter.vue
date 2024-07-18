@@ -81,7 +81,7 @@
 import { computed, defineComponent, getCurrentInstance, reactive, ref, toRef, toRefs } from 'vue'
 import { useUserStore } from '@/stores/user'
 import AvatarCropper from 'vue-avatar-cropper'
-import api from '@/api/function'
+import { _post, _put } from '@/api/api'
 
 export default defineComponent({
   name: 'UserCenter',
@@ -109,17 +109,27 @@ export default defineComponent({
         email: reactiveData.email,
         code: reactiveData.VerificationCode
       }
-      api.bindingEmail(params).then(({ data }) => {
-        if (data.flag) {
-          proxy.$notify({
-            title: 'Success',
-            message: '绑定成功',
-            type: 'success'
-          })
-          userStore.userInfo.email = reactiveData.email
-          reactiveData.emailDialogVisible = false
-        }
+
+      _put('/server/user-info/email', params, () => {
+        proxy.$notify({
+          title: 'Success',
+          message: '绑定成功',
+          type: 'success'
+        })
+        userStore.userInfo.email = reactiveData.email
+        reactiveData.emailDialogVisible = false
       })
+      // api.bindingEmail(params).then(({ data }) => {
+      //   if (data.flag) {
+      //     proxy.$notify({
+      //       title: 'Success',
+      //       message: '绑定成功',
+      //       type: 'success'
+      //     })
+      //     userStore.userInfo.email = reactiveData.email
+      //     reactiveData.emailDialogVisible = false
+      //   }
+      // })
     }
     const handleSuccess = (data: any) => {
       data.response.json().then((data: any) => {
@@ -139,15 +149,22 @@ export default defineComponent({
           userId: userStore.userInfo.userInfoId,
           isSubscribe: userStore.userInfo.isSubscribe
         }
-        api.updateUserSubscribe(params).then(({ data }) => {
-          if (data.flag) {
-            proxy.$notify({
-              title: 'Success',
-              message: '修改成功',
-              type: 'success'
-            })
-          }
+        _put('/server/user-info/subscribe', params, () => {
+          proxy.$notify({
+            title: 'Success',
+            message: '修改成功',
+            type: 'success'
+          })
         })
+        // api.updateUserSubscribe(params).then(({ data }) => {
+        //   if (data.flag) {
+        //     proxy.$notify({
+        //       title: 'Success',
+        //       message: '修改成功',
+        //       type: 'success'
+        //     })
+        //   }
+        // })
       }
     }
     const commit = () => {
@@ -156,26 +173,42 @@ export default defineComponent({
         website: userStore.userInfo.website,
         intro: userStore.userInfo.intro
       }
-      api.submitUserInfo(params).then(({ data }) => {
-        if (data.flag) {
-          proxy.$notify({
-            title: 'Success',
-            message: '修改成功',
-            type: 'success'
-          })
-        }
+      _put('/server/user-info', params, () => {
+        proxy.$notify({
+          title: 'Success',
+          message: '修改成功',
+          type: 'success'
+        })
       })
+      // api.submitUserInfo(params).then(({ data }) => {
+      //   if (data.flag) {
+      //     proxy.$notify({
+      //       title: 'Success',
+      //       message: '修改成功',
+      //       type: 'success'
+      //     })
+      //   }
+      // })
     }
     const sendCode = () => {
-      api.sendValidationCode(reactiveData.email).then(({ data }) => {
-        if (data.flag) {
-          proxy.$notify({
-            title: 'Success',
-            message: '验证码已发送',
-            type: 'success'
-          })
-        }
+      _post('/admin/user/code', {
+        email: reactiveData.email
+      }, (_, message: any) => {
+        proxy.$notify({
+          title: 'Success',
+          message: message,
+          type: 'success'
+        })
       })
+      // api.sendValidationCode(reactiveData.email).then(({ data }) => {
+      //   if (data.flag) {
+      //     proxy.$notify({
+      //       title: 'Success',
+      //       message: '验证码已发送',
+      //       type: 'success'
+      //     })
+      //   }
+      // })
     }
     const beforeChange = () => {
       reactiveData.switchState = true

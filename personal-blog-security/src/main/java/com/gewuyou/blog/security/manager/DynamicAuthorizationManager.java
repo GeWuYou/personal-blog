@@ -1,6 +1,5 @@
 package com.gewuyou.blog.security.manager;
 
-import com.gewuyou.blog.security.config.SecurityIgnoreUrl;
 import com.gewuyou.blog.security.source.DynamicSecurityMetadataSource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -12,14 +11,11 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * 动态授权管理器
@@ -33,14 +29,11 @@ public class DynamicAuthorizationManager implements AuthorizationManager<Request
 
     private final DynamicSecurityMetadataSource dynamicSecurityMetadataSource;
 
-    private final SecurityIgnoreUrl securityIgnoreUrl;
 
     @Autowired
     public DynamicAuthorizationManager(
-            DynamicSecurityMetadataSource dynamicSecurityMetadataSource,
-            SecurityIgnoreUrl securityIgnoreUrl) {
+            DynamicSecurityMetadataSource dynamicSecurityMetadataSource) {
         this.dynamicSecurityMetadataSource = dynamicSecurityMetadataSource;
-        this.securityIgnoreUrl = securityIgnoreUrl;
     }
 
     /**
@@ -55,13 +48,6 @@ public class DynamicAuthorizationManager implements AuthorizationManager<Request
         HttpServletRequest request = requestAuthorizationContext.getRequest();
         // 判断是否是options请求
         if (HttpMethod.OPTIONS.matches(request.getMethod())) {
-            return new AuthorizationDecision(true);
-        }
-        // 判断当前请求是否需要忽略权限检查
-        Stream<AntPathRequestMatcher> matchers = Arrays.stream(securityIgnoreUrl.getUrls()).map(AntPathRequestMatcher::new);
-        // 如果匹配到需要放行的路径，则直接放行
-        if (matchers.anyMatch(matcher -> matcher.matches(request))) {
-            log.info("已放行路径：{}", request.getRequestURI());
             return new AuthorizationDecision(true);
         }
         log.info("检查的URL：{}", request.getRequestURI());

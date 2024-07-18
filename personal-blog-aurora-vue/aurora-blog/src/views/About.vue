@@ -63,6 +63,7 @@ import api from '@/api/function'
 import emitter from '@/utils/mitt'
 import { v3ImgPreviewFn } from 'v3-img-preview'
 import markdownToHtml from '@/utils/markdown'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'About',
@@ -144,14 +145,22 @@ export default defineComponent({
       }
     }
     const fetchAbout = () => {
-      api.getAbout().then(({ data }) => {
-        data.data.content = markdownToHtml(data.data.content)
-        reactiveData.about = data.data.content
+      _get('/server/about', {}, (data: any) => {
+        data.content = markdownToHtml(data.content)
+        reactiveData.about = data.content
         nextTick(() => {
           Prism.highlightAll()
           initTocbot()
         })
       })
+      // api.getAbout().then(({ data }) => {
+      //   data.data.content = markdownToHtml(data.data.content)
+      //   reactiveData.about = data.data.content
+      //   nextTick(() => {
+      //     Prism.highlightAll()
+      //     initTocbot()
+      //   })
+      // })
     }
     const fetchComments = () => {
       const params = {
@@ -160,25 +169,38 @@ export default defineComponent({
         current: pageInfo.current,
         size: pageInfo.size
       }
-      api.getComments(params).then(({ data }) => {
+      _get('/server/comment/list', params, (data: any) => {
         if (reactiveData.isReload) {
-          reactiveData.comments = data.data.records
+          reactiveData.comments = data.records
           reactiveData.isReload = false
         } else {
-          reactiveData.comments.push(...data.data.records)
+          reactiveData.comments.push(...data.records)
         }
-        if (data.data.count <= reactiveData.comments.length) {
-          reactiveData.haveMore = false
-        } else {
-          reactiveData.haveMore = true
-        }
+        reactiveData.haveMore = data.count > reactiveData.comments.length
         pageInfo.current++
       })
+      // api.getComments(params).then(({ data }) => {
+      //   if (reactiveData.isReload) {
+      //     reactiveData.comments = data.data.records
+      //     reactiveData.isReload = false
+      //   } else {
+      //     reactiveData.comments.push(...data.data.records)
+      //   }
+      //   if (data.data.count <= reactiveData.comments.length) {
+      //     reactiveData.haveMore = false
+      //   } else {
+      //     reactiveData.haveMore = true
+      //   }
+      //   pageInfo.current++
+      // })
     }
     const fetchReplies = (index: any) => {
-      api.getRepliesByCommentId(reactiveData.comments[index].id).then(({ data }) => {
-        reactiveData.comments[index].replyDTOs = data.data
+      _get('/server/comment/' + reactiveData.comments[index].id + '/replies', {}, (data: any) => {
+        reactiveData.comments[index].replyDTOs = data
       })
+      // api.getRepliesByCommentId(reactiveData.comments[index].id).then(({ data }) => {
+      //   reactiveData.comments[index].replyDTOs = data.data
+      // })
     }
     return {
       postRef,

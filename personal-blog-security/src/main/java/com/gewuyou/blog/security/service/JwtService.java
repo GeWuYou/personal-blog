@@ -69,7 +69,7 @@ public class JwtService {
     private final IRedisService redisService;
 
     @Autowired
-    private JwtService(IRedisService redisService) {
+    public JwtService(IRedisService redisService) {
         this.redisService = redisService;
     }
 
@@ -116,31 +116,9 @@ public class JwtService {
         claims.put(USER_ID, userDetailsDTO.getUserAuthId());
         claims.put("Authorities", userDetailsDTO.getAuthorities());
         // 创建token
-        var token = createToken(claims);
-        // 缓存token
-        cacheToken(userDetailsDTO.getUserAuthId(), token);
-        return token;
+        return createToken(claims);
     }
 
-    /**
-     * 缓存登录token
-     *
-     * @param userAuthId 用户认证id
-     * @param token      令牌
-     */
-    private void cacheToken(Long userAuthId, String token) {
-        redisService.hSet(TOKEN, userAuthId.toString(), token, tokenExpiration);
-    }
-
-    /**
-     * 获取登录token
-     *
-     * @param userAuthId 用户认证id
-     * @return java.lang.String 登录token
-     */
-    public String getToken(Long userAuthId) {
-        return (String) redisService.hGet(TOKEN, userAuthId.toString());
-    }
 
     /**
      * 删除登录token
@@ -240,8 +218,9 @@ public class JwtService {
         var userDetailsDTO = getUserDetailsDTOFromToken(token);
         LocalDateTime expireTime = userDetailsDTO.getExpireTime();
         LocalDateTime currentTime = LocalDateTime.now();
+        // 如果不设置过期时间，则永不过期
         if (expireTime == null) {
-            return true;
+            return false;
         }
         return currentTime.isAfter(expireTime);
     }

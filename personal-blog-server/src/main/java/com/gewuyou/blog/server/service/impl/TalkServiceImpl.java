@@ -4,6 +4,8 @@ package com.gewuyou.blog.server.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.common.dto.CommentCountDTO;
 import com.gewuyou.blog.common.dto.PageResultDTO;
@@ -17,6 +19,7 @@ import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.server.mapper.CommentMapper;
 import com.gewuyou.blog.server.mapper.TalkMapper;
 import com.gewuyou.blog.server.service.ITalkService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -81,10 +84,7 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
                 .forEach(
                         item -> {
                             item.setCommentCount(commentCountMap.getOrDefault(item.getId(), 0L));
-                            if (Objects.nonNull(item.getImages())) {
-                                item.setImageList(
-                                        CommonUtil.castList(objectMapper.convertValue(item.getImages(), List.class), String.class));
-                            }
+                            setImagesByTalkDTO(item);
                         }
                 );
         return new PageResultDTO<>(talkDTOS, count);
@@ -102,13 +102,23 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
         if (Objects.isNull(talkDTO)) {
             throw new GlobalException(ResponseInformation.TALK_NOT_EXIST);
         }
-        if (Objects.nonNull(talkDTO.getImages())) {
-            talkDTO.setImageList(CommonUtil.castList(objectMapper.convertValue(talkDTO.getImages(), List.class), String.class));
-        }
+        setImagesByTalkDTO(talkDTO);
         CommentCountDTO commentCountDTO = commentMapper.listCommentCountByTypeAndTopicId(CommentTypeEnum.TALK.getType(), talkId);
         if (Objects.nonNull(commentCountDTO)) {
             talkDTO.setCommentCount(commentCountDTO.getCommentCount());
         }
         return talkDTO;
+    }
+
+    private void setImagesByTalkDTO(TalkDTO talkDTO) {
+        if (StringUtils.isNotBlank(talkDTO.getImages())) {
+            try {
+                talkDTO.setImageList(CommonUtil.castList(objectMapper.readValue(talkDTO.getImages(), new TypeReference<List<String>>() {
+                }), String.class));
+            } catch (JsonProcessingException e) {
+                log.error("json deserialize error", e);
+                throw new GlobalException(ResponseInformation.JSON_DESERIALIZE_ERROR);
+            }
+        }
     }
 }

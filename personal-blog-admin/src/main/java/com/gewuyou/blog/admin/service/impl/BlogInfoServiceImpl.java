@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.gewuyou.blog.admin.client.ServerClient;
 import com.gewuyou.blog.admin.service.IBlogInfoService;
 import com.gewuyou.blog.admin.service.IUniqueViewService;
-import com.gewuyou.blog.admin.service.IWebsiteConfigService;
 import com.gewuyou.blog.common.dto.*;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
@@ -48,21 +47,17 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
 
     private final IUniqueViewService uniqueViewService;
 
-    private final IWebsiteConfigService websiteConfigService;
-
 
     @Autowired
     public BlogInfoServiceImpl(
             IRedisService redisService,
             HttpServletRequest request,
             ServerClient serverClient,
-            IWebsiteConfigService websiteConfigService,
             IUniqueViewService uniqueViewService
     ) {
         this.redisService = redisService;
         this.request = request;
         this.serverClient = serverClient;
-        this.websiteConfigService = websiteConfigService;
         this.uniqueViewService = uniqueViewService;
     }
 
@@ -97,10 +92,10 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
      */
     @Override
     public BlogHomeInfoDTO getBlogHomeInfo() {
-        CompletableFuture<Long> asyncArticleCount = CompletableFuture.supplyAsync(serverClient::selectArticleCountNotDeleted);
-        CompletableFuture<Long> asyncCategoryCount = CompletableFuture.supplyAsync(serverClient::selectCategoryCount);
-        CompletableFuture<Long> asyncTagCount = CompletableFuture.supplyAsync(serverClient::selectTagCount);
-        CompletableFuture<Long> asyncTalkCount = CompletableFuture.supplyAsync(serverClient::selectTalkCount);
+        CompletableFuture<Long> asyncArticleCount = CompletableFuture.supplyAsync(serverClient.selectArticleCountNotDeleted()::getData);
+        CompletableFuture<Long> asyncCategoryCount = CompletableFuture.supplyAsync(serverClient.selectCategoryCount()::getData);
+        CompletableFuture<Long> asyncTagCount = CompletableFuture.supplyAsync(serverClient.selectTagCount()::getData);
+        CompletableFuture<Long> asyncTalkCount = CompletableFuture.supplyAsync(serverClient.selectTalkCount()::getData);
         CompletableFuture<WebsiteConfigDTO> asyncWebsiteConfig = CompletableFuture.supplyAsync(serverClient.getWebsiteConfig()::getData);
         CompletableFuture<Long> asyncViewCount = CompletableFuture.supplyAsync(() -> {
             Object count = redisService.get(BLOG_VIEWS_COUNT);
@@ -130,9 +125,9 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
     public BlogAdminInfoDTO getBlogAdminInfo() {
         Object count = redisService.get(BLOG_VIEWS_COUNT);
         Long viewsCount = Long.parseLong(Optional.ofNullable(count).orElse(0).toString());
-        Long messageCount = serverClient.selectCommentCountByType(Byte.valueOf("2"));
+        Long messageCount = serverClient.selectCommentCountByType(Byte.valueOf("2")).getData();
         Long userCount = serverClient.selectUserInfoCount().getData();
-        Long articleCount = serverClient.selectArticleCountNotDeleted();
+        Long articleCount = serverClient.selectArticleCountNotDeleted().getData();
         List<UniqueViewDTO> uniqueViews = uniqueViewService.listUniqueViews();
         List<ArticleStatisticsDTO> articleStatisticsDTOs = serverClient.listArticleStatistics().getData();
         List<CategoryDTO> categoryDTOs = serverClient.listCategories().getData();
@@ -151,6 +146,8 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
         if (CollectionUtils.isNotEmpty(articleMap)) {
             List<ArticleRankDTO> articleRankDTOList = serverClient.listArticleRank(articleMap);
             auroraAdminInfoDTO.setArticleRankDTOs(articleRankDTOList);
+        } else {
+            auroraAdminInfoDTO.setArticleRankDTOs(List.of());
         }
         return auroraAdminInfoDTO;
     }

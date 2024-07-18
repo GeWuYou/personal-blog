@@ -8,3 +8,4 @@ jwt:
   #7天过期时间
   expirationTime: 604800
   refreshTokenTime: 30
+  internal-token: eyJhbGciOiJIUzI1NiJ9.eyJBdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiYWRtaW4ifV0sInVzZXJJZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImlzcyI6InBlcnNvbmFsLWJsb2cifQ.JZ8Rc49ZhSJY1K2r-QEGRfS1CmVLUQ6Py0xF9RQ6zz8

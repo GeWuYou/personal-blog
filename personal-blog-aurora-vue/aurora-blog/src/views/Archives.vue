@@ -59,6 +59,7 @@ import Paginator from '@/components/Paginator.vue'
 import api from '@/api/function'
 import markdownToHtml from '@/utils/markdown'
 import emitter from '@/utils/mitt'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'Archives',
@@ -84,23 +85,38 @@ export default defineComponent({
     })
     const fetchArchives = () => {
       articleStore.archives = ''
-      api
-        .getAllArchives({
-          current: pagination.current,
-          size: pagination.size
-        })
-        .then(({ data }) => {
-          data.data.records.forEach((item: any) => {
-            item.articles.forEach((article: any) => {
-              article.articleContent = markdownToHtml(article.articleContent)
-                .replace(/<\/?[^>]*>/g, '')
-                .replace(/[|]*\n/, '')
-                .replace(/&npsp;/gi, '')
-            })
+      _get('/server/article/list/archives', {
+        current: pagination.current,
+        size: pagination.size
+      }, (data: any) => {
+        data.records.forEach((item: any) => {
+          item.articles.forEach((article: any) => {
+            article.articleContent = markdownToHtml(article.articleContent)
+              .replace(/<\/?[^>]*>/g, '')
+              .replace(/[|]*\n/, '')
+              .replace(/&npsp;/gi, '')
           })
-          articleStore.archives = data.data.records
-          pagination.total = data.data.count
         })
+        articleStore.archives = data.records
+        pagination.total = data.count
+      })
+      // api
+      //   .getAllArchives({
+      //     current: pagination.current,
+      //     size: pagination.size
+      //   })
+      //   .then(({ data }) => {
+      //     data.data.records.forEach((item: any) => {
+      //       item.articles.forEach((article: any) => {
+      //         article.articleContent = markdownToHtml(article.articleContent)
+      //           .replace(/<\/?[^>]*>/g, '')
+      //           .replace(/[|]*\n/, '')
+      //           .replace(/&npsp;/gi, '')
+      //       })
+      //     })
+      //     articleStore.archives = data.data.records
+      //     pagination.total = data.data.count
+      //   })
     }
     const pageChangeHanlder = (current: number) => {
       pagination.current = current

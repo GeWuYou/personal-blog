@@ -52,7 +52,11 @@ public enum ResponseInformation {
     AUTHENTICATION_FAILED(401, "身份验证失败"),
     PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST(401, "请先完成邮箱验证"),
     TOO_MANY_REQUESTS(429, "请求过于频繁,请稍后再试"),
-    ARTICLE_NOT_ACCESS(403, "文章不可访问"),
+    VERIFY_CODE_ERROR(400, "验证码错误"),
+    USER__ACCOUNT_HAS_BEEN_LOCKED(401, "用户帐号已被锁定,请联系管理员解锁"),
+    QQ_LOGIN_ERROR(401, "QQ登录失败"),
+    WEIBO_LOGIN_ERROR(401, "微博登录失败"),
+    WECHAT_LOGIN_ERROR(401, "微信登录失败"),
 
 
     NOT_FOUND(404, "未找到"),
@@ -86,7 +90,7 @@ public enum ResponseInformation {
     USER_NOT_LOGIN_IN(2001, "用户未登录"),
     USERNAME_LOGIN_ERROR(2002, "用户名不存在或者密码错误"),
     USER_EMAIL_LOGIN_ERROR(2002, "邮箱不存在或者密码错误"),
-    SEND_REGISTER_EMAIL_FAILED(2002, "邮件发送失败,请确认邮箱是否有效或联系管理员)"),
+    SEND_EMAIL_FAILED(2002, "邮件发送失败,请确认邮箱是否有效或联系管理员)"),
     USER_ACCOUNT_FORBIDDEN(2003, "账户被禁用"),
     USER_NOT_EXISTS(2004, "用户不存在"),
     USER_HAS_EXISTED(2005, "用户已存在"),
@@ -105,6 +109,10 @@ public enum ResponseInformation {
     FAILED_TO_UPDATE_WEBSITE_CONFIGURATION(4002, "更新网站配置失败"),
     IMPORT_ARTICLE_FAILED(4003, "导入文章失败"),
     GET_COUNT_ERROR(4004, "获取计数失败"),
+    /**
+     * 验证错误
+     */
+    ARTICLE_PASSWORD_AUTHENTICATION_FAILED(5000, "文章密码认证未通过"),
     // 工具错误
     JSON_PARSE_ERROR(500, "JSON解析失败"),
     JSON_SERIALIZE_ERROR(500, "JSON序列化失败"),

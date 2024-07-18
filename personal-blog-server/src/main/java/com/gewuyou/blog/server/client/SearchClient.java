@@ -1,4 +1,4 @@
-package com.gewuyou.blog.client;
+package com.gewuyou.blog.server.client;
 
 import com.gewuyou.blog.common.dto.EsArticleDTO;
 import org.springframework.cloud.openfeign.FeignClient;

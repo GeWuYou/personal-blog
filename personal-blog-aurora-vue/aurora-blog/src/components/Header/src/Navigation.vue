@@ -70,7 +70,7 @@ import { useI18n } from 'vue-i18n'
 import { Dropdown, DropdownItem, DropdownMenu } from '@/components/Dropdown'
 import { isExternal } from '@/utils/validate'
 import config from '@/config/config'
-import api from '@/api/function'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'Navigation',
@@ -92,9 +92,12 @@ export default defineComponent({
       albums: [] as any
     })
     onMounted(() => {
-      api.getAlbums().then(({ data }) => {
-        reactiveData.albums = data.data
+      _get('/server/photo/album/list', {}, (data: any) => {
+        reactiveData.albums = data
       })
+      // api.getAlbums().then(({ data }) => {
+      //   reactiveData.albums = data.data
+      // })
     })
     const openPhotoAlbum = (id: any): void => {
       router.push('/photos/' + id)

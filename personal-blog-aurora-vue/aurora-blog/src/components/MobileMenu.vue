@@ -103,7 +103,7 @@ import { useRouter } from 'vue-router'
 import { useNavigatorStore } from '@/stores/navigator'
 import Social from '@/components/Social.vue'
 import config from '@/config/config'
-import api from '@/api/function'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'ObMobileMenu',
@@ -119,12 +119,15 @@ export default defineComponent({
     })
     onMounted(() => {
       reactiveData.routes = config.routes
-      fetchAblums()
+      fetchAlbums()
     })
-    const fetchAblums = () => {
-      api.getAlbums().then(({ data }) => {
-        reactiveData.albums = data.data
+    const fetchAlbums = () => {
+      _get('/server/photo/album/list', {}, (data: any) => {
+        reactiveData.albums = data
       })
+      // api.getAlbums().then(({ data }) => {
+      //   reactiveData.albums = data.data
+      // })
     }
     const pushPage = (path: string): void => {
       if (!path) return

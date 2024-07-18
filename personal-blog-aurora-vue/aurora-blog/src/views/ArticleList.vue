@@ -30,8 +30,8 @@ import Breadcrumb from '@/components/Breadcrumb.vue'
 import { ArticleCard } from '@/components/ArticleCard'
 import Paginator from '@/components/Paginator.vue'
 import { useRoute } from 'vue-router'
-import api from '@/api/function'
 import markdownToHtml from '@/utils/markdown'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'ArticleList',
@@ -54,23 +54,38 @@ export default defineComponent({
     })
     const fetchArticles = () => {
       reactiveData.haveArticles = false
-      api
-        .getArticlesByTagId({
-          tagId: route.params.tagId,
-          current: pagination.current,
-          size: pagination.size
+      _get('/server/tag/list/tagId', {
+        tagId: route.params.tagId,
+        current: pagination.current,
+        size: pagination.size
+      }, (data: any) => {
+        data.records.forEach((item: any) => {
+          item.articleContent = markdownToHtml(item.articleContent)
+            .replace(/<\/?[^>]*>/g, '')
+            .replace(/[|]*\n/, '')
+            .replace(/&npsp;/gi, '')
         })
-        .then(({ data }) => {
-          data.data.records.forEach((item: any) => {
-            item.articleContent = markdownToHtml(item.articleContent)
-              .replace(/<\/?[^>]*>/g, '')
-              .replace(/[|]*\n/, '')
-              .replace(/&npsp;/gi, '')
-          })
-          reactiveData.articles = data.data.records
-          pagination.total = data.data.count
-          reactiveData.haveArticles = true
-        })
+        reactiveData.articles = data.records
+        pagination.total = data.count
+        reactiveData.haveArticles = true
+      })
+      // api
+      //   .getArticlesByTagId({
+      //     tagId: route.params.tagId,
+      //     current: pagination.current,
+      //     size: pagination.size
+      //   })
+      //   .then(({ data }) => {
+      //     data.data.records.forEach((item: any) => {
+      //       item.articleContent = markdownToHtml(item.articleContent)
+      //         .replace(/<\/?[^>]*>/g, '')
+      //         .replace(/[|]*\n/, '')
+      //         .replace(/&npsp;/gi, '')
+      //     })
+      //     reactiveData.articles = data.data.records
+      //     pagination.total = data.data.count
+      //     reactiveData.haveArticles = true
+      //   })
     }
     const backToPageTop = () => {
       window.scrollTo({

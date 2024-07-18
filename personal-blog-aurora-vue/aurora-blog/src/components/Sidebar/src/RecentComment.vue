@@ -39,7 +39,7 @@ import { defineComponent, onMounted, toRef } from 'vue'
 import { SubTitle } from '@/components/Title'
 import { useCommentStore } from '@/stores/comment'
 import { useI18n } from 'vue-i18n'
-import api from '@/api/function'
+import { _get } from '@/api/api'
 
 export default defineComponent({
   name: 'RecentComment',
@@ -51,15 +51,24 @@ export default defineComponent({
       initRecentComment()
     })
     const initRecentComment = () => {
-      api.getTopSixComments().then(({ data }) => {
-        if (data.data.length === 0) {
+      _get('/server/comment/topSix', {}, (data: any) => {
+        if (data.length === 0) {
           commentStore.recentComment = []
         }
-        data.data.forEach((itme: any) => {
-          itme.createTime = formatTime(itme.createTime)
+        data.forEach((item: any) => {
+          item.createTime = formatTime(item.createTime)
         })
-        commentStore.recentComment = data.data
+        commentStore.recentComment = data
       })
+      // api.getTopSixComments().then(({ data }) => {
+      //   if (data.data.length === 0) {
+      //     commentStore.recentComment = []
+      //   }
+      //   data.data.forEach((itme: any) => {
+      //     itme.createTime = formatTime(itme.createTime)
+      //   })
+      //   commentStore.recentComment = data.data
+      // })
     }
     const formatTime = (time: any): any => {
       let date = new Date(time)

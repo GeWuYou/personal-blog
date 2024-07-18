@@ -16,7 +16,7 @@ import static com.gewuyou.blog.common.constant.RegularConstant.EMAIL_REGULARITY;
  */
 @Schema(description = "注册电子邮件数据传输类")
 @Data
-public class RegisterEmailVO {
+public class TargetEmailVO {
     /**
      * 邮箱
      */
