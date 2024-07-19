@@ -86,10 +86,11 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
     @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateArticle(ArticleVO articleVO) {
         // 保存文章分类
-        categoryService.saveCategoryByArticleVO(articleVO);
+        var categoryId = categoryService.saveCategoryByArticleVO(articleVO);
         // 转换VO为实体
         Article article = BeanCopyUtil.copyObject(articleVO, Article.class);
         article.setUserId(UserUtil.getUserDetailsDTO().getUserInfoId());
+        article.setCategoryId(categoryId);
         // 保存
         this.saveOrUpdate(article);
         // 保存文章标签

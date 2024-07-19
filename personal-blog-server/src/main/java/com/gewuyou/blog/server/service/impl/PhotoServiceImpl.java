@@ -54,6 +54,7 @@ public class PhotoServiceImpl extends ServiceImpl<PhotoMapper, Photo> implements
                 .eq(PhotoAlbum::getId, albumId)
                 .eq(PhotoAlbum::getIsDelete, FALSE)
                 .eq(PhotoAlbum::getStatus, PUBLIC.getStatus()));
+        // 检查相册是否存在
         if (Objects.isNull(photoAlbum)) {
             throw new GlobalException(ResponseInformation.ALBUM_NOT_EXISTS);
         }

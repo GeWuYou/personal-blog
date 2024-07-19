@@ -82,10 +82,14 @@ import { useI18n } from 'vue-i18n'
 import Paginator from '@/components/Paginator.vue'
 import markdownToHtml from '@/utils/markdown'
 import { _get } from '@/api/api'
+import ObSkeleton from '@/components/LoadingSkeleton/src/Skeleton.vue'
+import SvgIcon from '@/components/SvgIcon/index.vue'
 
 export default defineComponent({
   name: 'Home',
   components: {
+    SvgIcon,
+    ObSkeleton,
     Feature,
     FeatureList,
     ArticleCard,
@@ -145,7 +149,7 @@ export default defineComponent({
             .replace(/[|]*\n/, '')
             .replace(/&npsp;/gi, '')
         })
-        articleStore.topArticle = data.topArticle
+        articleStore.topArticle = data.topArticle || {}
         articleStore.featuredArticles = data.featuredArticles
       })
     }
@@ -195,7 +199,7 @@ export default defineComponent({
     }
     const fetchArticlesByCategoryId = (categoryId: any) => {
       reactiveData.haveArticles = false
-      _get('/server/article/list/capacityId', {
+      _get('/server/article/list/categoryId', {
         current: pagination.current,
         size: pagination.size,
         categoryId: categoryId

@@ -26,12 +26,12 @@ import java.time.LocalDateTime;
 @TableName("tb_article")
 @Schema(name = "Article对象", description = "文章表")
 public class Article extends BaseModel implements Serializable {
-
     @Builder
-    public Article(LocalDateTime createTime, LocalDateTime updateTime, Long id, Long userId, String articleCover, String articleAbstract, String articleTitle, String articleContent, Byte status, Byte type, String password, String originalUrl, Byte isTop, Byte isFeatured, Byte isDelete) {
+    public Article(LocalDateTime createTime, LocalDateTime updateTime, Long id, Long userId, Long categoryId, String articleCover, String articleAbstract, String articleTitle, String articleContent, Byte status, Byte type, String password, String originalUrl, Byte isTop, Byte isFeatured, Byte isDelete) {
         super(createTime, updateTime);
         this.id = id;
         this.userId = userId;
+        this.categoryId = categoryId;
         this.articleCover = articleCover;
         this.articleAbstract = articleAbstract;
         this.articleTitle = articleTitle;
@@ -44,6 +44,7 @@ public class Article extends BaseModel implements Serializable {
         this.isFeatured = isFeatured;
         this.isDelete = isDelete;
     }
+
 
     @Serial
     private static final long serialVersionUID = 1L;

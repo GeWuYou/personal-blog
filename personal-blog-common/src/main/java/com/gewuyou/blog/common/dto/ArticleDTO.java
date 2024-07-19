@@ -1,17 +1,15 @@
 package com.gewuyou.blog.common.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.gewuyou.blog.common.model.Tag;
-import com.gewuyou.blog.common.model.UserInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+
 
 /**
  * 文章 DTO
@@ -22,6 +20,8 @@ import java.util.List;
 @Schema(description = "文章 DTO")
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ArticleDTO {
     /**
      * 文章 ID
@@ -33,7 +33,7 @@ public class ArticleDTO {
      * 作者信息
      */
     @Schema(description = "作者信息")
-    private UserInfo author;
+    private AuthorArticleDTO author;
 
     /**
      * 文章标题
@@ -111,17 +111,13 @@ public class ArticleDTO {
      * 文章创建时间
      */
     @Schema(description = "文章创建时间")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime createTime;
+    private Date createTime;
 
     /**
      * 文章更新时间
      */
     @Schema(description = "文章更新时间")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime updateTime;
+    private Date updateTime;
 
     /**
      * 上一篇文章卡片DTO

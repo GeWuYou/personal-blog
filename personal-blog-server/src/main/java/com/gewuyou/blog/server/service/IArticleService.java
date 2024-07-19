@@ -53,10 +53,10 @@ public interface IArticleService extends IService<Article> {
     /**
      * 根据分类id查询文章列表
      *
-     * @param capacityId 分类id
+     * @param categoryId 分类id
      * @return 文章列表卡片DTO
      */
-    PageResultDTO<ArticleCardDTO> listArticleCardDTOsByCategoryId(Long capacityId);
+    PageResultDTO<ArticleCardDTO> listArticleCardDTOsByCategoryId(Long categoryId);
 
     /**
      * 根据标签id查询文章

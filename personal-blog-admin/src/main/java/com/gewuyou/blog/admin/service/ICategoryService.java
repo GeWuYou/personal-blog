@@ -27,8 +27,9 @@ public interface ICategoryService extends IService<Category> {
      * 根据文章VO保存分类
      *
      * @param articleVO 文章VO
+     * @return 分类ID
      */
-    void saveCategoryByArticleVO(ArticleVO articleVO);
+    Long saveCategoryByArticleVO(ArticleVO articleVO);
 
 
     /**

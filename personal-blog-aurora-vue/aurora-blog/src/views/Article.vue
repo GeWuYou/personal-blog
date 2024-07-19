@@ -164,7 +164,6 @@ import Prism from 'prismjs'
 import tocbot from 'tocbot'
 import emitter from '@/utils/mitt'
 import { v3ImgPreviewFn } from 'v3-img-preview'
-import api from '@/api/function'
 import markdownToHtml from '@/utils/markdown'
 import ObSkeleton from '@/components/LoadingSkeleton/src/Skeleton.vue'
 import { _get } from '@/api/api'
@@ -279,10 +278,13 @@ export default defineComponent({
     }
     const fetchArticle = () => {
       loading.value = true
+      if (reactiveData.articleId === null || reactiveData.articleId === undefined) {
+        return
+      }
       _get('/server/article/' + reactiveData.articleId, {}, (data: any) => {
         commonStore.setHeaderImage(data.articleCover)
         new Promise((resolve) => {
-          data.articleContent = markdownToHtml(data.data.articleContent)
+          data.articleContent = markdownToHtml(data.articleContent)
           resolve(data)
         }).then((article: any) => {
           reactiveData.article = article

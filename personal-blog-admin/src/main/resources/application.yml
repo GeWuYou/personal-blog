@@ -20,7 +20,7 @@ spring:
     name: personal-blog-admin
   profiles:
     #    记得切换配置admin-upload-private 为admin-upload
-    include: common-log,common-private-mail,common-datasource,common-json,admin-upload-private,common-security,common-redis-cache
+    include: common-log,common-private-mail,common-datasource,common-json,admin-upload-private,common-security,common-redis-cache,common-rabbitmq
 eureka:
   instance:
     prefer-ip-address: true

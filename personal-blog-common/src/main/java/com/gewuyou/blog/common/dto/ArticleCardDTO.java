@@ -1,15 +1,10 @@
 package com.gewuyou.blog.common.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.gewuyou.blog.common.model.Tag;
-import com.gewuyou.blog.common.model.UserInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,18 +45,18 @@ public class ArticleCardDTO {
      * 是否置顶
      */
     @Schema(description = "是否置顶")
-    private Integer isTop;
+    private Byte isTop;
     /**
      * 是否推荐
      */
     @Schema(description = "是否推荐")
-    private Integer isFeatured;
+    private Byte isFeatured;
 
     /**
      * 文章作者
      */
     @Schema(description = "文章作者")
-    private UserInfo author;
+    private AuthorArticleDTO author;
 
     /**
      * 文章分类名称
@@ -85,15 +80,11 @@ public class ArticleCardDTO {
      * 文章创建时间
      */
     @Schema(description = "文章创建时间")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime createTime;
+    private Date createTime;
 
     /**
      * 文章更新时间
      */
     @Schema(description = "文章更新时间")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime updateTime;
+    private Date updateTime;
 }

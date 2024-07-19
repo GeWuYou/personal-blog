@@ -23,6 +23,7 @@ import com.gewuyou.blog.common.model.UserAuth;
 import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.model.UserRole;
 import com.gewuyou.blog.common.service.IRedisService;
+import com.gewuyou.blog.common.utils.CommonUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -144,8 +145,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     /**
      * 发送邮件
      *
-     * @param email      邮件地址
-     * @param sessionId  会话ID
+     * @param email     邮件地址
+     * @param sessionId 会话ID
      */
     @Override
     public void sendCodeToEmail(String email, String sessionId) {
@@ -166,8 +167,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
             // 如果过期时间小于四分钟则允许重新发送邮件，删除原先的键
             redisService.delete(redisKey);
         }
-        // 生成对应的验证码
-        int code = random.nextInt(899999) + 100000;
+        var code = CommonUtil.getRandomCode(6);
         var emailDTO = EmailDTO
                 .builder()
                 .email(email)
@@ -185,7 +185,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
             throw new GlobalException(ResponseInformation.JSON_SERIALIZE_ERROR);
         }
         // 将验证码存入redis
-        redisService.set(redisKey, String.valueOf(code), 300, TimeUnit.SECONDS);
+        redisService.set(redisKey, code, 300, TimeUnit.SECONDS);
     }
 
     /**

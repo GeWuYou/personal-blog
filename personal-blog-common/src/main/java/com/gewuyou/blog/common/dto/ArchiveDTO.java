@@ -1,8 +1,10 @@
 package com.gewuyou.blog.common.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -15,6 +17,8 @@ import java.util.List;
 @Schema(description = "归档 DTO")
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ArchiveDTO {
     /**
      * 时间

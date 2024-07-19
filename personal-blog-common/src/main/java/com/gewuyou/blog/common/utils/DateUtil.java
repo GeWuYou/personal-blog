@@ -61,6 +61,15 @@ public class DateUtil {
     }
 
     /**
+     * 将 Date 转换为 LocalDateTime
+     *
+     * @param date 需要转换的 Date
+     * @return 转换后的 LocalDateTime
+     */
+    public static LocalDateTime convertToLocalDateTime(Date date) {
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+    /**
      * 将 LocalDateTime 转换为 Date
      *
      * @param dateTime 需要转换的 LocalDateTime

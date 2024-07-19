@@ -10,6 +10,7 @@ import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Article;
 import com.gewuyou.blog.common.model.ArticleTag;
 import com.gewuyou.blog.common.service.IRedisService;
+import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ArticleAccessPasswordVO;
@@ -151,19 +152,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     /**
      * 根据分类id查询文章列表
      *
-     * @param capacityId 分类id
+     * @param categoryId 分类id
      * @return 文章列表卡片DTO
      */
     @Override
-    public PageResultDTO<ArticleCardDTO> listArticleCardDTOsByCategoryId(Long capacityId) {
+    public PageResultDTO<ArticleCardDTO> listArticleCardDTOsByCategoryId(Long categoryId) {
         LambdaQueryWrapper<Article> queryWrapper =
                 new LambdaQueryWrapper<Article>()
                         .eq(Article::getIsDelete, FALSE)
-                        .eq(Article::getCategoryId, capacityId)
-                        .in(Article::getStatus, PUBLIC, PRIVATE);
+                        .eq(Article::getCategoryId, categoryId)
+                        .in(Article::getStatus, PUBLIC.getStatus(), PRIVATE.getStatus());
         CompletableFuture<Long> asyncCount = CompletableFuture.supplyAsync(() -> baseMapper.selectCount(queryWrapper));
         Page<ArticleCardDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
-        List<ArticleCardDTO> articleCardDTOS = baseMapper.listArticleCardDTOsByCategoryId(page, capacityId);
+        List<ArticleCardDTO> articleCardDTOS = baseMapper.listArticleCardDTOsByCategoryId(page, categoryId).getRecords();
         try {
             return new PageResultDTO<>(articleCardDTOS, asyncCount.get());
         } catch (InterruptedException | ExecutionException e) {
@@ -299,7 +300,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         Map<String, List<ArticleCardDTO>> map = new HashMap<>();
         // 遍历文章卡片DTO，将其按年份和月份归档
         for (ArticleCardDTO articleCardDTO : articleCardDTOS) {
-            LocalDateTime createTime = articleCardDTO.getCreateTime();
+            LocalDateTime createTime = DateUtil.convertToLocalDateTime(articleCardDTO.getCreateTime());
             int month = createTime.getMonth().getValue();
             int year = createTime.getYear();
             String key = year + "-" + month;

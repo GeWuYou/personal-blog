@@ -10,7 +10,7 @@
         c.create_time AS createTime
         FROM
         tb_category c
-        LEFT JOIN tb_article a ON c.id = a.id
+        LEFT JOIN tb_article a ON c.id = a.category_id
         <where>
             <if test="conditionVO.keywords!=null">
                 category_name LIKE CONCAT('%', #{conditionVO.keywords}, '%')

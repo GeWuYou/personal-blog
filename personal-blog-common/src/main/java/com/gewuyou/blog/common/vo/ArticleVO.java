@@ -48,10 +48,10 @@ public class ArticleVO {
     private List<String> tagNames;
 
     @Schema(description = "是否置顶", type = "integer", example = "1")
-    private Integer isTop;
+    private Byte isTop;
 
     @Schema(description = "是否推荐", type = "integer", example = "1")
-    private Integer isFeatured;
+    private Byte isFeatured;
 
     @Schema(description = "文章状态", type = "integer", example = "1")
     private Byte status;

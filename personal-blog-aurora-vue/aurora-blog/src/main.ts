@@ -12,8 +12,8 @@ import { registerSvgIcon } from '@/icons'
 import { registerObSkeleton } from '@/components/LoadingSkeleton'
 import 'prismjs/themes/prism.css'
 import 'prismjs'
+import ElementPlus from 'element-plus'
 import 'element-plus/theme-chalk/index.css'
-import { components } from './plugins/element-plus'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import infiniteScroll from 'vue3-infinite-scroll-better'
 import v3ImgPreview from 'v3-img-preview'
@@ -35,6 +35,7 @@ export const app = createApp(App)
     loading: require('@/assets/default-cover.jpg'),
     error: require('@/assets/default-cover.jpg')
   })
+  .use(ElementPlus)
 const userStore = useUserStore()
 axios.interceptors.request.use((config: any) => {
   config.headers['Authorization'] = 'Bearer ' + sessionStorage.getItem('token')
@@ -84,9 +85,9 @@ axios.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-components.forEach((component) => {
-  app.component(component.name, component)
-})
+// components.forEach((component) => {
+//   app.component(component.name, component)
+// })
 // plugins.forEach((plugin) => {
 //   app.use(plugin)
 // })

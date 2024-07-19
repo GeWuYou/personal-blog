@@ -27,3 +27,6 @@ website:
   url: http://localhost:8084
 search:
   mode: elasticsearch
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

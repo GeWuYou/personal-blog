@@ -63,14 +63,14 @@ public class ArticleController {
     /**
      * 根据文章分类id获取文章列表
      *
-     * @param capacityId 文章分类id
+     * @param categoryId 文章分类id
      * @return PageResultDTO<ArticleCardDTO>
      */
     @Parameter(name = "capacityId", description = "文章分类id", in = ParameterIn.QUERY, required = true)
     @Operation(summary = "根据文章分类id获取文章列表", description = "根据文章分类id获取文章列表")
-    @GetMapping("/list/capacityId")
-    public Result<PageResultDTO<ArticleCardDTO>> listArticlesByCategoryId(@RequestParam Long capacityId) {
-        return Result.success(articleService.listArticleCardDTOsByCategoryId(capacityId));
+    @GetMapping("/list/categoryId")
+    public Result<PageResultDTO<ArticleCardDTO>> listArticlesByCategoryId(@RequestParam Long categoryId) {
+        return Result.success(articleService.listArticleCardDTOsByCategoryId(categoryId));
     }
 
     /**

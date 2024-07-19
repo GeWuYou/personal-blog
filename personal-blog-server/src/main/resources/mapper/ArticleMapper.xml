@@ -12,7 +12,7 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="categoryName" column="category_name"/>
-        <association property="author" javaType="com.gewuyou.blog.common.model.UserInfo">
+        <association property="author" javaType="com.gewuyou.blog.common.dto.AuthorArticleDTO">
             <result property="nickName" column="author_nickname"/>
             <result property="website" column="author_website"/>
             <result property="avatar" column="author_avatar"/>
@@ -21,65 +21,105 @@
             <result property="tagName" column="tag_name"/>
         </collection>
     </resultMap>
-    <select id="listTopAndFeaturedArticles" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
-        SELECT a.id                 AS id,
-               a.category_id        AS category_id,
+    <resultMap id="ArticleAdminResultMap" type="com.gewuyou.blog.common.dto.ArticleAdminDTO">
+        <id property="id" column="id"/>
+        <result property="articleCover" column="article_cover"/>
+        <result property="articleTitle" column="article_title"/>
+        <result property="isTop" column="is_top"/>
+        <result property="isFeatured" column="is_featured"/>
+        <result property="isDelete" column="is_delete"/>
+        <result property="status" column="status"/>
+        <result property="type" column="type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="categoryName" column="category_name"/>
+        <collection property="tagDTOs" ofType="com.gewuyou.blog.common.dto.TagDTO">
+            <id column="tag_id" property="id"/>
+            <result column="tag_name" property="tagName"/>
+        </collection>
+    </resultMap>
+    <resultMap id="ArticleDTOResultMap" type="com.gewuyou.blog.common.dto.ArticleDTO">
+        <id property="id" column="id"/>
+        <result property="articleCover" column="article_cover"/>
+        <result property="articleTitle" column="article_title"/>
+        <result property="articleContent" column="article_content"/>
+        <result property="isTop" column="is_top"/>
+        <result property="isFeatured" column="is_featured"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="type" column="type"/>
+        <result property="originalUrl" column="original_url"/>
+        <association property="author" javaType="com.gewuyou.blog.common.dto.AuthorArticleDTO">
+            <result property="nickName" column="author_nickname"/>
+            <result property="website" column="author_website"/>
+            <result property="avatar" column="author_avatar"/>
+        </association>
+        <collection property="tags" ofType="com.gewuyou.blog.common.model.Tag">
+            <result property="tagName" column="tag_name"/>
+        </collection>
+    </resultMap>
+    <select id="listTopAndFeaturedArticles" resultMap="ArticleCardDTOResultMap">
+        SELECT a.id          AS id,
+               a.category_id AS category_id,
                article_cover,
-#                文章摘要，如果该字段为空，默认取文章前500个字符作为摘要
-               if(article_abstract IS NULL OR article_abstract = '', SUBSTR(article_content, 500),
-                  article_abstract) AS article_content,
+               if(
+                       COALESCE(article_abstract, '') = '',
+                       SUBSTR(article_content, 1, 500),
+                       article_abstract
+               )             AS article_content,
                article_title,
                status,
                is_top,
                is_featured,
-               a.create_time        AS create_time,
-               a.update_time        AS update_time,
-               nick_name            AS author_nickname,
-               avatar               AS author_avatar,
-               website              AS author_website,
-               tag_name
-        FROM (
-#         查询所有文章
-                 SELECT id,
-                        category_id,
-                        user_id,
-                        article_cover,
-                        article_abstract,
-                        article_title,
-                        article_content,
-                        status,
-                        is_top,
-                        is_featured,
-                        is_delete,
-                        create_time,
-                        update_time
-                 FROM tb_article) a
-                 LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON at.id = t.id
+               a.create_time AS create_time,
+               a.update_time AS update_time,
+               nick_name     AS author_nickname,
+               avatar        AS author_avatar,
+               website       AS author_website,
+               tag_name,
+               category_name
+        FROM (SELECT id,
+                     category_id,
+                     user_id,
+                     article_cover,
+                     article_abstract,
+                     article_title,
+                     article_content,
+                     status,
+                     is_top,
+                     is_featured,
+                     is_delete,
+                     create_time,
+                     update_time
+              FROM tb_article) a
+                 LEFT JOIN tb_article_tag at ON a.id = at.article_id
+                 LEFT JOIN tb_tag t ON at.tag_id = t.id
                  LEFT JOIN tb_category c ON a.category_id = c.id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
         WHERE a.is_delete = 0
-#           文章状态为私密或公开
           AND a.status in (1, 2)
         ORDER BY is_top DESC, is_featured DESC
 
     </select>
-    <select id="listArticleCardDTOs" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
-        SELECT a.id                 AS id,
-               a.category_id        AS category_id,
+    <select id="listArticleCardDTOs" resultMap="ArticleCardDTOResultMap">
+        SELECT a.id          AS id,
+               a.category_id AS category_id,
                article_cover,
-#                文章摘要，如果该字段为空，默认取文章前500个字符作为摘要
-               if(article_abstract IS NULL OR article_abstract = '', SUBSTR(article_content, 500),
-                  article_abstract) AS article_content,
+               if(
+                       COALESCE(article_abstract, '') = '',
+                       SUBSTR(article_content, 1, 500),
+                       article_abstract
+               )             AS article_content,
                article_title,
+               category_name,
                status,
                is_top,
                is_featured,
-               a.create_time        AS create_time,
-               a.update_time        AS update_time,
-               nick_name            AS author_nickname,
-               avatar               AS author_avatar,
-               website              AS author_website,
+               a.create_time AS create_time,
+               a.update_time AS update_time,
+               nick_name     AS author_nickname,
+               avatar        AS author_avatar,
+               website       AS author_website,
                tag_name
         FROM (SELECT id,
                      category_id,
@@ -98,28 +138,31 @@
               WHERE is_delete = 0
                 AND status IN (1, 2)
               ORDER BY id DESC) a
-                 LEFT JOIN tb_article_tag at ON a.id = at.id
-
-                 LEFT JOIN tb_tag t ON at.id = t.id
+                 LEFT JOIN tb_article_tag at ON a.id = at.article_id
+                 LEFT JOIN tb_tag t ON at.tag_id = t.id
                  LEFT JOIN tb_category c ON a.category_id = c.id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
-    <select id="listArticleCardDTOsByCategoryId" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
-        SELECT a.id                 AS id,
-               a.category_id        AS category_id,
+    <select id="listArticleCardDTOsByCategoryId" resultMap="ArticleCardDTOResultMap">
+        SELECT a.id          AS id,
+               a.category_id AS category_id,
                article_cover,
-#                文章摘要，如果该字段为空，默认取文章前500个字符作为摘要
-               if(article_abstract IS NULL OR article_abstract = '', SUBSTR(article_content, 500),
-                  article_abstract) AS article_content,
+               if(COALESCE(article_abstract, '') = '',
+                  SUBSTR(article_content, 1, 500),
+                  article_abstract
+               )             AS article_content,
                article_title,
                status,
+               is_delete,
+               status,
+               category_name,
                is_top,
                is_featured,
-               a.create_time        AS create_time,
-               a.update_time        AS update_time,
-               nick_name            AS author_nickname,
-               avatar               AS author_avatar,
-               website              AS author_website,
+               a.create_time AS create_time,
+               a.update_time AS update_time,
+               nick_name     AS author_nickname,
+               avatar        AS author_avatar,
+               website       AS author_website,
                tag_name
         FROM (SELECT id,
                      category_id,
@@ -139,47 +182,29 @@
                 AND is_delete = 0
                 AND status IN (1, 2)
               ORDER BY id DESC) a
-                 LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON at.id = t.id
+                 LEFT JOIN tb_article_tag at ON a.id = at.article_id
+                 LEFT JOIN tb_tag t ON at.tag_id = t.id
                  LEFT JOIN tb_category c ON a.category_id = c.id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
-    <resultMap id="ArticleDTOResultMap" type="com.gewuyou.blog.common.dto.ArticleDTO">
-        <id property="id" column="id"/>
-        <result property="articleCover" column="article_cover"/>
-        <result property="articleTitle" column="article_title"/>
-        <result property="articleContent" column="article_content"/>
-        <result property="isTop" column="is_top"/>
-        <result property="isFeatured" column="is_featured"/>
-        <result property="createTime" column="create_time"/>
-        <result property="updateTime" column="update_time"/>
-        <result property="categoryName" column="category_name"/>
-        <result property="type" column="type"/>
-        <result property="originalUrl" column="original_url"/>
-        <association property="author" javaType="com.gewuyou.blog.common.model.UserInfo">
-            <result property="nickName" column="author_nickname"/>
-            <result property="website" column="author_website"/>
-            <result property="avatar" column="author_avatar"/>
-        </association>
-        <collection property="tags" ofType="com.gewuyou.blog.common.model.Tag">
-            <result property="tagName" column="tag_name"/>
-        </collection>
-    </resultMap>
-    <select id="getArticleCardDTOById" resultType="com.gewuyou.blog.common.dto.ArticleDTO">
+
+    <select id="getArticleCardDTOById" resultMap="ArticleDTOResultMap">
         SELECT a.id            AS id,
                article_cover   AS article_cover,
                article_title   AS article_title,
                article_content AS article_content,
                is_top,
                is_featured,
+               is_delete,
+               status,
                type,
                original_url,
+               category_name AS category_name,
                a.create_time   AS create_time,
                a.update_time   AS update_time,
                ui.nick_name    AS author_nickname,
                ui.website      AS author_website,
                ui.avatar       AS author_avatar,
-               c.category_name AS category_name,
                tag_name
         FROM (SELECT id,
                      category_id,
@@ -201,29 +226,32 @@
                 AND is_delete = 0
                 AND status IN (1, 2)) a
                  LEFT JOIN tb_article_tag at
-                           ON a.id = at.id
+                           ON a.id = at.article_id
                  LEFT JOIN tb_tag t
-                           ON t.id = at.id
+                           ON t.id = at.tag_id
                  LEFT JOIN tb_category c
                            ON c.id = a.category_id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
-    <select id="getPreArticleCardDTOById" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
-        SELECT a.id                 AS id,
-               a.category_id        AS category_id,
+    <select id="getPreArticleCardDTOById" resultMap="ArticleCardDTOResultMap">
+        SELECT a.id          AS id,
+               a.category_id AS category_id,
                article_cover,
-#                文章摘要，如果该字段为空，默认取文章前500个字符作为摘要
-               if(article_abstract IS NULL OR article_abstract = '', SUBSTR(article_content, 500),
-                  article_abstract) AS article_content,
+               if(COALESCE(article_abstract, '') = '',
+                  SUBSTR(article_content, 1, 500),
+                  article_abstract
+               )             AS article_content,
                article_title,
                status,
                is_top,
                is_featured,
-               a.create_time        AS create_time,
-               a.update_time        AS update_time,
-               nick_name            AS author_nickname,
-               avatar               AS author_avatar,
-               website              AS author_website,
+               status,
+               category_name,
+               a.create_time AS create_time,
+               a.update_time AS update_time,
+               nick_name     AS author_nickname,
+               avatar        AS author_avatar,
+               website       AS author_website,
                tag_name
         FROM (SELECT id,
                      category_id,
@@ -239,34 +267,35 @@
                      create_time,
                      update_time
               FROM tb_article
-#               按id降序排序获取小于当前id的第一条文章
               WHERE id &lt; #{articleId}
                 AND is_delete = 0
                 AND status IN (1, 2)
               ORDER BY id DESC
               limit 0,1) a
-                 LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON t.id = at.id
-                 LEFT JOIN tb_category c ON t.id = at.id
+                 LEFT JOIN tb_article_tag at ON a.id = at.article_id
+                 LEFT JOIN tb_tag t ON t.id = at.tag_id
+                 LEFT JOIN tb_category c ON t.id = a.category_id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
-    <select id="getNextArticleCardDTOById" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
-        SELECT a.id                 AS id,
-               a.category_id        AS category_id,
+    <select id="getNextArticleCardDTOById" resultMap="ArticleCardDTOResultMap">
+        SELECT a.id          AS id,
+               a.category_id AS category_id,
                article_cover,
-#                文章摘要，如果该字段为空，默认取文章前500个字符作为摘要
-               if(article_abstract IS NULL OR article_abstract = '', SUBSTR(article_content, 500),
-                  article_abstract) AS article_content,
+               if(COALESCE(article_abstract, '') = '',
+                  SUBSTR(article_content, 1, 500),
+                  article_abstract
+               )             AS article_content,
                article_title,
                status,
                is_top,
                is_featured,
-               a.create_time        AS create_time,
-               a.update_time        AS update_time,
-               nick_name            AS author_nickname,
-               avatar               AS author_avatar,
-               website              AS author_website,
-               tag_name
+               a.create_time AS create_time,
+               a.update_time AS update_time,
+               nick_name     AS author_nickname,
+               avatar        AS author_avatar,
+               website       AS author_website,
+               tag_name,
+               category_name
         FROM (SELECT id,
                      category_id,
                      user_id,
@@ -281,33 +310,33 @@
                      create_time,
                      update_time
               FROM tb_article
-#               按照id升序排序，获取大于当前id的第一条文章
               WHERE id &gt; #{articleId}
                 AND is_delete = 0
                 AND status IN (1, 2)
               ORDER BY id
               limit 0,1) a
-                 LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON t.id = at.id
-                 LEFT JOIN tb_category c ON t.id = at.id
+                 LEFT JOIN tb_article_tag at ON a.id = at.article_id
+                 LEFT JOIN tb_tag t ON t.id = at.tag_id
+                 LEFT JOIN tb_category c ON t.id = a.category_id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
-    <select id="getLastArticleCardDTO" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
-        SELECT a.id                 AS id,
-               a.category_id        AS category_id,
+    <select id="getLastArticleCardDTO" resultMap="ArticleCardDTOResultMap">
+        SELECT a.id          AS id,
+               a.category_id AS category_id,
                article_cover,
-#                文章摘要，如果该字段为空，默认取文章前500个字符作为摘要
-               if(article_abstract IS NULL OR article_abstract = '', SUBSTR(article_content, 500),
-                  article_abstract) AS article_content,
+               if(COALESCE(article_abstract, '') = '',
+                  SUBSTR(article_content, 1, 500),
+                  article_abstract
+               )             AS article_content,
                article_title,
                status,
                is_top,
                is_featured,
-               a.create_time        AS create_time,
-               a.update_time        AS update_time,
-               nick_name            AS author_nickname,
-               avatar               AS author_avatar,
-               website              AS author_website,
+               a.create_time AS create_time,
+               a.update_time AS update_time,
+               nick_name     AS author_nickname,
+               avatar        AS author_avatar,
+               website       AS author_website,
                tag_name
         FROM (SELECT id,
                      category_id,
@@ -327,27 +356,28 @@
                 AND status IN (1, 2)
               ORDER BY id DESC
               limit 0,1) a
-                 LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON t.id = at.id
-                 LEFT JOIN tb_category c ON t.id = at.id
+                 LEFT JOIN tb_article_tag at ON a.id = at.article_id
+                 LEFT JOIN tb_tag t ON t.id = at.tag_id
+                 LEFT JOIN tb_category c ON t.id = a.category_id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
-    <select id="getFirstArticleCardDTO" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
-        SELECT a.id                 AS id,
-               a.category_id        AS category_id,
+    <select id="getFirstArticleCardDTO" resultMap="ArticleCardDTOResultMap">
+        SELECT a.id          AS id,
+               a.category_id AS category_id,
                article_cover,
-#                文章摘要，如果该字段为空，默认取文章前500个字符作为摘要
-               if(article_abstract IS NULL OR article_abstract = '', SUBSTR(article_content, 500),
-                  article_abstract) AS article_content,
+               if(COALESCE(article_abstract, '') = '',
+                  SUBSTR(article_content, 1, 500),
+                  article_abstract
+               )             AS article_content,
                article_title,
                status,
                is_top,
                is_featured,
-               a.create_time        AS create_time,
-               a.update_time        AS update_time,
-               nick_name            AS author_nickname,
-               avatar               AS author_avatar,
-               website              AS author_website,
+               a.create_time AS create_time,
+               a.update_time AS update_time,
+               nick_name     AS author_nickname,
+               avatar        AS author_avatar,
+               website       AS author_website,
                tag_name
         FROM (SELECT id,
                      category_id,
@@ -367,32 +397,33 @@
                 AND status IN (1, 2)
               ORDER BY id
               limit 0,1) a
-                 LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON t.id = at.id
-                 LEFT JOIN tb_category c ON t.id = at.id
+                 LEFT JOIN tb_article_tag at ON a.id = at.article_id
+                 LEFT JOIN tb_tag t ON at.tag_id = t.id
+                 LEFT JOIN tb_category c ON t.id = a.category_id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
     </select>
-    <select id="listArticleCardDTOsByTagId" resultType="com.gewuyou.blog.common.dto.ArticleCardDTO">
-        SELECT a.id                 AS id,
-               a.category_id        AS category_id,
+    <select id="listArticleCardDTOsByTagId" resultMap="ArticleCardDTOResultMap">
+        SELECT a.id          AS id,
+               a.category_id AS category_id,
                article_cover,
-#                文章摘要，如果该字段为空，默认取文章前500个字符作为摘要
-               if(article_abstract IS NULL OR article_abstract = '', SUBSTR(article_content, 500),
-                  article_abstract) AS article_content,
+               if(COALESCE(article_abstract, '') = '',
+                  SUBSTR(article_content, 1, 500),
+                  article_abstract
+               )             AS article_content,
                article_title,
                status,
                is_top,
                is_featured,
-               a.create_time        AS create_time,
-               a.update_time        AS update_time,
-               nick_name            AS author_nickname,
-               avatar               AS author_avatar,
-               website              AS author_website,
+               a.create_time AS create_time,
+               a.update_time AS update_time,
+               nick_name     AS author_nickname,
+               avatar        AS author_avatar,
+               website       AS author_website,
                tag_name
         FROM tb_article a
-                 LEFT JOIN tb_article_tag at ON a.id = at.id
-                 LEFT JOIN tb_tag t ON t.id = at.id
-                 LEFT JOIN tb_category c ON c.id = a.category_id
+                 LEFT JOIN tb_article_tag at ON a.id = at.article_id
+                 LEFT JOIN tb_tag t ON at.tag_id = t.id
+                 LEFT JOIN tb_category c ON t.id = a.category_id
                  LEFT JOIN tb_user_info ui ON a.user_id = ui.id
         WHERE t.id = #{tagId}
           AND a.is_delete = 0

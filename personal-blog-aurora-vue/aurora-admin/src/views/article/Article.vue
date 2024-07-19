@@ -92,7 +92,7 @@
           <el-upload
             class="upload-cover"
             drag
-            action="/admin/article/images"
+            :action="uploadAction"
             multiple
             :headers="headers"
             :before-upload="beforeUpload"
@@ -204,7 +204,8 @@ export default {
         type: 1,
         status: 1
       },
-      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') }
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
+      baseUrl: 'http://localhost:8082/api/v1'
     }
   },
   methods: {
@@ -498,6 +499,9 @@ export default {
         const index = this.article.tagNames.indexOf(item.tagName)
         return index !== -1 ? 'tag-item-select' : 'tag-item'
       }
+    },
+    uploadAction() {
+      return this.baseUrl + '/admin/article/images'
     }
   }
 }

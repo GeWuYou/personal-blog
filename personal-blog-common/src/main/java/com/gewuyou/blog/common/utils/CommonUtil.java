@@ -13,10 +13,16 @@ public class CommonUtil {
         return str.substring(str.indexOf("(") + 1, str.indexOf(")"));
     }
 
-    public static String getRandomCode() {
+    /**
+     * 生成随机码
+     *
+     * @param length 随机码长度
+     * @return 随机码
+     */
+    public static String getRandomCode(int length) {
         StringBuilder str = new StringBuilder();
         Random random = new Random();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < length; i++) {
             str.append(random.nextInt(10));
         }
         return str.toString();

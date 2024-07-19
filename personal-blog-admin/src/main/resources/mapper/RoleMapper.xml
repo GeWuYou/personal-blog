@@ -72,6 +72,6 @@
                  LEFT JOIN tb_role_resource rr ON re.id = rr.resource_id
                  LEFT JOIN tb_role ro ON rr.role_id = ro.id
         WHERE re.parent_id IS NOT NULL
-#           AND is_anonymous = 0
+          AND is_anonymous = 0
     </select>
 </mapper>
