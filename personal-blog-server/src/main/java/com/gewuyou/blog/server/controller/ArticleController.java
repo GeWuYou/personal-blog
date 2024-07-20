@@ -18,9 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * 文章表 前端控制器
- *
  *
  * @author gewuyou
  * @since 2024-04-23
@@ -170,7 +168,7 @@ public class ArticleController {
      */
     @Operation(summary = "获取文章排行", description = "获取文章排行")
     @PostMapping("/rank")
-    public List<ArticleRankDTO> listArticleRank(@RequestBody Map<Object, Double> articleMap) {
-        return articleService.listArticleRank(articleMap);
+    public Result<List<ArticleRankDTO>> listArticleRank(@RequestBody Map<Long, Double> articleMap) {
+        return Result.success(articleService.listArticleRank(articleMap));
     }
 }

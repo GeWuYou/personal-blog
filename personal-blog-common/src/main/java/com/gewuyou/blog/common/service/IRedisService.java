@@ -7,6 +7,7 @@ import org.springframework.data.geo.GeoResults;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -104,6 +105,8 @@ public interface IRedisService {
      */
     Boolean delete(String key);
 
+    Boolean delayedDelete(String key, long delay, TimeUnit unit);
+
     /**
      * 批量删除值
      *
@@ -111,6 +114,7 @@ public interface IRedisService {
      * @return 成功删除的个数
      */
     Long delete(String... keys);
+
 
     /**
      * 设置过期时间
@@ -297,5 +301,5 @@ public interface IRedisService {
 
     List<String> geoGetHash(String key, String... place);
 
-
+    Boolean setIfAbsent(String key, Object value, Duration duration);
 }

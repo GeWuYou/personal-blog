@@ -80,9 +80,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      * @return 文章排行榜
      */
     @Override
-    public List<ArticleRankDTO> listArticleRank(Map<Object, Double> articleMap) {
+    public List<ArticleRankDTO> listArticleRank(Map<Long, Double> articleMap) {
         List<Long> articleIds = new ArrayList<>(articleMap.size());
-        articleMap.forEach((k, v) -> articleIds.add((Long) k));
+        articleMap.forEach((k, v) -> articleIds.add(k));
         return baseMapper
                 .selectList(
                         new LambdaQueryWrapper<Article>()

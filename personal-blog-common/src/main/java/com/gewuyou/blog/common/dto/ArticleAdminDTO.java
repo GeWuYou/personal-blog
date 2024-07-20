@@ -49,7 +49,7 @@ public class ArticleAdminDTO {
      * 访问量
      */
     @Schema(description = "访问量")
-    private Integer viewsCount;
+    private Long viewsCount;
 
     /**
      * 分类名称

@@ -33,7 +33,7 @@ public interface IArticleService extends IService<Article> {
      * @param articleMap 文章id和评分映射
      * @return 文章排行榜
      */
-    List<ArticleRankDTO> listArticleRank(Map<Object, Double> articleMap);
+    List<ArticleRankDTO> listArticleRank(Map<Long, Double> articleMap);
 
 
     /**

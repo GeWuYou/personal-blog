@@ -18,6 +18,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -173,6 +174,12 @@ public class RedisServiceImpl implements IRedisService {
     public Boolean delete(String key) {
         return redisTemplate.delete(key);
     }
+
+    @Override
+    public Boolean delayedDelete(String key, long delay, TimeUnit unit) {
+        return redisTemplate.expire(key, delay, unit);
+    }
+
 
     /**
      * 批量删除值
@@ -474,5 +481,9 @@ public class RedisServiceImpl implements IRedisService {
     public List<String> geoGetHash(String key, String... place) {
         return redisTemplate.opsForGeo()
                 .hash(key, place);
+    }
+
+    public Boolean setIfAbsent(String key, Object value, Duration duration) {
+        return redisTemplate.opsForValue().setIfAbsent(key, value, duration);
     }
 }

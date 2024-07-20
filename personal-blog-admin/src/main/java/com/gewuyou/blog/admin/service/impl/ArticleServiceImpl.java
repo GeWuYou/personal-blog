@@ -22,6 +22,7 @@ import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
+import com.gewuyou.blog.common.utils.RedisUtil;
 import com.gewuyou.blog.common.vo.ArticleTopFeaturedVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static com.gewuyou.blog.common.constant.RedisConstant.ARTICLE_VIEWS_COUNT;
 
@@ -81,7 +83,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 () -> baseMapper.countArticleAdmins(conditionVO));
         Page<Article> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
         var articles = baseMapper.listArticlesAdmins(page, conditionVO);
-        Map<Object, Double> viewsCountMap = redisService.zAllScore(ARTICLE_VIEWS_COUNT);
+        Map<Long, Double> viewsCountMap = redisService.zAllScore(ARTICLE_VIEWS_COUNT).entrySet().stream()
+                .collect(Collectors.toMap(
+                        // 解决redis默认将数字key转为Integer类型的问题
+                        entry -> RedisUtil.getLongValue(entry.getKey()),
+                        Map.Entry::getValue
+                ));
         var articleAdminDTOS = articles
                 .stream()
                 .map(article -> {
@@ -92,7 +99,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                     }
                     var viewsCount = viewsCountMap.get(article.getId());
                     if (Objects.nonNull(viewsCount)) {
-                        articleAdminDTO.setViewsCount(viewsCount.intValue());
+                        articleAdminDTO.setViewsCount(viewsCount.longValue());
                     }
                     return articleAdminDTO;
                 })
@@ -162,9 +169,5 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         });
         // 返回上传的文件名集合
         return urls;
-    }
-
-    private void updateArticleViewsCount(Long articleId) {
-        redisService.zIncr(ARTICLE_VIEWS_COUNT, articleId, 1D);
     }
 }

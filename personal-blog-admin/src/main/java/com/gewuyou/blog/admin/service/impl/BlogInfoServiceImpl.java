@@ -11,6 +11,7 @@ import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.IpUtil;
+import com.gewuyou.blog.common.utils.RedisUtil;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -22,9 +23,9 @@ import org.springframework.util.DigestUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static com.gewuyou.blog.common.constant.CommonConstant.UNKNOWN;
 import static com.gewuyou.blog.common.constant.RedisConstant.*;
@@ -97,10 +98,7 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
         CompletableFuture<Long> asyncTagCount = CompletableFuture.supplyAsync(serverClient.selectTagCount()::getData);
         CompletableFuture<Long> asyncTalkCount = CompletableFuture.supplyAsync(serverClient.selectTalkCount()::getData);
         CompletableFuture<WebsiteConfigDTO> asyncWebsiteConfig = CompletableFuture.supplyAsync(serverClient.getWebsiteConfig()::getData);
-        CompletableFuture<Long> asyncViewCount = CompletableFuture.supplyAsync(() -> {
-            Object count = redisService.get(BLOG_VIEWS_COUNT);
-            return Long.parseLong(Optional.ofNullable(count).orElse(0).toString());
-        });
+        CompletableFuture<Long> asyncViewCount = CompletableFuture.supplyAsync(() -> RedisUtil.getLongValue(redisService.get(BLOG_VIEWS_COUNT)));
         try {
 
             return BlogHomeInfoDTO.builder()
@@ -123,8 +121,7 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
      */
     @Override
     public BlogAdminInfoDTO getBlogAdminInfo() {
-        Object count = redisService.get(BLOG_VIEWS_COUNT);
-        Long viewsCount = Long.parseLong(Optional.ofNullable(count).orElse(0).toString());
+        Long viewsCount = RedisUtil.getLongValue(redisService.get(BLOG_VIEWS_COUNT));
         Long messageCount = serverClient.selectCommentCountByType(Byte.valueOf("2")).getData();
         Long userCount = serverClient.selectUserInfoCount().getData();
         Long articleCount = serverClient.selectArticleCountNotDeleted().getData();
@@ -132,7 +129,13 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
         List<ArticleStatisticsDTO> articleStatisticsDTOs = serverClient.listArticleStatistics().getData();
         List<CategoryDTO> categoryDTOs = serverClient.listCategories().getData();
         List<TagDTO> tagDTOs = BeanCopyUtil.copyList(serverClient.listTags().getData(), TagDTO.class);
-        Map<Object, Double> articleMap = redisService.zReverseRangeWithScore(ARTICLE_VIEWS_COUNT, 0, 4);
+        Map<Long, Double> articleMap = redisService.zReverseRangeWithScore(ARTICLE_VIEWS_COUNT, 0, 4)
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        // 解决redis默认将数字key转为Integer类型的问题
+                        entry -> RedisUtil.getLongValue(entry.getKey()),
+                        Map.Entry::getValue
+                ));
         BlogAdminInfoDTO auroraAdminInfoDTO = BlogAdminInfoDTO.builder()
                 .articleStatisticsDTOs(articleStatisticsDTOs)
                 .tagDTOs(tagDTOs)
@@ -144,7 +147,7 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
                 .uniqueViewDTOs(uniqueViews)
                 .build();
         if (CollectionUtils.isNotEmpty(articleMap)) {
-            List<ArticleRankDTO> articleRankDTOList = serverClient.listArticleRank(articleMap);
+            List<ArticleRankDTO> articleRankDTOList = serverClient.listArticleRank(articleMap).getData();
             auroraAdminInfoDTO.setArticleRankDTOs(articleRankDTOList);
         } else {
             auroraAdminInfoDTO.setArticleRankDTOs(List.of());

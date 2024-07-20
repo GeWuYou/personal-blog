@@ -39,7 +39,7 @@ public interface ServerClient {
     Result<List<ArticleStatisticsDTO>> listArticleStatistics();
 
     @PostMapping("/article/rank")
-    List<ArticleRankDTO> listArticleRank(@RequestBody Map<Object, Double> articleMap);
+    Result<List<ArticleRankDTO>> listArticleRank(@RequestBody Map<Long, Double> articleMap);
 
     @GetMapping("/category/count")
     Result<Long> selectCategoryCount();
