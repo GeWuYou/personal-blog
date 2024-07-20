@@ -176,7 +176,6 @@
             <artifactId>sensitive-word</artifactId>
             <version>${sensitive-word.version}</version>
         </dependency>
-
     </dependencies>
 
     <build>

@@ -131,7 +131,7 @@
                COUNT(1) AS commentCount
         FROM tb_comment c
         WHERE type = #{type}
-          AND topic_id = #{topicId}
+          AND topic_id = #{talkId}
         GROUP BY topic_id
     </select>
 </mapper>

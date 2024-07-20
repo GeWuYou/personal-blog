@@ -340,6 +340,7 @@ export default {
             message: message
           })
         },
+        null,
         () => {
           this.remove = false
         }
@@ -381,7 +382,7 @@ export default {
           title: '失败',
           message: message
         })
-      }, () => {
+      }, null, () => {
         this.isExport = false
       })
       // this.axios.post('/api/admin/articles/export', param).then(({ data }) => {
@@ -414,7 +415,7 @@ export default {
       }, 5 * 60 * 1000)
     },
     uploadArticle(data) {
-      if (data.flag) {
+      if (data.success) {
         this.$notify.success({
           title: '成功',
           message: '导入成功'
@@ -540,7 +541,7 @@ export default {
     },
     listCategories() {
       _get('/admin/category/search', {}, (data) => {
-        this.categories = data.data
+        this.categories = data
       })
       // this.axios.get('/api/admin/categories/search').then(({ data }) => {
       //   this.categories = data.data
@@ -548,7 +549,7 @@ export default {
     },
     listTags() {
       _get('/admin/tag/search', {}, (data) => {
-        this.tags = data.data
+        this.tags = data
       })
       // this.axios.get('/api/admin/tag/search').then(({ data }) => {
       //   this.tags = data.data

@@ -7,7 +7,6 @@ import com.gewuyou.blog.common.dto.CategoryDTO;
 import com.gewuyou.blog.common.dto.WebsiteConfigDTO;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.model.Tag;
-import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.security.config.FeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +24,6 @@ import java.util.Map;
 public interface ServerClient {
     @DeleteMapping("/dynamic-security-metadata-source/clear")
     void clearConfigAttributeMap();
-
-    @PostMapping("/user-info/insert")
-    void userInfoInsert(UserInfo userInfo);
 
     @GetMapping("/user-info/count")
     Result<Long> selectUserInfoCount();

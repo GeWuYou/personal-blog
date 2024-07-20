@@ -1,9 +1,7 @@
 package com.gewuyou.blog.common.enums;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * 角色枚举
@@ -16,7 +14,7 @@ import lombok.Setter;
 public enum RoleEnum {
     ADMIN(1, "管理员", "admin"),
 
-    USER(2, "用户", "user"),
+    USER(19, "用户", "user"),
 
     TEST(3, "测试", "test");
 

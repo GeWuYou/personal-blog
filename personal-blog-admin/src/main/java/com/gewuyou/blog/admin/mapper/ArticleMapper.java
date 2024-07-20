@@ -3,12 +3,11 @@ package com.gewuyou.blog.admin.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.gewuyou.blog.common.dto.ArticleAdminDTO;
 import com.gewuyou.blog.common.model.Article;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
  * <p>
@@ -27,7 +26,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @param conditionVO 条件VO
      * @return 文章卡片列表DTO
      */
-    Integer countArticleAdmins(@Param("conditionVO") ConditionVO conditionVO);
+    Long countArticleAdmins(@Param("conditionVO") ConditionVO conditionVO);
 
     /**
      * 根据条件分页查询文章列表
@@ -36,5 +35,5 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @param conditionVO 条件VO
      * @return 文章卡片列表DTO
      */
-    List<Article> listArticlesAdmins(Page<Article> page, @Param("conditionVO") ConditionVO conditionVO);
+    Page<ArticleAdminDTO> listArticlesAdmins(Page<ArticleAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
 }

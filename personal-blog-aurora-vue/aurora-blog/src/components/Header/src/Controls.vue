@@ -184,16 +184,26 @@ export default defineComponent({
       let params = new URLSearchParams()
       params.append('username', loginInfo.username)
       params.append('password', loginInfo.password)
-      _post('/admin/user/login', params, (data: any, message: any) => {
+      _post('/admin/user/login', {
+        username: loginInfo.username,
+        password: loginInfo.password
+      }, (data: any, message: any) => {
         userStore.userInfo = data
         sessionStorage.setItem('token', data.token)
+        localStorage.setItem('token', data.token)
         userStore.token = data.token
         proxy.$notify({
-          title: 'Success',
+          title: '成功',
           message: message,
           type: 'success'
         })
         reactiveDate.loginDialogVisible = false
+      }, (message: any) => {
+        proxy.$notify({
+          title: '失败',
+          message: message,
+          type: 'warning'
+        })
       })
       // api.login(params).then(({ data }) => {
       //   if (data.flag) {
@@ -262,9 +272,15 @@ export default defineComponent({
         email: loginInfo.username
       }, (_, message: any) => {
         proxy.$notify({
-          title: 'Success',
+          title: '成功',
           message: message,
           type: 'success'
+        })
+      }, (message: any) => {
+        proxy.$notify({
+          title: '失败',
+          message: message,
+          type: 'warning'
         })
       })
       // api.sendValidationCode(loginInfo.username).then(({ data }) => {
@@ -291,6 +307,12 @@ export default defineComponent({
         })
         reactiveDate.registerDialogVisible = false
         reactiveDate.loginDialogVisible = true
+      }, (message: any) => {
+        proxy.$notify({
+          title: '失败',
+          message: message,
+          type: 'warning'
+        })
       })
       // api.register(params).then(({ data }) => {
       //   if (data.flag) {

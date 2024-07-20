@@ -38,28 +38,24 @@ public interface IUserAuthService extends IService<UserAuth> {
      * 发送验证码到邮箱
      *
      * @param email      邮件地址
-     * @param sessionId  会话ID
      */
-    void sendCodeToEmail(String email, String sessionId);
+    void sendCodeToEmail(String email);
 
     /**
      * 验证邮箱并注册
      *
      * @param registerVO 注册数据传输类
-     * @param sessionId  会话ID
      */
-    void verifyEmailAndRegister(RegisterVO registerVO, String sessionId);
+    void verifyEmailAndRegister(RegisterVO registerVO);
 
     /**
      * 验证验证码
      *
      * @param email      邮箱
      * @param verifyCode 验证码
-     * @param sessionId  会话ID
-     * @param isRegister (邮箱)是否注册
      * @return 是否验证成功
      */
-    boolean verifyCode(String email, String verifyCode, String sessionId, boolean isRegister);
+    boolean verifyCode(String email, String verifyCode);
 
     /**
      * 重置密码

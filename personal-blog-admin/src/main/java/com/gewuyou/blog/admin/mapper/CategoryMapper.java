@@ -28,5 +28,5 @@ public interface CategoryMapper extends BaseMapper<Category> {
      * @param conditionVO 条件
      * @return 后台分类列表
      */
-    Page<Category> listCategories(Page<CategoryAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
+    Page<CategoryAdminDTO> listCategories(Page<CategoryAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
 }

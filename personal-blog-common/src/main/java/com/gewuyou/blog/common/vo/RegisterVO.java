@@ -1,15 +1,14 @@
 package com.gewuyou.blog.common.vo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gewuyou.blog.common.constant.MessageConstant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import static com.gewuyou.blog.common.constant.RegularConstant.EMAIL_REGULARITY;
-import static com.gewuyou.blog.common.constant.RegularConstant.USERNAME_REGULARITY;
 
 /**
  * 注册数据
@@ -21,31 +20,25 @@ import static com.gewuyou.blog.common.constant.RegularConstant.USERNAME_REGULARI
 @Data
 public class RegisterVO {
     /**
-     * 用户名
-     */
-    @Schema(description = "用户名")
-    @Pattern(regexp = USERNAME_REGULARITY)
-    @NotEmpty(message = MessageConstant.USER_NAME_OR_EMAIL_ADDRESS_CANNOT_BE_EMPTY)
-    private String username;
-    /**
-     * 密码
-     */
-    @Schema(description = "密码")
-    @Length(min = 6, max = 16)
-    @NotEmpty(message = MessageConstant.PASSWORD_CANNOT_BE_EMPTY)
-    private String password;
-    /**
      * 邮箱
      */
     @Schema(description = "邮箱")
     @Email(regexp = EMAIL_REGULARITY)
     @NotEmpty(message = MessageConstant.MAIL_CANNOT_BE_EMPTY)
+    @JsonProperty("username")
     private String email;
+    /**
+     * 密码
+     */
+    @Schema(description = "密码")
+    @Length(min = 6, max = 16, message = "密码长度必须在6-16位之间")
+    @NotEmpty(message = MessageConstant.PASSWORD_CANNOT_BE_EMPTY)
+    private String password;
     /**
      * 验证码
      */
     @Schema(description = "验证码")
-    @Length(min = 6, max = 6)
+    @Length(min = 6, max = 6, message = "验证码长度必须为6位")
     @NotEmpty(message = MessageConstant.VERIFICATION_CODE_CANNOT_BE_EMPTY)
-    private String verifyCode;
+    private String code;
 }

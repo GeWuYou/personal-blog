@@ -116,7 +116,7 @@ export default defineComponent({
           router.push({ path: '/出错啦' })
           return
         }
-        reactiveData.talk = data.data
+        reactiveData.talk = data
         if (reactiveData.talk.imageList) {
           reactiveData.images.push(...reactiveData.talk.imageList)
         }

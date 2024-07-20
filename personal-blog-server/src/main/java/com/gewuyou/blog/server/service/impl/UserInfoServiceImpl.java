@@ -50,16 +50,6 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     }
 
     /**
-     * 插入用户信息
-     *
-     * @param userInfo 用户信息
-     */
-    @Override
-    public void insert(UserInfo userInfo) {
-        baseMapper.insert(userInfo);
-    }
-
-    /**
      * 获取用户数量
      *
      * @return 用户数量

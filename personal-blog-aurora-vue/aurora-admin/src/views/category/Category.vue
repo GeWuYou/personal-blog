@@ -217,7 +217,7 @@ export default {
           title: '失败',
           message: message
         })
-      }, () => {
+      }, null, () => {
         this.addOrEdit = false
       })
       // this.axios.post('/admin/categories', this.categoryForm).then(({ data }) => {

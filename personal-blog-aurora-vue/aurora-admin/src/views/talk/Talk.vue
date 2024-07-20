@@ -6,7 +6,7 @@
       <div class="operation-wrapper">
         <div class="left-wrapper">
           <el-upload
-            action="/api/admin/talks/images"
+            :action="upLoadAction"
             multiple
             :headers="headers"
             :before-upload="beforeUpload"
@@ -38,7 +38,7 @@
       <el-upload
         class="talk-image-upload"
         v-show="uploads.length > 0"
-        action="/api/admin/talks/images"
+        :action="upLoadAction"
         list-type="picture-card"
         multiple
         :headers="headers"
@@ -96,7 +96,8 @@ export default {
         { status: 2, desc: '私密' }
       ],
       uploads: [],
-      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') }
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
+      baseUrl: 'http://localhost:8082/api/v1'
     }
   },
   methods: {
@@ -178,6 +179,9 @@ export default {
         }
       })
       return desc
+    },
+    upLoadAction() {
+      return this.baseUrl + '/admin/talk/images'
     }
   }
 }

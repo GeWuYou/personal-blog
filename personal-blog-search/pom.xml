@@ -37,7 +37,7 @@
         <dependency>
             <groupId>com.gewuyou</groupId>
             <artifactId>personal-blog-common</artifactId>
-            <version>0.1.0</version>
+            <version>${personal-blog-common.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

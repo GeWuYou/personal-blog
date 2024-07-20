@@ -25,12 +25,6 @@ public interface IUserInfoService extends IService<UserInfo> {
      */
     UserInfo selectUserInfoById(Long id);
 
-    /**
-     * 插入用户信息
-     *
-     * @param userInfo 用户信息
-     */
-    void insert(UserInfo userInfo);
 
     /**
      * 获取用户数量

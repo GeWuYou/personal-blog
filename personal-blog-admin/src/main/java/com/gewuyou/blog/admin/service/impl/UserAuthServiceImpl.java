@@ -4,11 +4,11 @@ package com.gewuyou.blog.admin.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.admin.client.ServerClient;
 import com.gewuyou.blog.admin.mapper.UserAuthMapper;
+import com.gewuyou.blog.admin.mapper.UserInfoMapper;
 import com.gewuyou.blog.admin.mapper.UserRoleMapper;
 import com.gewuyou.blog.admin.service.IUserAuthService;
 import com.gewuyou.blog.admin.strategy.context.LoginStrategyContext;
@@ -42,7 +42,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -71,17 +74,13 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      */
     private final IRedisService redisService;
 
-    /**
-     * 随机生成器
-     */
-    private final Random random = new Random();
-
     private final ServerClient serverClient;
 
     private final LoginStrategyContext loginStrategyContext;
     private final JwtService jwtService;
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
+    private final UserInfoMapper userInfoMapper;
 
 
     @Autowired
@@ -91,7 +90,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
             BCryptPasswordEncoder bCryptPasswordEncoder,
             ServerClient serverClient,
             LoginStrategyContext loginStrategyContext,
-            JwtService jwtService, RabbitTemplate rabbitTemplate, @Qualifier("objectMapper") ObjectMapper objectMapper) {
+            JwtService jwtService, RabbitTemplate rabbitTemplate,
+            @Qualifier("objectMapper") ObjectMapper objectMapper, UserInfoMapper userInfoMapper) {
         this.redisService = redisService;
         this.userRoleMapper = userRoleMapper;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -100,6 +100,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
         this.jwtService = jwtService;
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
+        this.userInfoMapper = userInfoMapper;
     }
 
     /**
@@ -145,14 +146,13 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     /**
      * 发送邮件
      *
-     * @param email     邮件地址
-     * @param sessionId 会话ID
+     * @param email 邮件地址
      */
     @Override
-    public void sendCodeToEmail(String email, String sessionId) {
+    public void sendCodeToEmail(String email) {
         // 先判断邮箱是否合法
         // 设置redis缓存key，用于验证邮箱
-        String redisKey = "email:" + email + ":sessionId:" + sessionId;
+        String redisKey = "email:" + email;
         // 先判断redis中是否存在该key
         if (Boolean.TRUE.equals(redisService.hasKey(redisKey))) {
             // 获取指定键的剩余过期时间
@@ -168,19 +168,21 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
             redisService.delete(redisKey);
         }
         var code = CommonUtil.getRandomCode(6);
-        var emailDTO = EmailDTO
+        EmailDTO emailDTO = EmailDTO
                 .builder()
                 .email(email)
                 .subject("验证码")
                 .template("common.html")
-                .contentMap(Map.of("content", "您的验证码是：" + code + "\n验证码有效期为五分钟\n如果不是您获取的验证码，请忽略该邮件!"));
+                .contentMap(Map.of("content", "您的验证码是：" + code + "\n验证码有效期为五分钟\n如果不是您获取的验证码，请忽略该邮件!"))
+                .build();
+
         try {
             // 发送邮件
             rabbitTemplate
                     .convertAndSend(EMAIL_EXCHANGE, "*",
                             new Message(
                                     objectMapper.writeValueAsBytes(emailDTO), new MessageProperties()));
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             log.error("发送邮件失败", e);
             throw new GlobalException(ResponseInformation.JSON_SERIALIZE_ERROR);
         }
@@ -192,26 +194,26 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      * 验证邮箱并注册
      *
      * @param registerVO 注册数据传输类
-     * @param sessionId  会话ID
      */
     @Override
     @Transactional
-    public void verifyEmailAndRegister(RegisterVO registerVO, String sessionId) {
+    public void verifyEmailAndRegister(RegisterVO registerVO) {
         Optional<UserAuth> optionalUser = baseMapper.selectByEmail(registerVO.getEmail());
         // 如果邮箱已注册，则抛出异常
         if (optionalUser.isPresent()) {
             throw new GlobalException(ResponseInformation.USER_EMAIL_HAS_BEEN_REGISTERED);
         }
         // 验证验证码
-        if (!verifyCode(registerVO.getEmail(), registerVO.getVerifyCode(), sessionId, false)) {
+        if (!verifyCode(registerVO.getEmail(), registerVO.getCode())) {
             throw new GlobalException(ResponseInformation.VERIFY_CODE_ERROR);
         }
         // 创建用户数据对象
         UserInfo userInfo = UserInfo.builder()
                 .nickName(CommonConstant.DEFAULT_NICKNAME + IdWorker.getId())
                 .avatar(serverClient.getWebsiteConfig().getData().getUserAvatar())
+                .email(registerVO.getEmail())
                 .build();
-        serverClient.userInfoInsert(userInfo);
+        userInfoMapper.insert(userInfo);
         // 创建用户角色对象
         UserRole userRole = UserRole.builder()
                 .userId(userInfo.getId())
@@ -222,7 +224,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
         // 创建用户认证信息对象
         UserAuth userAuth = UserAuth.builder()
                 .userInfoId(userInfo.getId())
-                .username(registerVO.getUsername())
+                .username(registerVO.getEmail())
                 .password(bCryptPasswordEncoder.encode(registerVO.getPassword()))
                 .email(registerVO.getEmail())
                 .createTime(LocalDateTime.now())
@@ -236,13 +238,11 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      *
      * @param email      邮箱
      * @param verifyCode 验证码
-     * @param sessionId  会话ID
-     * @param isRegister (邮箱)是否注册
      * @return 是否验证成功
      */
-    public boolean verifyCode(String email, String verifyCode, String sessionId, boolean isRegister) {
+    public boolean verifyCode(String email, String verifyCode) {
         // 获取redis缓存key
-        String redisKey = "email:" + email + ":sessionId:" + sessionId + ":isRegister:" + isRegister;
+        String redisKey = "email:" + email;
         // 判断redis中是否存在该key
         if (!Boolean.TRUE.equals(redisService.hasKey(redisKey))) {
             throw new GlobalException(ResponseInformation.VERIFY_CODE_EXPIRED);

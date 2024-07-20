@@ -114,3 +114,10 @@ function _delete<T>(url: string, data: any, success: (data: T, message: string, 
 }
 
 export { _get, _post, _put, _delete }
+export default {
+  report: () => {
+    _post('/admin/report', {}, () => {
+      console.log('report success')
+    })
+  }
+}

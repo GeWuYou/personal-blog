@@ -1,6 +1,5 @@
 package com.gewuyou.blog.server.controller;
 
-import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.UserInfoDTO;
@@ -21,9 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
- *
  * 用户信息表 前端控制器
- *
  *
  * @author gewuyou
  * @since 2024-04-23
@@ -55,22 +52,9 @@ public class UserInfoController {
         log.info("selectUserInfoById, id: {}", id);
         return userInfoService.selectUserInfoById(id);
     }
-
-    /**
-     * 插入用户信息
-     *
-     * @param userInfo 用户信息
-     */
-    @Operation(summary = "插入用户信息", description = "插入用户信息")
-    @PostMapping("/insert")
-    @Idempotent
-    public void userInfoInsert(UserInfo userInfo) {
-        log.info("userInfoInsert, userInfo: {}", userInfo);
-        userInfoService.insert(userInfo);
-    }
-
     /**
      * 获取用户数量
+     *
      * @return 用户数量
      */
     @Operation(summary = "获取用户数量", description = "获取用户数量")

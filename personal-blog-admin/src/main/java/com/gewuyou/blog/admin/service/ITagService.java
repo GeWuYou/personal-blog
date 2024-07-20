@@ -4,6 +4,7 @@ package com.gewuyou.blog.admin.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TagAdminDTO;
+import com.gewuyou.blog.common.dto.TagOptionDTO;
 import com.gewuyou.blog.common.model.Tag;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.TagVO;
@@ -35,7 +36,7 @@ public interface ITagService extends IService<Tag> {
      * @param conditionVO 条件
      * @return 标签列表
      */
-    List<TagAdminDTO> listTagsAdminDTOsBySearch(ConditionVO conditionVO);
+    List<TagOptionDTO> listTagsAdminDTOsBySearch(ConditionVO conditionVO);
 
     /**
      * 保存或更新标签

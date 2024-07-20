@@ -84,12 +84,14 @@ public class EmailUtil {
 
     public void sendHtmlEmail(EmailDTO emailDTO) {
         try {
-            // 邮件模板
-            String process = templateEngine.process(emailDTO.getTemplate(), new Context());
             // 创建MimeMessage对象
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             // 创建MemeMessageHelper对象 可选：new MimeMessageHelper(mimeMessage,true) 携带附件
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
+            Context context = new Context();
+            context.setVariables(emailDTO.getContentMap());
+            // 邮件模板
+            String process = templateEngine.process(emailDTO.getTemplate(), context);
             // 设定发送人
             messageHelper.setFrom(emailAccount, emailFrom);
             // 设定发送对象

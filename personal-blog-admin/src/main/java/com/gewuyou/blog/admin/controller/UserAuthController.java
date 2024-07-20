@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -43,16 +42,10 @@ import static com.gewuyou.blog.common.constant.RegularConstant.USERNAME_REGULARI
 public class UserAuthController {
     private final IUserAuthService userAuthService;
 
-    private final HttpSession httpSession;
-
-    private static final String SESSION_TAGS = "reset-password";
-
     @Autowired
     public UserAuthController(
-            IUserAuthService userAuthService,
-            HttpSession httpSession) {
+            IUserAuthService userAuthService) {
         this.userAuthService = userAuthService;
-        this.httpSession = httpSession;
     }
 
     /**
@@ -104,7 +97,7 @@ public class UserAuthController {
     @PostMapping("/code")
     @Idempotent
     public Result<String> sendCodeToEmail(@Validated @RequestBody TargetEmailVO TargetEmailVO) {
-        userAuthService.sendCodeToEmail(TargetEmailVO.getEmail(), httpSession.getId());
+        userAuthService.sendCodeToEmail(TargetEmailVO.getEmail());
         return Result.success(ResponseInformation.VERIFICATION_CODE_HAS_BEEN_SENT);
     }
 
@@ -131,7 +124,7 @@ public class UserAuthController {
     @PostMapping("/register")
     @Idempotent
     public Result<String> register(@Validated @RequestBody RegisterVO registerVO) {
-        userAuthService.verifyEmailAndRegister(registerVO, httpSession.getId());
+        userAuthService.verifyEmailAndRegister(registerVO);
         return Result.success(ResponseInformation.REGISTER_SUCCESS);
     }
 
@@ -145,9 +138,7 @@ public class UserAuthController {
     @PostMapping("/reset-password/verify-code")
     @Idempotent
     public Result<String> startResetPassword(@Validated @RequestBody StartResetPasswordVO startResetPasswordVO) {
-        if (userAuthService.verifyCode(startResetPasswordVO.getEmail(), startResetPasswordVO.getVerifyCode(), httpSession.getId(), true)) {
-            // 校验通过，向会话中写入标记
-            httpSession.setAttribute(SESSION_TAGS, startResetPasswordVO.getEmail());
+        if (userAuthService.verifyCode(startResetPasswordVO.getEmail(), startResetPasswordVO.getVerifyCode())) {
             return Result.success(ResponseInformation.REGISTER_SUCCESS);
         } else {
             return Result.failure(ResponseInformation.VERIFICATION_CODE_ERROR);
@@ -165,15 +156,8 @@ public class UserAuthController {
     @OperationLogging(logResult = false, logParams = false, type = OperationType.UPDATE)
     @Idempotent
     public Result<String> doResetPassword(@Validated @RequestBody DoResetPasswordVO doResetPasswordVO) {
-        // 获取会话中的标记
-        String email = (String) httpSession.getAttribute(SESSION_TAGS);
-        if (email == null) {
-            return Result.failure(ResponseInformation.PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST);
-        }
-        userAuthService.resetPassword(email, doResetPasswordVO.getPassword());
-        // 清除会话中的标记
-        httpSession.removeAttribute(SESSION_TAGS);
-        return Result.success(ResponseInformation.RESET_PASSWORD_SUCCESS);
+        // todo 重置密码接口
+        return null;
     }
 
     /**

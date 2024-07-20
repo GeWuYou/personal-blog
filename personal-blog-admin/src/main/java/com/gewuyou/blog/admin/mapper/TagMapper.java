@@ -3,6 +3,7 @@ package com.gewuyou.blog.admin.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.gewuyou.blog.common.dto.TagAdminDTO;
 import com.gewuyou.blog.common.model.Tag;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -36,5 +37,5 @@ public interface TagMapper extends BaseMapper<Tag> {
      * @param conditionVO 条件对象
      * @return 分页查询结果
      */
-    Page<Tag> listTags(Page<Tag> page, @Param("conditionVO") ConditionVO conditionVO);
+    Page<TagAdminDTO> listTags(Page<TagAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
 }

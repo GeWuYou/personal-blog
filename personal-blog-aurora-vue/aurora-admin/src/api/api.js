@@ -108,17 +108,15 @@ function _put(url, data, success, failure = defaultFailureMessage, error = defau
 /**
  * 异步delete请求
  * @param url 请求url
- * @param data 请求参数
+ * @param params 请求参数
  * @param success 成功响应回调
  * @param failure 失败响应回调
  * @param error 错误响应回调
  * @param callback 回调函数
  */
-function _delete(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage, callback = () => {
+function _delete(url, params, success, failure = defaultFailureMessage, error = defaultErrorMessage, callback = () => {
 }) {
-  instance.delete(url, {
-    data: data
-  })
+  instance.delete(url, params)
     .then(({ data }) => {
       if (data.success) {
         success(data.data, data.message, data.code)

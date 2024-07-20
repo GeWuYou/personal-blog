@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.admin.mapper.CategoryMapper">
 
-    <select id="listCategories" resultType="com.gewuyou.blog.common.model.Category">
+    <select id="listCategories" resultType="com.gewuyou.blog.common.dto.CategoryAdminDTO">
         SELECT
         c.id AS id,
         COUNT(a.id) AS articleCount,

@@ -8,7 +8,7 @@
                  JOIN tb_article_tag at ON t.id = at.tag_id
         WHERE at.article_id = #{articleId}
     </select>
-    <select id="listTags" resultType="com.gewuyou.blog.common.model.Tag">
+    <select id="listTags" resultType="com.gewuyou.blog.common.dto.TagAdminDTO">
         SELECT t.id AS id,
         tag_name AS tagName,
         COUNT(at.article_id) AS articleCount,

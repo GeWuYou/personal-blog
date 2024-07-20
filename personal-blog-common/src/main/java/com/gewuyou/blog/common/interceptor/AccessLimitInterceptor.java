@@ -81,7 +81,7 @@ public class AccessLimitInterceptor implements HandlerInterceptor {
         String key = IpUtil.getIpAddress(request) + "-" + handlerMethod.getMethod().getName();
         Long l = redisService.incrExpire(key, seconds);
         if (l > maxCount) {
-            render(response, Result.failure("请求次数过多" + seconds + "请稍后再试"));
+            render(response, Result.failure("请求次数过多，请等待" + seconds + "秒后再试!"));
             log.warn("{}请求次数超过每{}秒{}次限制", key, seconds, maxCount);
             return false;
         }

@@ -21,22 +21,6 @@
             <result property="tagName" column="tag_name"/>
         </collection>
     </resultMap>
-    <resultMap id="ArticleAdminResultMap" type="com.gewuyou.blog.common.dto.ArticleAdminDTO">
-        <id property="id" column="id"/>
-        <result property="articleCover" column="article_cover"/>
-        <result property="articleTitle" column="article_title"/>
-        <result property="isTop" column="is_top"/>
-        <result property="isFeatured" column="is_featured"/>
-        <result property="isDelete" column="is_delete"/>
-        <result property="status" column="status"/>
-        <result property="type" column="type"/>
-        <result property="createTime" column="create_time"/>
-        <result property="categoryName" column="category_name"/>
-        <collection property="tagDTOs" ofType="com.gewuyou.blog.common.dto.TagDTO">
-            <id column="tag_id" property="id"/>
-            <result column="tag_name" property="tagName"/>
-        </collection>
-    </resultMap>
     <resultMap id="ArticleDTOResultMap" type="com.gewuyou.blog.common.dto.ArticleDTO">
         <id property="id" column="id"/>
         <result property="articleCover" column="article_cover"/>

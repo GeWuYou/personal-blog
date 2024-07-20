@@ -44,7 +44,6 @@ import MobileMenu from '@/components/MobileMenu.vue'
 import Dia from '@/components/Dia.vue'
 import AuroraNavigator from '@/components/AuroraNavigator.vue'
 import UserCenter from '@/components/UserCenter.vue'
-import api from './api/function'
 import { _get } from '@/api/api'
 
 export default defineComponent({

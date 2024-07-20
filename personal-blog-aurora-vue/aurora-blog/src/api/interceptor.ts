@@ -10,11 +10,16 @@ function requestInterceptor(config: AxiosRequestConfig): AxiosRequestConfig {
     return config
   }
 
-  // 先从持久化的存储中尝试获取token
-  const token = localStorage.getItem('token')
 
+  // 先从sessionStorage中获取token
+  let token = sessionStorage.getItem('token')
+  if (token === undefined || token === null) {
+    // 否则尝试从持久化的存储中尝试获取token
+    token = localStorage.getItem('token')
+  }
   // 如果token存在，则设置Authorization请求头
   if (token !== null && token !== undefined) {
+
     config.headers = config.headers || {}
     config.headers.Authorization = `Bearer ${token}`
   }
