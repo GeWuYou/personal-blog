@@ -2,6 +2,7 @@ package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IPhotoService;
 import com.gewuyou.blog.admin.strategy.context.UploadStrategyContext;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
@@ -94,6 +95,7 @@ public class PhotoController {
     @Operation(summary = "保存照片", description = "保存照片")
     @OperationLogging(type = OperationType.SAVE)
     @PostMapping
+    @Idempotent
     public Result<?> savePhotos(@Valid @RequestBody PhotoVO photoVO) {
         photoService.savePhotos(photoVO);
         return Result.success();
@@ -122,6 +124,7 @@ public class PhotoController {
     @Operation(summary = "更新照片删除状态", description = "更新照片删除状态")
     @OperationLogging(type = OperationType.UPDATE)
     @PutMapping("/delete")
+    @Idempotent
     public Result<?> updatePhotoDelete(@Valid @RequestBody DeleteVO deleteVO) {
         photoService.updatePhotoDelete(deleteVO);
         return Result.success();
@@ -136,6 +139,7 @@ public class PhotoController {
     @Operation(summary = "删除照片", description = "删除照片")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping
+    @Idempotent
     public Result<?> deletePhotos(@RequestBody List<Integer> photoIds) {
         photoService.deletePhotos(photoIds);
         return Result.success();

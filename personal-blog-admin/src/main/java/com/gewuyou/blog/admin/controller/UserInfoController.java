@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IUserInfoService;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
@@ -87,6 +88,7 @@ public class UserInfoController {
     @Operation(summary = "下线用户", description = "下线用户")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping("/online/{userInfoId}")
+    @Idempotent
     public Result<?> removeOnlineUser(@PathVariable("userInfoId") Long userInfoId) {
         userInfoService.removeOnlineUser(userInfoId);
         return Result.success();
@@ -102,6 +104,7 @@ public class UserInfoController {
     @Operation(summary = "更新用户头像", description = "更新用户头像")
     @OperationLogging(type = OperationType.UPDATE, logParams = false)
     @PostMapping("/avatar")
+    @Idempotent
     public Result<String> updateUserAvatar(MultipartFile file) {
         return Result.success(userInfoService.updateUserAvatar(file));
     }

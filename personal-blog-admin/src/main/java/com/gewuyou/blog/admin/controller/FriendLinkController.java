@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IFriendLinkService;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.FriendLinkAdminDTO;
@@ -56,6 +57,7 @@ public class FriendLinkController {
     @Operation(summary = "保存或更新友链", description = "保存或更新友链")
     @OperationLogging(type = OperationType.SAVE_OR_UPDATE)
     @PostMapping
+    @Idempotent
     public Result<?> saveOrUpdateFriendLink(@Valid @RequestBody FriendLinkVO friendLinkVO) {
         friendLinkService.saveOrUpdateFriendLink(friendLinkVO);
         return Result.success();
@@ -70,6 +72,7 @@ public class FriendLinkController {
     @Operation(summary = "删除友链", description = "删除友链")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping
+    @Idempotent
     public Result<?> deleteFriendLink(@RequestBody List<Integer> linkIdList) {
         friendLinkService.removeByIds(linkIdList);
         return Result.success();

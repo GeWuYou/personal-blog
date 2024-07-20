@@ -2,6 +2,7 @@ package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.ITalkService;
 import com.gewuyou.blog.admin.strategy.context.UploadStrategyContext;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
@@ -53,7 +54,6 @@ public class TalkController {
      * @param file 说说图片
      * @return 上传结果
      */
-    @Parameter(name = "file", description = "说说图片", in = ParameterIn.QUERY, required = true)
     @Operation(summary = "上传说说图片", description = "上传说说图片")
     @OperationLogging(type = OperationType.UPLOAD)
     @PostMapping("/images")
@@ -70,6 +70,7 @@ public class TalkController {
     @Operation(summary = "保存或修改说说", description = "保存或修改说说")
     @OperationLogging(type = OperationType.SAVE_OR_UPDATE)
     @PostMapping
+    @Idempotent
     public Result<?> saveOrUpdateTalk(@Valid @RequestBody TalkVO talkVO) {
         talkService.saveOrUpdateTalk(talkVO);
         return Result.success();
@@ -84,6 +85,7 @@ public class TalkController {
     @Operation(summary = "删除说说", description = "删除说说")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping
+    @Idempotent
     public Result<?> deleteTalks(@RequestBody List<Integer> talkIds) {
         talkService.deleteTalks(talkIds);
         return Result.success();

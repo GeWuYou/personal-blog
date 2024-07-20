@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.ICategoryService;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.CategoryAdminDTO;
@@ -67,6 +68,7 @@ public class CategoryController {
     @Operation(summary = "删除分类", description = "删除分类")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping
+    @Idempotent
     public Result<?> deleteCategories(@RequestBody List<Integer> categoryIds) {
         categoryService.deleteCategories(categoryIds);
         return Result.success();
@@ -81,6 +83,7 @@ public class CategoryController {
     @Operation(summary = "保存或更新后台分类", description = "保存或更新后台分类")
     @OperationLogging(type = OperationType.SAVE_OR_UPDATE)
     @PostMapping
+    @Idempotent
     public Result<?> saveOrUpdateCategory(@Validated @RequestBody CategoryVO categoryVO) {
         categoryService.saveOrUpdateCategory(categoryVO);
         return Result.success();

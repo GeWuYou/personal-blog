@@ -1,5 +1,6 @@
 package com.gewuyou.blog.server.controller;
 
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.UserInfoDTO;
@@ -62,6 +63,7 @@ public class UserInfoController {
      */
     @Operation(summary = "插入用户信息", description = "插入用户信息")
     @PostMapping("/insert")
+    @Idempotent
     public void userInfoInsert(UserInfo userInfo) {
         log.info("userInfoInsert, userInfo: {}", userInfo);
         userInfoService.insert(userInfo);
@@ -126,7 +128,6 @@ public class UserInfoController {
      * @param userInfoId 用户Id
      * @return 用户信息
      */
-    @Parameter(name = "userInfoId", description = "用户Id", in = ParameterIn.PATH, required = true)
     @Operation(summary = "根据用户Id查询用户信息", description = "根据用户Id查询用户信息")
     @GetMapping("/{userInfoId}")
     public Result<UserInfoDTO> getUserInfoById(@PathVariable("userInfoId") Long userInfoId) {

@@ -20,7 +20,6 @@ import com.gewuyou.blog.common.model.Article;
 import com.gewuyou.blog.common.model.Category;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
-import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.utils.RedisUtil;
 import com.gewuyou.blog.common.vo.ArticleTopFeaturedVO;
@@ -79,10 +78,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      */
     @Override
     public PageResultDTO<ArticleAdminDTO> listArticlesAdminDTOs(ConditionVO conditionVO) {
-        CompletableFuture<Integer> asyncCount = CompletableFuture.supplyAsync(
+        CompletableFuture<Long> asyncCount = CompletableFuture.supplyAsync(
                 () -> baseMapper.countArticleAdmins(conditionVO));
-        Page<Article> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
-        var articles = baseMapper.listArticlesAdmins(page, conditionVO);
+        Page<ArticleAdminDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
+        var articles = baseMapper.listArticlesAdmins(page, conditionVO).getRecords();
         Map<Long, Double> viewsCountMap = redisService.zAllScore(ARTICLE_VIEWS_COUNT).entrySet().stream()
                 .collect(Collectors.toMap(
                         // 解决redis默认将数字key转为Integer类型的问题
@@ -91,21 +90,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 ));
         var articleAdminDTOS = articles
                 .stream()
-                .map(article -> {
-                    var articleAdminDTO = BeanCopyUtil.copyObject(article, ArticleAdminDTO.class);
-                    var createTime = article.getCreateTime();
-                    if (Objects.nonNull(createTime)) {
-                        articleAdminDTO.setCreateTime(DateUtil.convertToDate(createTime));
-                    }
-                    var viewsCount = viewsCountMap.get(article.getId());
+                .peek(articleAdminDTO -> {
+                    Double viewsCount = viewsCountMap.get(articleAdminDTO.getId());
                     if (Objects.nonNull(viewsCount)) {
                         articleAdminDTO.setViewsCount(viewsCount.longValue());
                     }
-                    return articleAdminDTO;
                 })
                 .toList();
         try {
-            return new PageResultDTO<>(articleAdminDTOS, Long.valueOf(asyncCount.get()));
+            return new PageResultDTO<>(articleAdminDTOS, asyncCount.get());
         } catch (InterruptedException | ExecutionException e) {
             log.error("获取文章数量失败", e);
             throw new GlobalException(ResponseInformation.GET_COUNT_ERROR);

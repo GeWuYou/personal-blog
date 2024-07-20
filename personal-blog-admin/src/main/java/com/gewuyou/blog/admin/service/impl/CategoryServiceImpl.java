@@ -15,7 +15,6 @@ import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Article;
 import com.gewuyou.blog.common.model.Category;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
-import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ArticleVO;
 import com.gewuyou.blog.common.vo.CategoryVO;
@@ -90,20 +89,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             return new PageResultDTO<>();
         }
         Page<CategoryAdminDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
-        var categories = baseMapper.listCategories(page, conditionVO);
-        var categoryAdminDTOList = categories
-                .getRecords()
-                .stream()
-                .map(category -> {
-                    var categoryAdminDTO = BeanCopyUtil.copyObject(category, CategoryAdminDTO.class);
-                    var createTime = category.getCreateTime();
-                    if (Objects.nonNull(createTime)) {
-                        categoryAdminDTO.setCreateTime(DateUtil.convertToDate(createTime));
-                    }
-                    return categoryAdminDTO;
-                })
-                .toList();
-        return new PageResultDTO<>(categoryAdminDTOList, count);
+        var categoryAdminDTOs = baseMapper.listCategories(page, conditionVO).getRecords();
+        return new PageResultDTO<>(categoryAdminDTOs, count);
     }
 
     /**

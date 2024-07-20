@@ -2,6 +2,7 @@ package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IPhotoAlbumService;
 import com.gewuyou.blog.admin.strategy.context.UploadStrategyContext;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
@@ -66,6 +67,7 @@ public class PhotoAlbumController {
     @Operation(summary = "保存或更新相册", description = "保存或更新相册")
     @OperationLogging(type = OperationType.SAVE_OR_UPDATE)
     @PostMapping
+    @Idempotent
     public Result<?> saveOrUpdatePhotoAlbum(@Valid @RequestBody PhotoAlbumVO photoAlbumVO) {
         photoAlbumService.saveOrUpdatePhotoAlbum(photoAlbumVO);
         return Result.success();
@@ -100,7 +102,6 @@ public class PhotoAlbumController {
      * @param albumId 相册id
      * @return 相册信息
      */
-    @Parameter(name = "albumId", description = "相册id", in = ParameterIn.PATH, required = true)
     @Operation(summary = "根据id获取后台相册信息", description = "根据id获取后台相册信息")
     @GetMapping("/info/{albumId}")
     public Result<PhotoAlbumAdminDTO> getPhotoAlbumBackById(@PathVariable("albumId") Integer albumId) {
@@ -113,10 +114,10 @@ public class PhotoAlbumController {
      * @param albumId 相册id
      * @return 删除结果
      */
-    @Parameter(name = "albumId", description = "相册id", in = ParameterIn.PATH, required = true)
     @Operation(summary = "根据id删除相册", description = "根据id删除相册")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping("/{albumId}")
+    @Idempotent
     public Result<?> deletePhotoAlbumById(@PathVariable("albumId") Integer albumId) {
         photoAlbumService.deletePhotoAlbumById(albumId);
         return Result.success();

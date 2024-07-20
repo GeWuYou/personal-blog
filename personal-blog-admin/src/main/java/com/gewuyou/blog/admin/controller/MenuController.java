@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IMenuService;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.LabelOptionDTO;
@@ -12,8 +13,6 @@ import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.IsHiddenVO;
 import com.gewuyou.blog.common.vo.MenuVO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +63,7 @@ public class MenuController {
     @Operation(summary = "保存或更新菜单", description = "保存或更新菜单")
     @OperationLogging(logResult = false, logParams = false, type = OperationType.SAVE_OR_UPDATE)
     @PostMapping
+    @Idempotent
     public Result<?> saveOrUpdateMenu(@Valid @RequestBody MenuVO menuVO) {
         menuService.saveOrUpdateMenu(menuVO);
         return Result.success();
@@ -89,10 +89,10 @@ public class MenuController {
      * @param menuId 菜单ID
      * @return 结果
      */
-    @Parameter(name = "menuId", description = "菜单ID", in = ParameterIn.PATH, required = true)
     @Operation(summary = "删除菜单", description = "删除菜单")
     @OperationLogging(logResult = false, type = OperationType.DELETE)
     @DeleteMapping("/{menuId}")
+    @Idempotent
     public Result<?> deleteMenu(@PathVariable("menuId") Integer menuId) {
         menuService.deleteMenu(menuId);
         return Result.success();

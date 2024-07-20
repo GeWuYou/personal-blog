@@ -1,10 +1,12 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.ITagService;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TagAdminDTO;
+import com.gewuyou.blog.common.dto.TagOptionDTO;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -53,7 +55,7 @@ public class TagController {
      */
     @Operation(summary = "搜索文章标签", description = "搜索文章标签")
     @GetMapping("/search")
-    public Result<List<TagAdminDTO>> listTagsAdminBySearch(ConditionVO condition) {
+    public Result<List<TagOptionDTO>> listTagsAdminBySearch(ConditionVO condition) {
         return Result.success(tagService.listTagsAdminDTOsBySearch(condition));
     }
 
@@ -66,6 +68,7 @@ public class TagController {
     @Operation(summary = "添加或修改标签", description = "添加或修改标签")
     @OperationLogging(type = OperationType.SAVE_OR_UPDATE)
     @PostMapping
+    @Idempotent
     public Result<?> saveOrUpdateTag(@Valid @RequestBody TagVO tagVO) {
         tagService.saveOrUpdateTag(tagVO);
         return Result.success();
@@ -80,6 +83,7 @@ public class TagController {
     @Operation(summary = "删除标签", description = "删除标签")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping
+    @Idempotent
     public Result<?> deleteTag(@RequestBody List<Long> tagIds) {
         tagService.deleteTag(tagIds);
         return Result.success();

@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IRoleService;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
@@ -71,6 +72,7 @@ public class RoleController {
     @Operation(summary = "保存或更新角色", description = "保存或更新角色")
     @OperationLogging(type = OperationType.SAVE_OR_UPDATE)
     @PostMapping
+    @Idempotent
     public Result<?> saveOrUpdateRole(@RequestBody @Valid RoleVO roleVO) {
         roleService.saveOrUpdateRole(roleVO);
         return Result.success();
@@ -85,6 +87,7 @@ public class RoleController {
     @Operation(summary = "删除角色", description = "删除角色")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping
+    @Idempotent
     public Result<?> deleteRoles(@RequestBody List<Integer> roleIdList) {
         roleService.deleteRoles(roleIdList);
         return Result.success();

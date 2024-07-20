@@ -1,5 +1,6 @@
 package com.gewuyou.blog.server.controller;
 
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.*;
 import com.gewuyou.blog.common.entity.Result;
@@ -92,6 +93,7 @@ public class ArticleController {
      */
     @Operation(summary = "校验文章访问密码", description = "校验文章访问密码")
     @PostMapping("/verify")
+    @Idempotent
     public Result<?> verifyArticleAccessPassword(@Valid @RequestBody ArticleAccessPasswordVO articleAccessPasswordVO) {
         articleService.verifyArticleAccessPassword(articleAccessPasswordVO);
         return Result.success();

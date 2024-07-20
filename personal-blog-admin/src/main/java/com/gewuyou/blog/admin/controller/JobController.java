@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IJobService;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.JobDTO;
@@ -48,6 +49,7 @@ public class JobController {
     @Operation(summary = "添加定时任务", description = "添加定时任务")
     @OperationLogging(type = OperationType.SAVE)
     @PostMapping
+    @Idempotent
     public Result<?> saveJob(@RequestBody JobVO jobVO) {
         jobService.saveJob(jobVO);
         return Result.success();
@@ -76,6 +78,7 @@ public class JobController {
     @Operation(summary = "删除定时任务", description = "删除定时任务")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping
+    @Idempotent
     public Result<?> deleteJobById(@RequestBody List<Integer> jobIds) {
         jobService.deleteJobs(jobIds);
         return Result.success();

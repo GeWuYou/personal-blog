@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IJobLogService;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.JobLogDTO;
@@ -55,6 +56,7 @@ public class JobLogController {
     @Operation(summary = "删除定时任务日志", description = "删除定时任务日志")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping
+    @Idempotent
     public Result<?> deleteJobLogs(@RequestBody List<Integer> ids) {
         jobLogService.deleteJobLogs(ids);
         return Result.success();

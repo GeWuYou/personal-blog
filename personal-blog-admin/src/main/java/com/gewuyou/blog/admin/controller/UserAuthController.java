@@ -2,6 +2,7 @@ package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IUserAuthService;
 import com.gewuyou.blog.common.annotation.AccessLimit;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
@@ -87,6 +88,7 @@ public class UserAuthController {
     @Operation(summary = "登录接口", description = "登录接口")
     @PostMapping("/login")
     @OperationLogging(logResult = false)
+    @Idempotent
     public Result<UserInfoDTO> login(@Validated @RequestBody LoginVO loginVO) {
         return Result.success(ResponseInformation.LOGIN_SUCCESS, userAuthService.usernameOrEmailPasswordLogin(loginVO));
     }
@@ -100,6 +102,7 @@ public class UserAuthController {
     @Operation(summary = "发送验证码", description = "发送验证码")
     @AccessLimit(seconds = 60, maxCount = 1)
     @PostMapping("/code")
+    @Idempotent
     public Result<String> sendCodeToEmail(@Validated @RequestBody TargetEmailVO TargetEmailVO) {
         userAuthService.sendCodeToEmail(TargetEmailVO.getEmail(), httpSession.getId());
         return Result.success(ResponseInformation.VERIFICATION_CODE_HAS_BEEN_SENT);
@@ -112,6 +115,7 @@ public class UserAuthController {
      */
     @Operation(summary = "退出登录接口", description = "退出登录接口")
     @PostMapping("/logout")
+    @Idempotent
     public Result<String> logout() {
         return Result.success(userAuthService.logout());
     }
@@ -125,6 +129,7 @@ public class UserAuthController {
      */
     @Operation(summary = "注册接口", description = "注册接口")
     @PostMapping("/register")
+    @Idempotent
     public Result<String> register(@Validated @RequestBody RegisterVO registerVO) {
         userAuthService.verifyEmailAndRegister(registerVO, httpSession.getId());
         return Result.success(ResponseInformation.REGISTER_SUCCESS);
@@ -138,6 +143,7 @@ public class UserAuthController {
      */
     @Operation(summary = "重置密码接口", description = "重置密码接口")
     @PostMapping("/reset-password/verify-code")
+    @Idempotent
     public Result<String> startResetPassword(@Validated @RequestBody StartResetPasswordVO startResetPasswordVO) {
         if (userAuthService.verifyCode(startResetPasswordVO.getEmail(), startResetPasswordVO.getVerifyCode(), httpSession.getId(), true)) {
             // 校验通过，向会话中写入标记
@@ -157,6 +163,7 @@ public class UserAuthController {
     @Operation(summary = "重置密码接口", description = "重置密码接口")
     @PostMapping("/reset-password")
     @OperationLogging(logResult = false, logParams = false, type = OperationType.UPDATE)
+    @Idempotent
     public Result<String> doResetPassword(@Validated @RequestBody DoResetPasswordVO doResetPasswordVO) {
         // 获取会话中的标记
         String email = (String) httpSession.getAttribute(SESSION_TAGS);
@@ -192,7 +199,14 @@ public class UserAuthController {
         }
     }
 
+    /**
+     * qq登录接口
+     *
+     * @param qqLoginVO qq登录DTO
+     * @return 登录结果
+     */
     @PostMapping("/oauth/qq")
+    @Idempotent
     public Result<UserInfoDTO> qqLogin(@Valid @RequestBody QQLoginVO qqLoginVO) {
         return Result.success(userAuthService.qqLogin(qqLoginVO));
     }

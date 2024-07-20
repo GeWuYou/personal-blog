@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IResourceService;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.LabelOptionDTO;
@@ -61,6 +62,7 @@ public class ResourceController {
     @Operation(summary = "删除资源", description = "删除资源")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping("/{resourceId}")
+    @Idempotent
     public Result<?> deleteResource(@PathVariable("resourceId") Integer resourceId) {
         resourceService.deleteResource(resourceId);
         return Result.success();
@@ -75,6 +77,7 @@ public class ResourceController {
     @Operation(summary = "新增或修改资源", description = "新增或修改资源")
     @OperationLogging(type = OperationType.SAVE_OR_UPDATE)
     @PostMapping
+    @Idempotent
     public Result<?> saveOrUpdateResource(@RequestBody @Valid ResourceVO resourceVO) {
         resourceService.saveOrUpdateResource(resourceVO);
         return Result.success();

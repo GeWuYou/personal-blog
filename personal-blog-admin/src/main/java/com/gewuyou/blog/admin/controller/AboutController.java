@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.admin.service.IAboutService;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.entity.Result;
@@ -44,6 +45,7 @@ public class AboutController {
     @Operation(summary = "更新关于信息", description = "更新关于信息")
     @OperationLogging(type = OperationType.UPDATE)
     @PutMapping
+    @Idempotent
     public Result<?> updateAbout(@Valid @RequestBody AboutVO aboutVO) {
         aboutService.updateAbout(aboutVO);
         return Result.success();

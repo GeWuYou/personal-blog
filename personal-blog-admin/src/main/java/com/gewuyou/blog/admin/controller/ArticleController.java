@@ -4,6 +4,7 @@ import com.gewuyou.blog.admin.service.IArticleService;
 import com.gewuyou.blog.admin.service.IArticleTransactionalService;
 import com.gewuyou.blog.admin.strategy.context.ArticleImportStrategyContext;
 import com.gewuyou.blog.admin.strategy.context.UploadStrategyContext;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.ArticleAdminDTO;
@@ -78,6 +79,7 @@ public class ArticleController {
     @Operation(summary = "保存或更新文章", description = "保存或更新文章")
     @OperationLogging(type = SAVE_OR_UPDATE)
     @PostMapping
+    @Idempotent
     public Result<?> saveOrUpdateArticle(@Validated @RequestBody ArticleVO articleVO) {
         articleTransactionalService.saveOrUpdateArticle(articleVO);
         return Result.success();
@@ -105,6 +107,7 @@ public class ArticleController {
      */
     @Operation(summary = "删除或者恢复文章", description = "删除或者恢复文章")
     @PutMapping
+    @Idempotent
     public Result<?> updateArticleDelete(@Validated @RequestBody DeleteVO deleteVO) {
         articleTransactionalService.updateArticleDelete(deleteVO);
         return Result.success();
@@ -119,6 +122,7 @@ public class ArticleController {
     @Operation(summary = "物理删除文章", description = "物理删除文章")
     @OperationLogging(type = DELETE)
     @DeleteMapping
+    @Idempotent
     public Result<?> deleteArticles(@RequestBody List<Long> articleIds) {
         articleTransactionalService.deleteArticles(articleIds);
         return Result.success();
@@ -165,6 +169,7 @@ public class ArticleController {
     @Operation(summary = "导入文章", description = "导入文章")
     @OperationLogging(type = UPLOAD)
     @PostMapping("/import")
+    @Idempotent
     public Result<?> importArticles(MultipartFile file, @RequestParam(required = false) String type) {
         articleImportStrategyContext.importArticles(file, type);
         return Result.success();

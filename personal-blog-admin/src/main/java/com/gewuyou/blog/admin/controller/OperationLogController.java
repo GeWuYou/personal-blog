@@ -1,5 +1,6 @@
 package com.gewuyou.blog.admin.controller;
 
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.OperationLogDTO;
@@ -55,6 +56,7 @@ public class OperationLogController {
     @Operation(summary = "删除操作日志", description = "删除操作日志")
     @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping
+    @Idempotent
     public Result<?> deleteOperationLogs(@RequestBody List<Long> operationLogIds) {
         operationLogService.removeByIds(operationLogIds);
         return Result.success();

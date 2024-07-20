@@ -10,12 +10,12 @@ import com.gewuyou.blog.admin.mapper.TagMapper;
 import com.gewuyou.blog.admin.service.ITagService;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TagAdminDTO;
+import com.gewuyou.blog.common.dto.TagOptionDTO;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.ArticleTag;
 import com.gewuyou.blog.common.model.Tag;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
-import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.TagVO;
@@ -55,20 +55,8 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
         if (count == 0) {
             return new PageResultDTO<>();
         }
-        Page<Tag> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
-        var tags = baseMapper.listTags(page, conditionVO);
-        var tagAdminDTOs = tags
-                .getRecords()
-                .stream()
-                .map(tag -> {
-                    var tagAdminDTO = BeanCopyUtil.copyObject(tag, TagAdminDTO.class);
-                    var createTime = tag.getCreateTime();
-                    if (Objects.nonNull(createTime)) {
-                        tagAdminDTO.setCreateTime(DateUtil.convertToDate(createTime));
-                    }
-                    return tagAdminDTO;
-                })
-                .toList();
+        Page<TagAdminDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
+        var tagAdminDTOs = baseMapper.listTags(page, conditionVO).getRecords();
         return new PageResultDTO<>(tagAdminDTOs, count);
     }
 
@@ -79,12 +67,12 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
      * @return 标签列表
      */
     @Override
-    public List<TagAdminDTO> listTagsAdminDTOsBySearch(ConditionVO conditionVO) {
+    public List<TagOptionDTO> listTagsAdminDTOsBySearch(ConditionVO conditionVO) {
         List<Tag> tags = baseMapper.selectList(new LambdaQueryWrapper<Tag>()
                 .like(StringUtils.isNotBlank(conditionVO.getKeywords()),
                         Tag::getTagName, conditionVO.getKeywords())
                 .orderByDesc(Tag::getId));
-        return BeanCopyUtil.copyList(tags, TagAdminDTO.class);
+        return BeanCopyUtil.copyList(tags, TagOptionDTO.class);
     }
 
     /**
@@ -101,7 +89,11 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
             throw new GlobalException(ResponseInformation.TAG_NAME_ALREADY_EXISTS);
         }
         Tag tag = BeanCopyUtil.copyObject(tagVO, Tag.class);
-        this.saveOrUpdate(tag);
+        try {
+            this.saveOrUpdate(tag);
+        } catch (Exception e) {
+            throw new GlobalException(ResponseInformation.TAG_NAME_ALREADY_EXISTS);
+        }
     }
 
     /**

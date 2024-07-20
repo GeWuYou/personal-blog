@@ -1,6 +1,7 @@
 package com.gewuyou.blog.server.controller;
 
 import com.gewuyou.blog.common.annotation.AccessLimit;
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.CommentDTO;
@@ -47,6 +48,7 @@ public class CommentController {
     @AccessLimit(seconds = 60, maxCount = 3)
     @OperationLogging(type = OperationType.SAVE)
     @PostMapping
+    @Idempotent
     public Result<?> saveComment(@Valid @RequestBody CommentVO commentVO) {
         commentService.saveComment(commentVO);
         return Result.success();
