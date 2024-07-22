@@ -128,7 +128,7 @@
 </template>
 
 <script>
-import { _delete, _get } from '@/api/api'
+import { _delete, _get, _put } from '@/api/api'
 
 export default {
   created() {

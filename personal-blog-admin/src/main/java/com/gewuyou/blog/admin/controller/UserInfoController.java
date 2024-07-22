@@ -102,7 +102,6 @@ public class UserInfoController {
      */
     @Parameter(name = "file", description = "用户头像", in = ParameterIn.QUERY, required = true)
     @Operation(summary = "更新用户头像", description = "更新用户头像")
-    @OperationLogging(type = OperationType.UPDATE, logParams = false)
     @PostMapping("/avatar")
     @Idempotent
     public Result<String> updateUserAvatar(MultipartFile file) {

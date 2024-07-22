@@ -3,7 +3,7 @@ package com.gewuyou.blog.common.vo;
 import com.gewuyou.blog.common.constant.MessageConstant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -52,6 +52,6 @@ public class CommentVO {
      * 评论类型
      */
     @Schema(description = "评论类型")
-    @NotEmpty(message = MessageConstant.COMMENT_TYPE_CANNOT_BE_EMPTY)
+    @NotNull(message = MessageConstant.COMMENT_TYPE_CANNOT_BE_EMPTY)
     private Byte type;
 }

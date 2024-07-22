@@ -25,7 +25,7 @@
         ui.avatar AS avatar,
         ui.nick_name AS nickname,
         r.nick_name AS replyNickname,
-        a.title AS articleTitle,
+        a.article_title AS articleTitle,
         c.comment_content AS commentContent,
         c.type AS type,
         c.is_review AS isReview,

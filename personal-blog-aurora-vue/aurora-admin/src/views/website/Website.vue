@@ -243,7 +243,7 @@ export default {
   },
   computed: {
     avatarUpload() {
-      return this.baseUrl + '/config/images'
+      return this.baseUrl + '/admin/config/images'
     }
   },
   methods: {

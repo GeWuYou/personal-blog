@@ -12,7 +12,7 @@
           @uploaded="handleSuccess"
           trigger="#pick-avatar"
           :request-options="options"
-          upload-url="/api/users/avatar" />
+          :upload-url="upLoadAction" />
         <el-form>
           <el-form-item model="userInfo" label="昵称:" class="mt-5">
             <el-input v-model="userInfo.nickname" />
@@ -83,80 +83,110 @@ import { useUserStore } from '@/stores/user'
 import AvatarCropper from 'vue-avatar-cropper'
 import { _post, _put } from '@/api/api'
 
-export default defineComponent({
-  name: 'UserCenter',
-  components: { AvatarCropper },
-  setup() {
-    const proxy: any = getCurrentInstance()?.appContext.config.globalProperties
-    const userStore = useUserStore()
-    const reactiveData = reactive({
-      message: '发送',
-      emailDialogVisible: false,
-      email: '' as any,
-      VerificationCode: '' as any,
-      loading: false,
-      switchState: false
-    })
-    let showCropper = ref(false)
-    const handleClose = () => {
-      userStore.userVisible = false
-    }
-    const changeEmailDialogVisible = () => {
-      reactiveData.emailDialogVisible = true
-    }
-    const bingingEmail = () => {
-      let params = {
-        email: reactiveData.email,
-        code: reactiveData.VerificationCode
+export default defineComponent(
+  {
+    computed: {
+      upLoadAction() {
+        return 'http://localhost:8082/api/v1/admin//user-info/avatar'
       }
-
-      _put('/server/user-info/email', params, () => {
-        proxy.$notify({
-          title: 'Success',
-          message: '绑定成功',
-          type: 'success'
-        })
-        userStore.userInfo.email = reactiveData.email
-        reactiveData.emailDialogVisible = false
+    },
+    name: 'UserCenter',
+    components: { AvatarCropper },
+    setup() {
+      const proxy: any = getCurrentInstance()?.appContext.config.globalProperties
+      const userStore = useUserStore()
+      const reactiveData = reactive({
+        message: '发送',
+        emailDialogVisible: false,
+        email: '' as any,
+        VerificationCode: '' as any,
+        loading: false,
+        switchState: false
       })
-      // api.bindingEmail(params).then(({ data }) => {
-      //   if (data.flag) {
-      //     proxy.$notify({
-      //       title: 'Success',
-      //       message: '绑定成功',
-      //       type: 'success'
-      //     })
-      //     userStore.userInfo.email = reactiveData.email
-      //     reactiveData.emailDialogVisible = false
-      //   }
-      // })
-    }
-    const handleSuccess = (data: any) => {
-      data.response.json().then((data: any) => {
-        if (data.flag) {
-          userStore.userInfo.avatar = data.data
+      let showCropper = ref(false)
+      const handleClose = () => {
+        userStore.userVisible = false
+      }
+      const changeEmailDialogVisible = () => {
+        reactiveData.emailDialogVisible = true
+      }
+      const bingingEmail = () => {
+        let params = {
+          email: reactiveData.email,
+          code: reactiveData.VerificationCode
+        }
+
+        _put('/server/user-info/email', params, () => {
           proxy.$notify({
             title: 'Success',
-            message: '上传成功',
+            message: '绑定成功',
             type: 'success'
           })
+          userStore.userInfo.email = reactiveData.email
+          reactiveData.emailDialogVisible = false
+        })
+        // api.bindingEmail(params).then(({ data }) => {
+        //   if (data.flag) {
+        //     proxy.$notify({
+        //       title: 'Success',
+        //       message: '绑定成功',
+        //       type: 'success'
+        //     })
+        //     userStore.userInfo.email = reactiveData.email
+        //     reactiveData.emailDialogVisible = false
+        //   }
+        // })
+      }
+      const handleSuccess = (data: any) => {
+        data.response.json().then((data: any) => {
+          if (data.success) {
+            userStore.userInfo.avatar = data.data
+            proxy.$notify({
+              title: 'Success',
+              message: '上传成功',
+              type: 'success'
+            })
+          }
+        })
+      }
+      const changeSubscribe = () => {
+        if (reactiveData.switchState) {
+          let params = {
+            userId: userStore.userInfo.userInfoId,
+            isSubscribe: userStore.userInfo.isSubscribe
+          }
+          _put('/server/user-info/subscribe', params, () => {
+            proxy.$notify({
+              title: 'Success',
+              message: '修改成功',
+              type: 'success'
+            })
+          })
+          // api.updateUserSubscribe(params).then(({ data }) => {
+          //   if (data.flag) {
+          //     proxy.$notify({
+          //       title: 'Success',
+          //       message: '修改成功',
+          //       type: 'success'
+          //     })
+          //   }
+          // })
         }
-      })
-    }
-    const changeSubscribe = () => {
-      if (reactiveData.switchState) {
+      }
+      const commit = () => {
         let params = {
-          userId: userStore.userInfo.userInfoId,
-          isSubscribe: userStore.userInfo.isSubscribe
+          nickname: userStore.userInfo.nickname,
+          website: userStore.userInfo.website,
+          intro: userStore.userInfo.intro
         }
-        _put('/server/user-info/subscribe', params, () => {
+        _put('/server/user-info', params, () => {
           proxy.$notify({
             title: 'Success',
             message: '修改成功',
             type: 'success'
           })
         })
-        // api.updateUserSubscribe(params).then(({ data }) => {
+        // api.submitUserInfo(params).then(({ data }) => {
         //   if (data.flag) {
         //     proxy.$notify({
         //       title: 'Success',
@@ -166,92 +196,68 @@ export default defineComponent({
         //   }
         // })
       }
-    }
-    const commit = () => {
-      let params = {
-        nickname: userStore.userInfo.nickname,
-        website: userStore.userInfo.website,
-        intro: userStore.userInfo.intro
-      }
-      _put('/server/user-info', params, () => {
-        proxy.$notify({
-          title: 'Success',
-          message: '修改成功',
-          type: 'success'
-        })
-      })
-      // api.submitUserInfo(params).then(({ data }) => {
-      //   if (data.flag) {
-      //     proxy.$notify({
-      //       title: 'Success',
-      //       message: '修改成功',
-      //       type: 'success'
-      //     })
-      //   }
-      // })
-    }
-    const sendCode = () => {
-      _post('/admin/user/code', {
-        email: reactiveData.email
-      }, (_, message: any) => {
-        proxy.$notify({
-          title: 'Success',
-          message: message,
-          type: 'success'
-        })
-      })
-      // api.sendValidationCode(reactiveData.email).then(({ data }) => {
-      //   if (data.flag) {
-      //     proxy.$notify({
-      //       title: 'Success',
-      //       message: '验证码已发送',
-      //       type: 'success'
-      //     })
-      //   }
-      // })
-    }
-    const beforeChange = () => {
-      reactiveData.switchState = true
-      reactiveData.loading = true
-      return new Promise((resolve, reject) => {
-        if (userStore.userInfo.email === '' || userStore.userInfo.email === null) {
-          reactiveData.loading = false
+      const sendCode = () => {
+        _post('/admin/user/code', {
+          email: reactiveData.email
+        }, (_, message: any) => {
           proxy.$notify({
-            title: 'Warning',
-            message: '邮箱未绑定,尽快绑定哦',
-            type: 'warning'
+            title: 'Success',
+            message: message,
+            type: 'success'
           })
-          return reject(new Error('Error'))
-        } else {
-          reactiveData.loading = false
-          return resolve(true)
-        }
-      })
-    }
-    return {
-      userInfo: toRef(userStore.$state, 'userInfo'),
-      ...toRefs(reactiveData),
-      visible: toRef(userStore.$state, 'userVisible'),
-      showCropper,
-      handleClose,
-      bingingEmail,
-      changeEmailDialogVisible,
-      changeSubscribe,
-      handleSuccess,
-      sendCode,
-      commit,
-      beforeChange,
-      options: computed(() => {
-        return {
-          method: 'POST',
-          headers: {
-            Authorization: 'Bearer ' + userStore.token
+        })
+        // api.sendValidationCode(reactiveData.email).then(({ data }) => {
+        //   if (data.flag) {
+        //     proxy.$notify({
+        //       title: 'Success',
+        //       message: '验证码已发送',
+        //       type: 'success'
+        //     })
+        //   }
+        // })
+      }
+      const beforeChange = () => {
+        reactiveData.switchState = true
+        reactiveData.loading = true
+        return new Promise((resolve, reject) => {
+          if (userStore.userInfo.email === '' || userStore.userInfo.email === null) {
+            reactiveData.loading = false
+            proxy.$notify({
+              title: 'Warning',
+              message: '邮箱未绑定,尽快绑定哦',
+              type: 'warning'
+            })
+            return reject(new Error('Error'))
+          } else {
+            reactiveData.loading = false
+            return resolve(true)
           }
-        }
-      })
+        })
+      }
+      return {
+        userInfo: toRef(userStore.$state, 'userInfo'),
+        ...toRefs(reactiveData),
+        visible: toRef(userStore.$state, 'userVisible'),
+        showCropper,
+        handleClose,
+        bingingEmail,
+        changeEmailDialogVisible,
+        changeSubscribe,
+        handleSuccess,
+        sendCode,
+        commit,
+        beforeChange,
+        options: computed(() => {
+          return {
+            method: 'POST',
+            headers: {
+              Authorization: 'Bearer ' + userStore.token
+            }
+          }
+        })
+      }
     }
-  }
-})
+  })
 </script>
 <style lang="scss" scoped>
 #submit-button {

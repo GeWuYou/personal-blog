@@ -39,5 +39,4 @@ public class WebsiteConfigController {
     public Result<WebsiteConfigDTO> getWebsiteConfig() {
         return Result.success(websiteConfigService.getWebsiteConfig());
     }
-
 }

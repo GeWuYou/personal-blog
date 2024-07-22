@@ -10,7 +10,7 @@
         c.user_id AS userId,
         c.id AS id,
         c.comment_content AS commentContent,
-        c.create_time AS createTime,
+        c.create_time AS createTime
         FROM tb_comment c
         JOIN tb_user_info ui ON c.user_id = ui.id
         <where>
@@ -94,7 +94,7 @@
         c.comment_content AS commentContent,
         c.type AS type,
         c.is_review AS isReview,
-        c.create_time AS createTime,
+        c.create_time AS createTime
         FROM tb_comment c
         LEFT JOIN tb_article a ON c.topic_id = a.article_id
         LEFT JOIN tb_user_info ui ON c.user_id = ui.id

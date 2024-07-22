@@ -2,6 +2,7 @@ package com.gewuyou.blog.common.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +36,6 @@ public class ReviewVO {
      * 是否审核
      */
     @Schema(description = "是否审核")
-    @NotEmpty(message = REVIEW_STATUS_CANNOT_BE_EMPTY)
+    @NotNull(message = REVIEW_STATUS_CANNOT_BE_EMPTY)
     private Byte isReview;
 }
