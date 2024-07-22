@@ -1,5 +1,6 @@
 package com.gewuyou.blog.common.aspect;
 
+import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.service.IRedisService;
@@ -31,8 +32,8 @@ public class IdempotentAspect {
         this.redisService = redisService;
     }
 
-    @Around("@annotation(com.gewuyou.blog.common.annotation.Idempotent)")
-    public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Around("@annotation(idempotent)")
+    public Object around(ProceedingJoinPoint joinPoint, Idempotent idempotent) throws Throwable {
         String key = getIdempotentKey(joinPoint);
 
         // 尝试在 Redis 中设置唯一键，设置成功表示首次请求，否则是重复请求
@@ -47,7 +48,7 @@ public class IdempotentAspect {
             return joinPoint.proceed();
         } finally {
             // 请求处理完成后，延迟 5 秒后清除 Redis 中的键
-            redisService.delayedDelete(key, 5, TimeUnit.SECONDS);
+            redisService.delayedDelete(key, idempotent.delay(), TimeUnit.SECONDS);
         }
     }
 

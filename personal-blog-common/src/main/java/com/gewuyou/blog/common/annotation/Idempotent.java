@@ -12,5 +12,10 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Idempotent {
-
+    /**
+     * 幂等请求间隔时间，单位秒
+     *
+     * @return 延迟时间
+     */
+    long delay() default 5;
 }
