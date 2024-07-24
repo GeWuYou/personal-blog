@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.common.annotation.AccessLimit;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.service.IRedisService;
-import com.gewuyou.blog.common.utils.IpUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -78,7 +77,7 @@ public class AccessLimitInterceptor implements HandlerInterceptor {
         // 获取访问次数
         int maxCount = accessLimit.maxCount();
         // 设置键
-        String key = IpUtil.getIpAddress(request) + "-" + handlerMethod.getMethod().getName();
+        String key = "limit:" + System.currentTimeMillis() / 1000 + ":" + seconds;
         Long l = redisService.incrExpire(key, seconds);
         if (l > maxCount) {
             render(response, Result.failure("请求次数过多，请等待" + seconds + "秒后再试!"));

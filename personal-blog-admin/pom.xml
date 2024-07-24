@@ -6,7 +6,6 @@
         <groupId>com.gewuyou</groupId>
         <artifactId>personal-blog</artifactId>
         <version>0.1.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <artifactId>personal-blog-admin</artifactId>
     <version>0.1.0</version>
@@ -16,6 +15,18 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
+        <!--安全模块-->
+        <dependency>
+            <groupId>com.gewuyou</groupId>
+            <artifactId>personal-blog-security</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <!--通用模块-->
+        <dependency>
+            <groupId>com.gewuyou</groupId>
+            <artifactId>personal-blog-common</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -34,12 +45,7 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.gewuyou</groupId>
-            <artifactId>personal-blog-common</artifactId>
-            <version>${personal-blog-common.version}</version>
-            <scope>compile</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -87,7 +93,6 @@
         <dependency>
             <groupId>org.lionsoul</groupId>
             <artifactId>ip2region</artifactId>
-            <version>${ip2region.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
         <!-- Jackson JSR310 datatype -->
@@ -101,12 +106,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-quartz</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.gewuyou</groupId>
-            <artifactId>personal-blog-security</artifactId>
-            <version>${personal-blog-security.version}</version>
-            <scope>compile</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.qiniu</groupId>
             <artifactId>qiniu-java-sdk</artifactId>
@@ -135,13 +135,4 @@
             </plugin>
         </plugins>
     </build>
-    <!--    <build>-->
-    <!--        <plugins>-->
-    <!--            <plugin>-->
-    <!--                <groupId>org.springframework.boot</groupId>-->
-    <!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-    <!--            </plugin>-->
-    <!--    </plugins>-->
-    <!--    </build>-->
-
 </project>

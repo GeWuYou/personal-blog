@@ -6,7 +6,6 @@
 		<groupId>com.gewuyou</groupId>
 		<artifactId>personal-blog</artifactId>
 		<version>0.1.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>personal-blog-server</artifactId>
 	<version>0.1.0</version>
@@ -16,6 +15,19 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
+
+		<!--安全模块-->
+		<dependency>
+			<groupId>com.gewuyou</groupId>
+			<artifactId>personal-blog-security</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<!--通用模块-->
+		<dependency>
+			<groupId>com.gewuyou</groupId>
+			<artifactId>personal-blog-common</artifactId>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -43,12 +55,6 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.gewuyou</groupId>
-			<artifactId>personal-blog-common</artifactId>
-			<version>${personal-blog-common.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
 		</dependency>
@@ -68,15 +74,20 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.gewuyou</groupId>
-            <artifactId>personal-blog-security</artifactId>
-            <version>${personal-blog-security.version}</version>
-        </dependency>
     </dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.9.0</version>
+				<configuration>
+					<release>${java.version}</release>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

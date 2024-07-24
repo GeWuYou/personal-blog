@@ -55,6 +55,41 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- 敏感词工具 -->
+            <dependency>
+                <groupId>com.github.houbb</groupId>
+                <artifactId>sensitive-word</artifactId>
+                <version>${sensitive-word.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.aliyun.oss/aliyun-sdk-oss -->
+            <dependency>
+                <groupId>com.aliyun.oss</groupId>
+                <artifactId>aliyun-sdk-oss</artifactId>
+                <version>${aliyun-sdk-oss.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/io.minio/minio -->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
+            </dependency>
+            <!--安全模块-->
+            <dependency>
+                <groupId>com.gewuyou</groupId>
+                <artifactId>personal-blog-security</artifactId>
+                <version>${personal-blog-security.version}</version>
+            </dependency>
+            <!--通用模块-->
+            <dependency>
+                <groupId>com.gewuyou</groupId>
+                <artifactId>personal-blog-common</artifactId>
+                <version>${personal-blog-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.lionsoul</groupId>
+                <artifactId>ip2region</artifactId>
+                <version>${ip2region.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-framework-bom</artifactId>
