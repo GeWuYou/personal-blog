@@ -364,9 +364,7 @@ export default {
     },
     listUserArea() {
       _get('/admin/user/area', {
-        params: {
-          type: this.type
-        }
+        type: this.type
       }, (data) => {
         this.userAreaMap.series[0].data = data
       })

@@ -9,10 +9,10 @@ import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.UserAuth;
 import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.utils.IpUtil;
+import com.gewuyou.blog.common.utils.ValidatorUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -59,10 +59,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             if (usernameOrEmail == null || usernameOrEmail.isEmpty()) {
                 throw new GlobalException(ResponseInformation.USERNAME_LOGIN_ERROR);
             }
-            EmailValidator validator = EmailValidator.getInstance();
-
             // 是邮箱还是用户名
-            if (validator.isValid(usernameOrEmail)) {
+            if (ValidatorUtil.isEmail(usernameOrEmail)) {
                 userAuth = userAuthMapper.selectByEmail(usernameOrEmail)
                         .orElseThrow(() -> new GlobalException(ResponseInformation.USER_EMAIL_LOGIN_ERROR));
             } else {

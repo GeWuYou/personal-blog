@@ -17,6 +17,7 @@ import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.model.UserRole;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -124,15 +125,24 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 .map(
                         value -> (UserDetailsDTO) value
                 ).toList();
-        List<UserOnlineDTO> onlineUsers = BeanCopyUtil
-                .copyList(userDetailDTOs, UserOnlineDTO.class)
+        List<UserOnlineDTO> onlineUsers = userDetailDTOs
                 .stream()
+                .map(
+                        userDetailDTO -> {
+                            var userOnlineDTO = BeanCopyUtil.copyObject(userDetailDTO, UserOnlineDTO.class);
+                            var lastLoginTime = userDetailDTO.getLastLoginTime();
+                            if (lastLoginTime != null) {
+                                userOnlineDTO.setLastLoginTime(DateUtil.convertToDate(lastLoginTime));
+                            }
+                            return userOnlineDTO;
+                        }
+                )
                 .filter(item -> StringUtils.isBlank(conditionVO.getKeywords()) ||
                         item.getNickname().contains(conditionVO.getKeywords()))
                 .sorted(Comparator.comparing(UserOnlineDTO::getLastLoginTime).reversed())
                 .toList();
         var fromIndex = PageUtil.getLimitCurrent().intValue();
-        var size = PageUtil.getLimitCurrent().intValue();
+        var size = PageUtil.getSize().intValue();
         var toIndex = onlineUsers.size() - fromIndex > size ? fromIndex + size : onlineUsers.size();
         var result = onlineUsers.subList(fromIndex, toIndex);
         return new PageResultDTO<>(result, (long) onlineUsers.size());

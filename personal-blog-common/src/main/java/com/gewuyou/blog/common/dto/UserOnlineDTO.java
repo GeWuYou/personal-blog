@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 用户在线DTO
@@ -66,5 +66,5 @@ public class UserOnlineDTO {
      * 上次登录时间
      */
     @Schema(description = "上次登录时间")
-    private LocalDateTime lastLoginTime;
+    private Date lastLoginTime;
 }
