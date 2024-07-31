@@ -8,23 +8,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * WebConfig
+ * CommonWebConfig
  *
  * @author gewuyou
  * @since 2024-06-02 下午4:38:46
  */
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class CommonWebConfig implements WebMvcConfigurer {
 
     private final AccessLimitInterceptor accessLimitInterceptor;
     private final PaginationInterceptor paginationInterceptor;
 
     @Autowired
-    public WebConfig(AccessLimitInterceptor accessLimitInterceptor, PaginationInterceptor paginationInterceptor) {
+    public CommonWebConfig(AccessLimitInterceptor accessLimitInterceptor, PaginationInterceptor paginationInterceptor) {
         this.accessLimitInterceptor = accessLimitInterceptor;
         this.paginationInterceptor = paginationInterceptor;
     }
@@ -41,12 +40,6 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
         registry.addInterceptor(accessLimitInterceptor);
         registry.addInterceptor(paginationInterceptor);
-    }
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/admin/blog/**")
-                .addResourceLocations("file:///D:/Project/JAVA/personal-blog/assets/blog/");
     }
 
     @Bean

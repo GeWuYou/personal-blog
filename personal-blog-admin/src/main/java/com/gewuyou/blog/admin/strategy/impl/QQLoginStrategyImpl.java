@@ -20,7 +20,6 @@ import com.gewuyou.blog.security.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -51,7 +50,7 @@ public class QQLoginStrategyImpl extends AbstractSocialLoginStrategyImpl {
             JwtService jwtService,
             HttpServletRequest request,
             UserInfoMapper userInfoMapper,
-            QQConfigProperties qqConfigProperties, @Qualifier("objectMapper") ObjectMapper objectMapper, RestTemplate restTemplate) {
+            QQConfigProperties qqConfigProperties, ObjectMapper objectMapper, RestTemplate restTemplate) {
         super(userAuthMapper, userRoleMapper, userDetailsService, jwtService, request, userInfoMapper);
         this.qqConfigProperties = qqConfigProperties;
         this.objectMapper = objectMapper;

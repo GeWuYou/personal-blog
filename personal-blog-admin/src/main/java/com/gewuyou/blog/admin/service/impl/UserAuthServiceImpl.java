@@ -36,7 +36,6 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,7 +90,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
             ServerClient serverClient,
             LoginStrategyContext loginStrategyContext,
             JwtService jwtService, RabbitTemplate rabbitTemplate,
-            @Qualifier("objectMapper") ObjectMapper objectMapper, UserInfoMapper userInfoMapper) {
+            ObjectMapper objectMapper, UserInfoMapper userInfoMapper) {
         this.redisService = redisService;
         this.userRoleMapper = userRoleMapper;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;

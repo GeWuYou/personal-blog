@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import static com.gewuyou.blog.common.constant.RabbitMQConstant.EMAIL_QUEUE;
@@ -26,7 +25,7 @@ public class EmailConsumer {
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public EmailConsumer(EmailUtil emailUtil, @Qualifier("objectMapper") ObjectMapper objectMapper) {
+    public EmailConsumer(EmailUtil emailUtil, ObjectMapper objectMapper) {
         this.emailUtil = emailUtil;
         this.objectMapper = objectMapper;
     }

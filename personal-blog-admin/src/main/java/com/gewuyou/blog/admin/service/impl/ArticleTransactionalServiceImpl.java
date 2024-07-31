@@ -13,7 +13,6 @@ import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Article;
 import com.gewuyou.blog.common.model.ArticleTag;
-import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ArticleVO;
@@ -51,7 +50,6 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
             IArticleTagService articleTagService,
             RabbitTemplate rabbitTemplate,
             ObjectMapper objectMapper,
-            IRedisService redisService,
             ArticleTagMapper articleTagMapper) {
         this.categoryService = categoryService;
         this.articleTagService = articleTagService;

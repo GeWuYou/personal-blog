@@ -1,8 +1,6 @@
 package com.gewuyou.blog.common.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -26,14 +24,6 @@ import java.time.format.DateTimeFormatter;
  */
 @Configuration
 public class JacksonConfig {
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        // 忽略不可序列化的字段
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        return objectMapper;
-    }
-
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer customizer() {
         return builder ->

@@ -21,7 +21,6 @@ import com.gewuyou.blog.server.mapper.TalkMapper;
 import com.gewuyou.blog.server.service.ITalkService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,7 +45,7 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public TalkServiceImpl(CommentMapper commentMapper, @Qualifier("objectMapper") ObjectMapper objectMapper) {
+    public TalkServiceImpl(CommentMapper commentMapper, ObjectMapper objectMapper) {
         this.commentMapper = commentMapper;
         this.objectMapper = objectMapper;
     }
