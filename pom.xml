@@ -16,7 +16,6 @@
         <module>personal-blog-search</module>
         <module>personal-blog-eureka</module>
         <module>personal-blog-extension</module>
-        <module>personal-blog-encrypt</module>
         <module>personal-blog-gateway</module>
         <module>personal-blog-security</module>
     </modules>
