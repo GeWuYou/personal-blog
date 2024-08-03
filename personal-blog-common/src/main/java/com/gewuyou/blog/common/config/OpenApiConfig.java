@@ -1,4 +1,4 @@
-package com.gewuyou.blog.admin.config;
+package com.gewuyou.blog.common.config;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -18,11 +18,11 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI springOpenAPI() {
         return new OpenAPI().info(new Info()
-                        .title("Personal-Blog-Admin API Document")
-                        .description("Personal-Blog-Admin API Document")
+                        .title("Personal-Blog API Document")
+                        .description("Personal-Blog API Document")
                         .version("0.1.0")
-                        .license(new License().name("GNU General Public License v2.0")
-                                .url("https://www.gnu.org/licenses/gpl-2.0.html")))
+                        .license(new License().name("Apache 2.0 License")
+                                .url("http://www.apache.org/licenses/LICENSE-2.0")))
                 .externalDocs(new ExternalDocumentation()
                         .description("欢迎访问gewuyou的github仓库")
                         .url("https://github.com/gewuyou"));

@@ -54,7 +54,7 @@ export default defineComponent({
     })
     const fetchArticles = () => {
       reactiveData.haveArticles = false
-      _get('/server/tag/list/tagId', {
+      _get('/server/article/list/tagId', {
         tagId: route.params.tagId,
         current: pagination.current,
         size: pagination.size

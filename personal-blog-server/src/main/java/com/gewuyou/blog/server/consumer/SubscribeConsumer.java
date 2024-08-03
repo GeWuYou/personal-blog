@@ -2,6 +2,7 @@ package com.gewuyou.blog.server.consumer;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gewuyou.blog.common.config.entity.ProjectProperties;
 import com.gewuyou.blog.common.dto.EmailDTO;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
@@ -34,8 +35,12 @@ import static com.gewuyou.blog.common.constant.RabbitMQConstant.SUBSCRIBE_QUEUE;
 @Component
 @RabbitListener(queues = SUBSCRIBE_QUEUE)
 public class SubscribeConsumer {
-    @Value("${website.url}")
+    private final ProjectProperties projectProperties;
+    @Value("${project.website-url}")
     private String websiteUrl;
+
+    @Value("${swagger.url")
+    private List<String> swaggerUrls;
 
     private final IArticleService articleService;
 
@@ -50,12 +55,13 @@ public class SubscribeConsumer {
             IArticleService articleService,
             IUserInfoService userInfoService,
             EmailUtil emailUtil,
-            ObjectMapper objectMapper
-    ) {
+            ObjectMapper objectMapper,
+            ProjectProperties projectProperties) {
         this.articleService = articleService;
         this.userInfoService = userInfoService;
         this.emailUtil = emailUtil;
         this.objectMapper = objectMapper;
+        this.projectProperties = projectProperties;
     }
 
     @RabbitHandler
@@ -93,10 +99,10 @@ public class SubscribeConsumer {
         emailDTO.setTemplate("content.html");
         String url = websiteUrl + "/article/" + article.getId();
         if (article.getUpdateTime() == null) {
-            map.put("content", "gewuyou的个人博客发布了新的文章，"
+            map.put("content", projectProperties.getBloggerName() + "的个人博客发布了新的文章，"
                     + "<a style=\"text-decoration:none;color:#12addb\" href=\"" + url + "\">点击查看</a>");
         } else {
-            map.put("content", "gewuyou的个人博客对《" + article.getArticleTitle() + "》进行了更新，"
+            map.put("content", projectProperties.getBloggerName() + "的个人博客对《" + article.getArticleTitle() + "》进行了更新，"
                     + "<a style=\"text-decoration:none;color:#12addb\" href=\"" + url + "\">点击查看</a>");
         }
         emailDTO.setContentMap(map);

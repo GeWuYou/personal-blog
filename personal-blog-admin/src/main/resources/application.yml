@@ -5,6 +5,7 @@ spring:
   security:
     ignore:
       urls:
+        - /swagger-ui.html
         - /admin/blog/**
         - /admin/user/login
         - /admin/
@@ -38,3 +39,7 @@ eureka:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+swagger:
+  url:
+    - "http://localhost:8084/swagger-ui.html"
+    - "http://localhost:8080/swagger-ui.html"

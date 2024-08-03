@@ -48,4 +48,9 @@ public interface IResourceService extends IService<Resource> {
      * @return 资源选项
      */
     List<LabelOptionDTO> listResourceOptionDTO();
+
+    /**
+     * 导入swagger接口
+     */
+    void importSwagger();
 }

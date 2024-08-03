@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.temporal.TemporalUnit;
 import java.util.Date;
 
 /**
@@ -48,6 +49,18 @@ public class DateUtil {
         LocalDate localDate = convertToLocalDate(date);
         LocalDate offsetDate = localDate.plusDays(days);
         return convertToDate(offsetDate.atStartOfDay());
+    }
+
+    /**
+     * 根据指定时间偏移日期
+     *
+     * @param time   基础时间
+     * @param number 偏移量
+     * @param field  时间单位（如：ChronoUnit.DAYS）
+     * @return 偏移后的日期
+     */
+    public static LocalDateTime offset(LocalDateTime time, long number, TemporalUnit field) {
+        return null == time ? null : time.plus(number, field);
     }
 
     /**

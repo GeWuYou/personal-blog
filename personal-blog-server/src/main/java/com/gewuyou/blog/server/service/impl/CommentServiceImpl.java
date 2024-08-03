@@ -58,7 +58,7 @@ import static com.gewuyou.blog.common.enums.CommentTypeEnum.ARTICLE;
 public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> implements ICommentService {
 
     private final IWebsiteConfigService websiteConfigService;
-    @Value("${website.url}")
+    @Value("${project.website-url}")
     private String websiteUrl;
     private static final List<Byte> types = new ArrayList<>();
     private final ArticleMapper articleMapper;

@@ -1,0 +1,5 @@
+project:
+  # 博主名称
+  blogger-name: "gewuyou"
+  # 博客地址
+  website-url: "http://localhost:8084"

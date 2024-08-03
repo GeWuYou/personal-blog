@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.client.ServerClient;
+import com.gewuyou.blog.admin.config.entity.SwaggerProperties;
 import com.gewuyou.blog.admin.mapper.ResourceMapper;
 import com.gewuyou.blog.admin.mapper.RoleResourceMapper;
 import com.gewuyou.blog.admin.service.IResourceService;
@@ -22,7 +23,10 @@ import com.gewuyou.blog.common.vo.ResourceVO;
 import com.gewuyou.blog.security.source.DynamicSecurityMetadataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,11 +46,15 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     private final RoleResourceMapper roleResourceMapper;
     private final DynamicSecurityMetadataSource dynamicSecurityMetadataSource;
     private final ServerClient serverClient;
+    private final RestTemplate restTemplate;
+    private final SwaggerProperties swaggerProperties;
 
-    public ResourceServiceImpl(RoleResourceMapper roleResourceMapper, DynamicSecurityMetadataSource dynamicSecurityMetadataSource, ServerClient serverClient) {
+    public ResourceServiceImpl(RoleResourceMapper roleResourceMapper, DynamicSecurityMetadataSource dynamicSecurityMetadataSource, ServerClient serverClient, RestTemplate restTemplate, SwaggerProperties swaggerProperties) {
         this.roleResourceMapper = roleResourceMapper;
         this.dynamicSecurityMetadataSource = dynamicSecurityMetadataSource;
         this.serverClient = serverClient;
+        this.restTemplate = restTemplate;
+        this.swaggerProperties = swaggerProperties;
     }
 
     /**
@@ -144,6 +152,61 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
                     .children(list)
                     .build();
         }).toList();
+    }
+
+    /**
+     * 导入swagger接口
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void importSwagger() {
+        this.remove(null);
+        roleResourceMapper.delete(null);
+        List<Resource> resources = new ArrayList<>();
+        importResource(resources);
+    }
+
+    /**
+     * 导入资源
+     *
+     * @param resources 资源列表
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void importResource(List<Resource> resources) {
+        for (String s : swaggerProperties.getUrl()) {
+            Map<String, Object> data = restTemplate.getForObject(s, Map.class);
+            List<Map<String, String>> tags = (List<Map<String, String>>) data.get("tags");
+            tags.forEach(item -> {
+                var resource = Resource
+                        .builder()
+                        .name(item.get("name"))
+                        .isAnonymous(FALSE)
+                        .createTime(LocalDateTime.now())
+                        .build();
+                resources.add(resource);
+            });
+            this.saveBatch(resources);
+
+            Map<String, Integer> permissionMap = resources.stream()
+                    .collect(Collectors.toMap(Resource::getResourceName, Resource::getId));
+            resources.clear();
+            Map<String, Map<String, Map<String, Object>>> path = (Map<String, Map<String, Map<String, Object>>>) data.get("paths");
+            path.forEach((url, value) -> value.forEach((requestMethod, info) -> {
+                String permissionName = info.get("summary").toString();
+                List<String> tag = (List<String>) info.get("tags");
+                Integer parentId = permissionMap.get(tag.get(0));
+                Resource resource = Resource.builder()
+                        .name(permissionName)
+                        .url(url.replaceAll("\\{[^}]*}", "*"))
+                        .parentId(parentId)
+                        .requestMethod(requestMethod.toUpperCase())
+                        .isAnonymous(FALSE)
+                        .createTime(LocalDateTime.now())
+                        .build();
+                resources.add(resource);
+            }));
+            this.saveBatch(resources);
+        }
     }
 
     /**
