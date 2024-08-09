@@ -2,8 +2,10 @@ package com.gewuyou.blog.admin.strategy.impl;
 
 
 import com.gewuyou.blog.admin.config.entity.MinioProperties;
+import com.gewuyou.blog.common.service.IRedisService;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import io.minio.StatObjectArgs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,8 @@ public class MinioUploadStrategyImpl extends AbstractUploadStrategyImpl {
     private volatile MinioClient minioClient;
 
     @Autowired
-    public MinioUploadStrategyImpl(MinioProperties minioProperties) {
+    public MinioUploadStrategyImpl(MinioProperties minioProperties, IRedisService redisService) {
+        super(redisService);
         this.minioProperties = minioProperties;
     }
 
@@ -82,6 +85,26 @@ public class MinioUploadStrategyImpl extends AbstractUploadStrategyImpl {
     @Override
     public String getFileAccessUrl(String filePath) {
         return minioProperties.getUrl() + "/" + filePath;
+    }
+
+    /**
+     * 删除文件
+     *
+     * @param filePath 文件路径
+     */
+    @Override
+    public void delete(String filePath) {
+        try {
+            getMinioClient().removeObject(
+                    RemoveObjectArgs
+                            .builder()
+                            .bucket(minioProperties.getBucketName())
+                            .object(filePath)
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error("删除文件失败：{}", e.getMessage());
+        }
     }
 
     private MinioClient getMinioClient() {

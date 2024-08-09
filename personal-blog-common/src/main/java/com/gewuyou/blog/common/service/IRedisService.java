@@ -242,6 +242,13 @@ public interface IRedisService {
 
     Set<Object> sMembers(String key);
 
+    /**
+     * 向集合中添加元素
+     *
+     * @param key    键
+     * @param values 值列表
+     * @return 成功添加的个数
+     */
     Long sAdd(String key, Object... values);
 
     Long sAddExpire(String key, long time, Object... values);
@@ -256,6 +263,14 @@ public interface IRedisService {
     Boolean sIsMember(String key, Object value);
 
     Long sSize(String key);
+
+    /**
+     * 获取两个集合的差集
+     *
+     * @param keys 键列表
+     * @return 差集
+     */
+    Set<Object> sDiff(String... keys);
 
     Long sRemove(String key, Object... values);
 

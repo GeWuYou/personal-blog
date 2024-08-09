@@ -48,10 +48,17 @@
         <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version>
         <sensitive-word.version>0.16.1</sensitive-word.version>
         <qiniu-java-sdk.version>7.13.0</qiniu-java-sdk.version>
+        <redisson.version>3.34.1</redisson.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- https://mvnrepository.com/artifact/org.redisson/redisson-spring-boot-starter -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
 
             <!-- https://mvnrepository.com/artifact/eu.bitwalker/UserAgentUtils -->
             <dependency>

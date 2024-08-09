@@ -8,7 +8,6 @@ import com.gewuyou.blog.common.utils.ExceptionUtil;
 import com.gewuyou.blog.common.utils.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Date;
@@ -27,7 +26,7 @@ public abstract class AbstractQuartzJob implements org.quartz.Job {
     private static final ThreadLocal<Date> THREAD_LOCAL = new ThreadLocal<>();
 
     @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
+    public void execute(JobExecutionContext context) {
         Job job = new Job();
         BeanUtils.copyProperties(context.getMergedJobDataMap().get(ScheduleConstant.TASK_PROPERTIES), job);
         try {

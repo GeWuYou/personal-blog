@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.admin.mapper.WebsiteConfigMapper;
 import com.gewuyou.blog.admin.service.IWebsiteConfigService;
+import com.gewuyou.blog.common.annotation.ReadLock;
+import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.WebsiteConfig;
@@ -14,6 +16,10 @@ import com.gewuyou.blog.common.vo.WebsiteConfigVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static com.gewuyou.blog.common.constant.CommonConstant.DEFAULT_CONFIG_ID;
 import static com.gewuyou.blog.common.constant.RedisConstant.WEBSITE_CONFIG;
@@ -50,6 +56,7 @@ public class WebsiteConfigServiceImpl extends ServiceImpl<WebsiteConfigMapper, W
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @ReadLock(RedisConstant.IMAGE_LOCK)
     public void updateWebsiteConfig(WebsiteConfigVO websiteConfigVO) {
         try {
             WebsiteConfig websiteConfig =
@@ -59,6 +66,22 @@ public class WebsiteConfigServiceImpl extends ServiceImpl<WebsiteConfigMapper, W
                             .config(objectMapper.writeValueAsString(websiteConfigVO))
                             .build();
             baseMapper.updateById(websiteConfig);
+            // 过滤掉 null 值
+            List<String> urls = Stream.of(
+                            websiteConfigVO.getAlipayQRCode(),
+                            websiteConfigVO.getFavicon(),
+                            websiteConfigVO.getAuthorAvatar(),
+                            websiteConfigVO.getLogo(),
+                            websiteConfigVO.getTouristAvatar(),
+                            websiteConfigVO.getUserAvatar(),
+                            websiteConfigVO.getWeiXinQRCode()
+                    ).filter(Objects::nonNull)
+                    .toList();
+
+            // 将非空值保存到 Redis 中
+            if (!urls.isEmpty()) {
+                redisService.sAdd(RedisConstant.DB_IMAGE_NAME, (Object[]) urls.toArray(new String[0]));
+            }
             // 删除缓存
             redisService.delete(WEBSITE_CONFIG);
         } catch (JsonProcessingException e) {

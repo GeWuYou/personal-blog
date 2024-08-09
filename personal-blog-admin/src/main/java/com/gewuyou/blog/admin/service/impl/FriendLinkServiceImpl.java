@@ -6,14 +6,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.FriendLinkMapper;
 import com.gewuyou.blog.admin.service.IFriendLinkService;
+import com.gewuyou.blog.common.annotation.ReadLock;
+import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.dto.FriendLinkAdminDTO;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.model.FriendLink;
+import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.DateUtil;
+import com.gewuyou.blog.common.utils.FileUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.FriendLinkVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +32,13 @@ import java.util.Objects;
  */
 @Service
 public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendLink> implements IFriendLinkService {
+    private final IRedisService redisService;
+
+    @Autowired
+    public FriendLinkServiceImpl(IRedisService redisService) {
+        this.redisService = redisService;
+    }
+
     /**
      * 分页查询友链列表
      *
@@ -62,8 +74,10 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
      * @param friendLinkVO 友链信息
      */
     @Override
+    @ReadLock(RedisConstant.IMAGE_LOCK)
     public void saveOrUpdateFriendLink(FriendLinkVO friendLinkVO) {
         FriendLink friendLink = BeanCopyUtil.copyObject(friendLinkVO, FriendLink.class);
+        redisService.sAdd(RedisConstant.DB_IMAGE_NAME, FileUtil.getFilePathByUrl(friendLink.getLinkAvatar()));
         this.saveOrUpdate(friendLink);
     }
 }

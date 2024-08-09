@@ -87,7 +87,7 @@ export default {
         isDelete: 1
       }, (data) => {
         this.photos = data.records
-        this.count = data.count
+        this.count = Number(data.count)
         this.loading = false
       })
       // this.axios

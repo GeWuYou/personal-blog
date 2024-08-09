@@ -1,4 +1,4 @@
-package com.gewuyou.blog.server.config;
+package com.gewuyou.blog.common.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
  * @since 2024-04-22 下午9:09:58
  */
 @Configuration
-// @MapperScan("com.gewuyou.blog.server.mapper")
 public class MybatisPlusConfig {
     /**
      * 添加分页插件

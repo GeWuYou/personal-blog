@@ -3,6 +3,7 @@ package com.gewuyou.blog.admin.strategy.impl;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.gewuyou.blog.admin.config.entity.OssConfigProperties;
+import com.gewuyou.blog.common.service.IRedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,8 @@ public class OssUploadStrategyImpl extends AbstractUploadStrategyImpl {
     private volatile OSS ossClient;
 
     @Autowired
-    public OssUploadStrategyImpl(OssConfigProperties ossConfigProperties) {
+    public OssUploadStrategyImpl(OssConfigProperties ossConfigProperties, IRedisService redisService) {
+        super(redisService);
         this.ossConfigProperties = ossConfigProperties;
     }
 
@@ -60,6 +62,16 @@ public class OssUploadStrategyImpl extends AbstractUploadStrategyImpl {
     @Override
     public String getFileAccessUrl(String filePath) {
         return ossConfigProperties.getUrl() + filePath;
+    }
+
+    /**
+     * 删除文件
+     *
+     * @param filePath 文件路径
+     */
+    @Override
+    public void delete(String filePath) {
+        getOssClient().deleteObject(ossConfigProperties.getBucketName(), filePath);
     }
 
     private OSS getOssClient() {

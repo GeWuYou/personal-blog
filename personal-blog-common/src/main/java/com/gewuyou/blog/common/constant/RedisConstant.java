@@ -31,4 +31,10 @@ public class RedisConstant {
     public static final String ARTICLE_ACCESS = "article_access:";
 
     public static final String TOKEN = "token";
+
+    public static final String TEMP_IMAGE_NAME = "temp_image_name";
+
+    public static final String DB_IMAGE_NAME = "db_image_name";
+
+    public static final String IMAGE_LOCK = "image_lock";
 }

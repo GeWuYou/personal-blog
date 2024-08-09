@@ -272,7 +272,7 @@ export default {
         isReview: this.isReview
       }, (data) => {
         this.comments = data.records
-        this.count = data.count
+        this.count = Number(data.count)
         this.loading = false
       })
       // this.axios

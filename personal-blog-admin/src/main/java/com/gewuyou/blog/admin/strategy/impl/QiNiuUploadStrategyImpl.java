@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.strategy.impl;
 
 import com.gewuyou.blog.admin.config.entity.QiNiuProperties;
+import com.gewuyou.blog.common.service.IRedisService;
 import com.qiniu.common.QiniuException;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
@@ -36,7 +37,8 @@ public class QiNiuUploadStrategyImpl extends AbstractUploadStrategyImpl {
     private volatile BucketManager bucketManager;
 
     @Autowired
-    public QiNiuUploadStrategyImpl(QiNiuProperties qiNiuProperties) {
+    public QiNiuUploadStrategyImpl(QiNiuProperties qiNiuProperties, IRedisService redisService) {
+        super(redisService);
         this.qiNiuProperties = qiNiuProperties;
     }
 
@@ -85,6 +87,20 @@ public class QiNiuUploadStrategyImpl extends AbstractUploadStrategyImpl {
     public String getFileAccessUrl(String filePath) {
         log.info("获取文件访问地址：{}", filePath);
         return qiNiuProperties.getUrl() + "/" + filePath;
+    }
+
+    /**
+     * 删除文件
+     *
+     * @param filePath 文件路径
+     */
+    @Override
+    public void delete(String filePath) {
+        try {
+            getBucketManager().delete(qiNiuProperties.getBucketName(), filePath);
+        } catch (QiniuException e) {
+            log.error("删除文件失败,原因是：{}", e.getMessage());
+        }
     }
 
     private UploadManager getUploadManager() {

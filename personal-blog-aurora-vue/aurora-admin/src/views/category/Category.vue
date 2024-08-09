@@ -173,7 +173,7 @@ export default {
         keywords: this.keywords
       }, (data) => {
         this.categories = data.records
-        this.count = data.count
+        this.count = Number(data.count)
         this.loading = false
       })
       // this.axios

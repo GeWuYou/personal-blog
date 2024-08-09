@@ -7,6 +7,7 @@ import com.gewuyou.blog.admin.mapper.UserInfoMapper;
 import com.gewuyou.blog.admin.service.IUserInfoService;
 import com.gewuyou.blog.admin.service.IUserRoleService;
 import com.gewuyou.blog.admin.strategy.context.UploadStrategyContext;
+import com.gewuyou.blog.common.annotation.ReadLock;
 import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.UserDetailsDTO;
@@ -16,10 +17,7 @@ import com.gewuyou.blog.common.model.UserAuth;
 import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.model.UserRole;
 import com.gewuyou.blog.common.service.IRedisService;
-import com.gewuyou.blog.common.utils.BeanCopyUtil;
-import com.gewuyou.blog.common.utils.DateUtil;
-import com.gewuyou.blog.common.utils.PageUtil;
-import com.gewuyou.blog.common.utils.UserUtil;
+import com.gewuyou.blog.common.utils.*;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.UserDisableVO;
 import com.gewuyou.blog.common.vo.UserRoleVO;
@@ -170,6 +168,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
      * @return 头像url
      */
     @Override
+    @ReadLock(RedisConstant.IMAGE_LOCK)
     public String updateUserAvatar(MultipartFile file) {
         var avatar = uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.AVATAR.getPath());
         var userInfo = UserInfo
@@ -177,6 +176,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 .id(UserUtil.getUserDetailsDTO().getUserInfoId())
                 .avatar(avatar)
                 .build();
+        redisService.sAdd(RedisConstant.DB_IMAGE_NAME, FileUtil.getFilePathByUrl(avatar));
         baseMapper.updateById(userInfo);
         return avatar;
     }

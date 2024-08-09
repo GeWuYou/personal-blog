@@ -216,7 +216,7 @@ export default {
       this.searchParams.endTime = this.dateRange[1]
       _get('/admin/jobLog/list', this.searchParams, (data) => {
         this.jobLogs = data.records
-        this.count = data.count
+        this.count = Number(data.count)
         this.loading = false
       })
       // this.axios

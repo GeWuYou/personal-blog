@@ -210,7 +210,7 @@ export default {
         loginType: this.loginType
       }, (data) => {
         this.userList = data.records
-        this.count = data.count
+        this.count = Number(data.count)
         this.loading = false
       })
       // this.axios

@@ -516,7 +516,7 @@ export default {
         },
         (data) => {
           this.articles = data.records
-          this.count = data.count
+          this.count = Number(data.count)
           this.loading = false
         }
       )

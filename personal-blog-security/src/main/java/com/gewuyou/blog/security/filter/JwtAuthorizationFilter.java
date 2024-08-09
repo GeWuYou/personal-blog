@@ -97,7 +97,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 throw new GlobalException(ResponseInformation.TOKEN_EXPIRED);
             }
         } catch (GlobalException e) {
-            throw new GlobalException(ResponseInformation.LOGIN_EXPIRED);
+            throw new GlobalException(e.getResponseInformation());
         }
         //  从token中获取当前登录用户UserDetails并强转为UserDetailsDto
         var userDetailsDTO = jwtService.getUserDetailsDTOFromToken(token);

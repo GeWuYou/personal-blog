@@ -18,4 +18,9 @@ public class RegularConstant {
      * 邮箱正则
      */
     public static final String EMAIL_REGULARITY = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+
+    /**
+     * 文件路径正则
+     */
+    public static final String FILE_PATH_REGEX = "^https?://[^/]+/api/v1/admin(.*)$";
 }

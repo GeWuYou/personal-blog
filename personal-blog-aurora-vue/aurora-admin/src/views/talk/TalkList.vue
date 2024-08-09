@@ -101,7 +101,7 @@ export default {
             this.previews.push(...item.imageList)
           }
         })
-        this.count = data.count
+        this.count = Number(data.count)
       })
       // this.axios
       //   .get('/api/admin/talks', {

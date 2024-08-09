@@ -30,4 +30,11 @@ public interface UploadStrategy {
      */
 
     String uploadFile(String fileName, InputStream inputStream, String path);
+
+    /**
+     * 删除文件
+     *
+     * @param filePath 文件路径
+     */
+    void delete(String filePath);
 }

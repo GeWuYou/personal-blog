@@ -108,63 +108,6 @@ public class OperationLoggingAspect {
         } finally {
             startTime.remove();
         }
-        // private void buildAndSaveLog(JoinPoint joinPoint, OperationLogging operationLogging, String resultStr) {
-        // RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        // HttpServletRequest request = (HttpServletRequest) Objects.requireNonNull(requestAttributes).resolveReference(RequestAttributes.REFERENCE_REQUEST);
-        // MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        // Method method = signature.getMethod();
-        // String className = joinPoint.getTarget().getClass().getName();
-        // String methodName = method.getName();
-        // String optMethod = className + "." + methodName;
-        // // 获取类注解Tag
-        // Tag tag = joinPoint.getTarget().getClass().getAnnotation(Tag.class);
-        // // 获取方法注解Operation
-        // Operation operation = method.getAnnotation(Operation.class);
-        // UserDetailsDTO userDetailsDTO;
-        // // 如果是未登录用户，则不记录日志
-        // try {
-        //     userDetailsDTO = UserUtil.getUserDetailsDTO();
-        //     if (userDetailsDTO == null) {
-        //         return;
-        //     }
-        // } catch (Exception e) {
-        //     return;
-        // }
-        // String ipAddress = IpUtil.getIpAddress(Objects.requireNonNull(request));
-        // String ipSource = IpUtil.getIpSource(ipAddress);
-        // try {
-        //     // 是否记录请求参数
-        //     String requestParam = null;
-        //     if (operationLogging.logParams()) {
-        //         requestParam = objectMapper.writeValueAsString(joinPoint.getArgs());
-        //     }
-        //     // 是否记录返回结果
-        //     if (operationLogging.logResult()) {
-        //         resultStr = null;
-        //     }
-        //     OperationLog operationLog = OperationLog
-        //             .builder()
-        //             .optModule(tag.name())
-        //             .optUrl(Objects.requireNonNull(request).getRequestURI())
-        //             .optType(operationLogging.type().getValue())
-        //             .optMethod(optMethod)
-        //             .optDesc(operation.description())
-        //             .requestMethod(Objects.requireNonNull(request).getMethod())
-        //             .requestParam(requestParam)
-        //             .responseData(resultStr)
-        //             .userId(userDetailsDTO.getUserAuthId())
-        //             .userName(userDetailsDTO.getUsername())
-        //             .ipAddress(ipAddress)
-        //             .ipSource(ipSource)
-        //             .time(String.valueOf(startTime.get()))
-        //             .duration(Duration.between(startTime.get(), LocalDateTime.now()).toMillis())
-        //             .build();
-        //     // 保存日志
-        //     applicationContext.publishEvent(new OperationLogEvent(operationLog));
-        //     startTime.remove();
-        // } catch (JsonProcessingException e) {
-        //     log.error("操作日志记录构建失败", e);
-        // }
     }
 
     /**

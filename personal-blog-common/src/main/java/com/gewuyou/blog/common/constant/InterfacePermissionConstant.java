@@ -9,4 +9,5 @@ package com.gewuyou.blog.common.constant;
 public class InterfacePermissionConstant {
     public static final String ADMIN_BASE_URL = "/admin";
     public static final String SERVER_BASE_URL = "/server";
+    public static final String TEST_BASE_URL = "/test";
 }

@@ -65,7 +65,7 @@ public class Job extends BaseModel implements Serializable {
     @TableField("cron_expression")
     private String cronExpression;
 
-    @Schema(description = "计划执行错误策略（1立即执行 2执行一次 3放弃执行）")
+    @Schema(description = "计划执行错误策略（0默认策略 1立即执行 2执行一次 3放弃执行）")
     @TableField("misfire_policy")
     private Byte misfirePolicy;
 

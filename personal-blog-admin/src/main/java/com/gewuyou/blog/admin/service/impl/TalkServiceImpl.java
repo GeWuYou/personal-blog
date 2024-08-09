@@ -7,9 +7,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.admin.mapper.TalkMapper;
 import com.gewuyou.blog.admin.service.ITalkService;
+import com.gewuyou.blog.common.annotation.ReadLock;
+import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TalkAdminDTO;
 import com.gewuyou.blog.common.model.Talk;
+import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.CommonUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
@@ -36,10 +39,12 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
 
     private final ObjectMapper objectMapper;
 
+    private final IRedisService redisService;
 
     @Autowired
-    public TalkServiceImpl(ObjectMapper objectMapper) {
+    public TalkServiceImpl(ObjectMapper objectMapper, IRedisService redisService) {
         this.objectMapper = objectMapper;
+        this.redisService = redisService;
     }
 
     /**
@@ -48,9 +53,13 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
      * @param talkVO 说说VO
      */
     @Override
+    @ReadLock(RedisConstant.IMAGE_LOCK)
     public void saveOrUpdateTalk(TalkVO talkVO) {
         Talk talk = BeanCopyUtil.copyObject(talkVO, Talk.class);
         talk.setUserId(UserUtil.getUserDetailsDTO().getUserInfoId());
+        redisService.sAdd(RedisConstant.DB_IMAGE_NAME,
+                (Object[]) CommonUtil.castList(objectMapper.convertValue(talk.getImages(), List.class),
+                        String.class).toArray(new String[0]));
         this.saveOrUpdate(talk);
     }
 

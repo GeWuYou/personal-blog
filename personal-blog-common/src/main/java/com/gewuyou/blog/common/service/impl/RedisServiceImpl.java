@@ -356,6 +356,17 @@ public class RedisServiceImpl implements IRedisService {
         return redisTemplate.opsForSet().size(key);
     }
 
+    /**
+     * 获取集合的差集
+     *
+     * @param keys 键列表
+     * @return 差集
+     */
+    @Override
+    public Set<Object> sDiff(String... keys) {
+        return redisTemplate.opsForSet().difference(List.of(keys));
+    }
+
     @Override
     public Long sRemove(String key, Object... values) {
         return redisTemplate.opsForSet().remove(key, values);

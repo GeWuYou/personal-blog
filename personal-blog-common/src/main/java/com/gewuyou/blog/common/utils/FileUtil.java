@@ -1,6 +1,7 @@
 package com.gewuyou.blog.common.utils;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.gewuyou.blog.common.constant.RegularConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,9 +11,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class FileUtil {
+
 
     /**
      * 获取文件的MD5值
@@ -68,6 +72,21 @@ public class FileUtil {
         return file;
     }
 
+    /**
+     * 获取文件的网络路径获取文件路径
+     *
+     * @param url 网络路径
+     * @return 文件路径
+     */
+    public static String getFilePathByUrl(String url) {
+        Pattern pattern = Pattern.compile(RegularConstant.FILE_PATH_REGEX);
+        Matcher matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return null;
+        }
+    }
 
     /**
      * 获取文件的准确大小
@@ -87,6 +106,21 @@ public class FileUtil {
             accuracy = 0.4;
         }
         return accuracy;
+    }
+
+    public static void main(String[] args) {
+        String url = "http://localhost:8082/api/v1/admin/blog/articles/1f5af4f1d3fa2229ee66f37bf95ef903.jpg";
+        String regex = "^https?://[^/]+/api/v1/admin(.*)$";
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(url);
+
+        if (matcher.find()) {
+            String result = matcher.group(1);
+            System.out.println(result);  // 输出: blog/articles/1f5af4f1d3fa2229ee66f37bf95ef903.jpg
+        } else {
+            System.out.println("No match found");
+        }
     }
 
 }

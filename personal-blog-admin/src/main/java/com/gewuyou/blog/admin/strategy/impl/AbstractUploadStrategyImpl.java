@@ -1,8 +1,10 @@
 package com.gewuyou.blog.admin.strategy.impl;
 
 import com.gewuyou.blog.admin.strategy.interfaces.UploadStrategy;
+import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
+import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,12 @@ import java.io.InputStream;
 @Slf4j
 @Service
 public abstract class AbstractUploadStrategyImpl implements UploadStrategy {
+    private final IRedisService redisService;
+
+    public AbstractUploadStrategyImpl(IRedisService redisService) {
+        this.redisService = redisService;
+    }
+
     /**
      * 上传文件
      *
@@ -35,6 +43,8 @@ public abstract class AbstractUploadStrategyImpl implements UploadStrategy {
             if (!exists(path + fileName)) {
                 upload(path, fileName, file.getInputStream());
             }
+            // 保存文件名到redis
+            redisService.sAdd(RedisConstant.TEMP_IMAGE_NAME, "/" + path + fileName);
             return getFileAccessUrl(path + fileName);
         } catch (Exception e) {
             log.error("获取文件MD5失败", e);
@@ -54,6 +64,8 @@ public abstract class AbstractUploadStrategyImpl implements UploadStrategy {
     public String uploadFile(String fileName, InputStream inputStream, String path) {
         try {
             upload(path, fileName, inputStream);
+            // 保存文件名到redis
+            redisService.sAdd(RedisConstant.TEMP_IMAGE_NAME, "/" + path + fileName);
             return getFileAccessUrl(path + fileName);
         } catch (Exception e) {
             log.error("获取文件资源路径失败", e);
@@ -87,4 +99,11 @@ public abstract class AbstractUploadStrategyImpl implements UploadStrategy {
      * @return 文件访问地址
      */
     public abstract String getFileAccessUrl(String filePath);
+
+    /**
+     * 删除文件
+     *
+     * @param filePath 文件路径
+     */
+    public abstract void delete(String filePath);
 }

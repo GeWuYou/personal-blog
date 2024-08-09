@@ -49,22 +49,22 @@ public class JobVO {
     private String cronExpression;
 
     /**
-     * 计划执行错误策略（1立即执行 2执行一次 3放弃执行）
+     * 计划执行错误策略（0默认策略 1立即执行 2执行一次 3放弃执行）
      */
-    @Schema(description = "计划执行错误策略（1立即执行 2执行一次 3放弃执行）")
-    private Integer misfirePolicy;
+    @Schema(description = "计划执行错误策略（ 0默认策略 1立即执行 2执行一次 3放弃执行）")
+    private Byte misfirePolicy;
 
     /**
      * 是否并发执行（0允许 1禁止）
      */
     @Schema(description = "是否并发执行（0允许 1禁止）")
-    private Integer concurrent;
+    private Byte concurrent;
 
     /**
      * 状态（0正常 1暂停）
      */
     @Schema(description = "状态（0正常 1暂停）")
-    private Integer status;
+    private Byte status;
 
     /**
      * 备注

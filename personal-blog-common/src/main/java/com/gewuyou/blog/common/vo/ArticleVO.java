@@ -24,7 +24,7 @@ import static com.gewuyou.blog.common.constant.MessageConstant.ARTICLE_TITLE_NOT
 @NoArgsConstructor
 @Schema(description = "文章")
 public class ArticleVO {
-    @Schema(description = "文章id", type = "integer", example = "1")
+    @Schema(description = "文章id", type = "Long", example = "1")
     private Long id;
 
     @NotEmpty(message = ARTICLE_TITLE_NOT_EMPTY)

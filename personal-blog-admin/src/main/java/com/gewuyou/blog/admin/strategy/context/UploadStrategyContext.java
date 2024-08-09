@@ -50,4 +50,13 @@ public class UploadStrategyContext {
     public String executeUploadStrategy(String fileName, InputStream inputStream, String path) {
         return uploadStrategyMap.get(UploadModeEnum.getStrategy(uploadMode)).uploadFile(fileName, inputStream, path);
     }
+
+    /**
+     * 删除文件
+     *
+     * @param filePath 文件路径
+     */
+    public void executeDeleteStrategy(String filePath) {
+        uploadStrategyMap.get(UploadModeEnum.getStrategy(uploadMode)).delete(filePath);
+    }
 }

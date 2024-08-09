@@ -8,10 +8,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.PhotoMapper;
 import com.gewuyou.blog.admin.service.IPhotoAlbumService;
 import com.gewuyou.blog.admin.service.IPhotoService;
+import com.gewuyou.blog.common.annotation.ReadLock;
+import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.PhotoAdminDTO;
 import com.gewuyou.blog.common.model.Photo;
 import com.gewuyou.blog.common.model.PhotoAlbum;
+import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -40,10 +43,12 @@ import static com.gewuyou.blog.common.constant.CommonConstant.FALSE;
 public class PhotoServiceImpl extends ServiceImpl<PhotoMapper, Photo> implements IPhotoService {
 
     private final IPhotoAlbumService photoAlbumService;
+    private final IRedisService redisService;
 
     @Autowired
-    public PhotoServiceImpl(IPhotoAlbumService photoAlbumService) {
+    public PhotoServiceImpl(IPhotoAlbumService photoAlbumService, IRedisService redisService) {
         this.photoAlbumService = photoAlbumService;
+        this.redisService = redisService;
     }
 
     /**
@@ -82,6 +87,7 @@ public class PhotoServiceImpl extends ServiceImpl<PhotoMapper, Photo> implements
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @ReadLock(RedisConstant.IMAGE_LOCK)
     public void savePhotos(PhotoVO photoVO) {
         List<Photo> photoList = photoVO.getPhotoUrls().stream().map(item -> Photo.builder()
                         .albumId(photoVO.getAlbumId())
@@ -89,6 +95,7 @@ public class PhotoServiceImpl extends ServiceImpl<PhotoMapper, Photo> implements
                         .photoSrc(item)
                         .build())
                 .collect(Collectors.toList());
+        redisService.sAdd(RedisConstant.DB_IMAGE_NAME, (Object[]) photoVO.getPhotoUrls().toArray(new String[0]));
         this.saveBatch(photoList);
     }
 

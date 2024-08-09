@@ -3,6 +3,7 @@ package com.gewuyou.blog.admin.strategy.impl;
 import com.gewuyou.blog.admin.config.entity.LocalProperties;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
+import com.gewuyou.blog.common.service.IRedisService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,6 @@ import java.io.InputStream;
 @Service("localUploadStrategyImpl")
 @Slf4j
 public class LocalUploadStrategyImpl extends AbstractUploadStrategyImpl {
-
-
     /**
      * 存储根路径
      */
@@ -33,7 +32,8 @@ public class LocalUploadStrategyImpl extends AbstractUploadStrategyImpl {
     private final String url;
 
     @Autowired
-    public LocalUploadStrategyImpl(LocalProperties localProperties) {
+    public LocalUploadStrategyImpl(LocalProperties localProperties, IRedisService redisService) {
+        super(redisService);
         this.root = localProperties.getRoot();
         this.url = localProperties.getUrl();
     }
@@ -70,15 +70,15 @@ public class LocalUploadStrategyImpl extends AbstractUploadStrategyImpl {
     /**
      * 上传文件
      *
-     * @param uploadPath  上传路径
+     * @param path  上传路径
      * @param fileName    上传文件名
      * @param inputStream 上传文件流
      * @throws Exception 异常
      */
     @Override
-    public void upload(String uploadPath, String fileName, InputStream inputStream) throws Exception {
+    public void upload(String path, String fileName, InputStream inputStream) throws Exception {
         // 确保上传目录存在
-        var directory = new File(root + uploadPath);
+        var directory = new File(root + path);
         if (!directory.exists()) {
             var success = directory.mkdirs();
             if (success) {
@@ -105,5 +105,23 @@ public class LocalUploadStrategyImpl extends AbstractUploadStrategyImpl {
     @Override
     public String getFileAccessUrl(String filePath) {
         return url + filePath;
+    }
+
+    /**
+     * 删除文件
+     *
+     * @param filePath 文件路径
+     */
+    @Override
+    public void delete(String filePath) {
+        var file = new File(root + filePath);
+        if (file.exists()) {
+            var success = file.delete();
+            if (success) {
+                log.info("删除本地文件：{}", filePath);
+            } else {
+                log.error("删除本地文件失败：{}", filePath);
+            }
+        }
     }
 }

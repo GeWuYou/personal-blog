@@ -137,8 +137,8 @@
                 调用方法
                 <el-tooltip placement="top">
                   <div slot="content">
-                    Bean调用示例：auroraQuartz.blogParams('blog')
-                    <br />Class类调用示例：com.aurora.quartz.AuroraQuartz.blogParams('blog')
+                    Bean调用示例：blogQuartz.blogParams('blog')
+                    <br />Class类调用示例：com.gewuyou.blog.quartz.BlogQuartz.blogParams('blog')
                     <br />参数说明：支持字符串，布尔类型，长整型，浮点型，整型
                   </div>
                   <i class="el-icon-question"></i>
@@ -318,7 +318,7 @@ export default {
       this.searchParams.size = this.size
       _get('/admin/job/list', this.searchParams, (data) => {
         this.jobs = data.records
-        this.count = data.count
+        this.count = Number(data.count)
         this.loading = false
       })
       // this.axios

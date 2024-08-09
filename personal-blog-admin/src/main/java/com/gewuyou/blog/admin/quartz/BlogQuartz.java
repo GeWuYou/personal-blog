@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.admin.mapper.UniqueViewMapper;
 import com.gewuyou.blog.admin.mapper.UserAuthMapper;
+import com.gewuyou.blog.admin.service.IBlogQuartzJobService;
 import com.gewuyou.blog.admin.service.IJobLogService;
 import com.gewuyou.blog.admin.service.IResourceService;
 import com.gewuyou.blog.admin.service.IRoleResourceService;
@@ -50,10 +51,13 @@ public class BlogQuartz {
     private final IJobLogService jobLogService;
     private final IResourceService resourceService;
     private final IRoleResourceService roleResourceService;
+    private final IBlogQuartzJobService blogQuartzJobService;
 
     @Autowired
     public BlogQuartz(IRedisService redisService, UniqueViewMapper uniqueViewMapper,
-                      UserAuthMapper userAuthMapper, ObjectMapper jacksonObjectMapper, IJobLogService jobLogService, IResourceService resourceService, IRoleResourceService roleResourceService) {
+                      UserAuthMapper userAuthMapper, ObjectMapper jacksonObjectMapper,
+                      IJobLogService jobLogService, IResourceService resourceService,
+                      IRoleResourceService roleResourceService, IBlogQuartzJobService blogQuartzJobService) {
         this.redisService = redisService;
         this.uniqueViewMapper = uniqueViewMapper;
         this.userAuthMapper = userAuthMapper;
@@ -61,6 +65,16 @@ public class BlogQuartz {
         this.jobLogService = jobLogService;
         this.resourceService = resourceService;
         this.roleResourceService = roleResourceService;
+        this.blogQuartzJobService = blogQuartzJobService;
+    }
+
+    /**
+     * 清理临时图片
+     *
+     * @apiNote 这个方法只能保证清理了垃圾图片，但可能会出现将上传图片给清理了的操作
+     */
+    public void clearTempImage() {
+        blogQuartzJobService.clearTempImage();
     }
 
     /**
