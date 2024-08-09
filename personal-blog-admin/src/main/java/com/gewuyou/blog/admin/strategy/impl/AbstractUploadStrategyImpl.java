@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.time.LocalDateTime;
 
 /**
  * 抽象上传策略实现
@@ -39,7 +40,7 @@ public abstract class AbstractUploadStrategyImpl implements UploadStrategy {
         try {
             String md5 = FileUtil.getMd5(file.getInputStream());
             String extName = FileUtil.getExtName(file.getOriginalFilename());
-            String fileName = md5 + extName;
+            String fileName = md5 + "-" + LocalDateTime.now().toString().replace(":", "-") + extName;
             if (!exists(path + fileName)) {
                 upload(path, fileName, file.getInputStream());
             }
@@ -64,8 +65,6 @@ public abstract class AbstractUploadStrategyImpl implements UploadStrategy {
     public String uploadFile(String fileName, InputStream inputStream, String path) {
         try {
             upload(path, fileName, inputStream);
-            // 保存文件名到redis
-            redisService.sAdd(RedisConstant.TEMP_IMAGE_NAME, "/" + path + fileName);
             return getFileAccessUrl(path + fileName);
         } catch (Exception e) {
             log.error("获取文件资源路径失败", e);

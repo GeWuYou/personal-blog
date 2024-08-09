@@ -77,6 +77,13 @@ public class BlogQuartz {
         blogQuartzJobService.clearTempImage();
     }
 
+
+    /**
+     * 清理未引用的图片
+     */
+    public void clearNotReferenceImage() {
+        blogQuartzJobService.clearNotReferenceImage();
+    }
     /**
      * 保存每日访问量
      */

@@ -14,7 +14,6 @@ import com.gewuyou.blog.common.enums.CommentTypeEnum;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Talk;
-import com.gewuyou.blog.common.utils.CommonUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.server.mapper.CommentMapper;
 import com.gewuyou.blog.server.mapper.TalkMapper;
@@ -112,8 +111,8 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
     private void setImagesByTalkDTO(TalkDTO talkDTO) {
         if (StringUtils.isNotBlank(talkDTO.getImages())) {
             try {
-                talkDTO.setImageList(CommonUtil.castList(objectMapper.readValue(talkDTO.getImages(), new TypeReference<List<String>>() {
-                }), String.class));
+                talkDTO.setImageList(objectMapper.readValue(talkDTO.getImages(), new TypeReference<>() {
+                }));
             } catch (JsonProcessingException e) {
                 log.error("json deserialize error", e);
                 throw new GlobalException(ResponseInformation.JSON_DESERIALIZE_ERROR);

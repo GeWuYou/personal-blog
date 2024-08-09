@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.PhotoMapper;
+import com.gewuyou.blog.admin.service.IImageReferenceService;
 import com.gewuyou.blog.admin.service.IPhotoAlbumService;
 import com.gewuyou.blog.admin.service.IPhotoService;
 import com.gewuyou.blog.common.annotation.ReadLock;
@@ -16,6 +17,7 @@ import com.gewuyou.blog.common.model.Photo;
 import com.gewuyou.blog.common.model.PhotoAlbum;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.FileUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.DeleteVO;
@@ -44,11 +46,13 @@ public class PhotoServiceImpl extends ServiceImpl<PhotoMapper, Photo> implements
 
     private final IPhotoAlbumService photoAlbumService;
     private final IRedisService redisService;
+    private final IImageReferenceService imageReferenceService;
 
     @Autowired
-    public PhotoServiceImpl(IPhotoAlbumService photoAlbumService, IRedisService redisService) {
+    public PhotoServiceImpl(IPhotoAlbumService photoAlbumService, IRedisService redisService, IImageReferenceService imageReferenceService) {
         this.photoAlbumService = photoAlbumService;
         this.redisService = redisService;
+        this.imageReferenceService = imageReferenceService;
     }
 
     /**
@@ -89,13 +93,16 @@ public class PhotoServiceImpl extends ServiceImpl<PhotoMapper, Photo> implements
     @Transactional(rollbackFor = Exception.class)
     @ReadLock(RedisConstant.IMAGE_LOCK)
     public void savePhotos(PhotoVO photoVO) {
-        List<Photo> photoList = photoVO.getPhotoUrls().stream().map(item -> Photo.builder()
+        List<String> photoUrls = photoVO.getPhotoUrls();
+        List<Photo> photoList = photoUrls
+                .stream().map(item -> Photo.builder()
                         .albumId(photoVO.getAlbumId())
                         .photoName(IdWorker.getIdStr())
                         .photoSrc(item)
                         .build())
                 .collect(Collectors.toList());
-        redisService.sAdd(RedisConstant.DB_IMAGE_NAME, (Object[]) photoVO.getPhotoUrls().toArray(new String[0]));
+        photoUrls.forEach(imageReferenceService::addImageReference);
+        redisService.sAdd(RedisConstant.DB_IMAGE_NAME, photoUrls.stream().map(FileUtil::getFilePathByUrl).toArray());
         this.saveBatch(photoList);
     }
 
@@ -123,7 +130,10 @@ public class PhotoServiceImpl extends ServiceImpl<PhotoMapper, Photo> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updatePhotoDelete(DeleteVO deleteVO) {
-        List<Photo> photoList = deleteVO.getIds().stream().map(item -> Photo.builder()
+        List<Photo> photoList = deleteVO
+                .getIds()
+                .stream()
+                .map(item -> Photo.builder()
                         .id(item.intValue())
                         .isDelete(deleteVO.getIsDelete())
                         .build())
@@ -152,6 +162,11 @@ public class PhotoServiceImpl extends ServiceImpl<PhotoMapper, Photo> implements
      */
     @Override
     public void deletePhotos(List<Integer> photoIds) {
+        baseMapper
+                .selectList(new LambdaQueryWrapper<Photo>()
+                        .select(Photo::getPhotoSrc)
+                        .in(Photo::getId, photoIds))
+                .forEach(item -> imageReferenceService.deleteImageReference(item.getPhotoSrc()));
         baseMapper.deleteBatchIds(photoIds);
     }
 }

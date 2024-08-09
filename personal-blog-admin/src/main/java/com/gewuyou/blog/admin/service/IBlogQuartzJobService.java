@@ -11,4 +11,6 @@ public interface IBlogQuartzJobService {
      * 清理临时图片
      */
     void clearTempImage();
+
+    void clearNotReferenceImage();
 }

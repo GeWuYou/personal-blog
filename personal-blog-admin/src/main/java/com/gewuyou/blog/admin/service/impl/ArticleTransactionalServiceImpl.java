@@ -9,15 +9,14 @@ import com.gewuyou.blog.admin.mapper.ArticleTagMapper;
 import com.gewuyou.blog.admin.service.IArticleTagService;
 import com.gewuyou.blog.admin.service.IArticleTransactionalService;
 import com.gewuyou.blog.admin.service.ICategoryService;
+import com.gewuyou.blog.admin.service.IImageReferenceService;
 import com.gewuyou.blog.common.annotation.ReadLock;
 import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Article;
 import com.gewuyou.blog.common.model.ArticleTag;
-import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
-import com.gewuyou.blog.common.utils.FileUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ArticleVO;
 import com.gewuyou.blog.common.vo.DeleteVO;
@@ -46,7 +45,7 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
     private final ArticleTagMapper articleTagMapper;
-    private final IRedisService redisService;
+    private final IImageReferenceService imageReferenceService;
 
 
     @Autowired
@@ -56,13 +55,13 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
             RabbitTemplate rabbitTemplate,
             ObjectMapper objectMapper,
             ArticleTagMapper articleTagMapper,
-            IRedisService redisService) {
+            IImageReferenceService imageReferenceService) {
         this.categoryService = categoryService;
         this.articleTagService = articleTagService;
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
         this.articleTagMapper = articleTagMapper;
-        this.redisService = redisService;
+        this.imageReferenceService = imageReferenceService;
     }
 
     /**
@@ -97,8 +96,13 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
         Article article = BeanCopyUtil.copyObject(articleVO, Article.class);
         article.setUserId(UserUtil.getUserDetailsDTO().getUserInfoId());
         article.setCategoryId(categoryId);
-        // 保存图片文件名到redis
-        redisService.sAdd(RedisConstant.DB_IMAGE_NAME, FileUtil.getFilePathByUrl(article.getArticleCover()));
+        String newArticleCover = article.getArticleCover();
+        // 先查询数据库中该文章的图片image_url
+        String oldArticleCover = baseMapper.selectOne(new LambdaQueryWrapper<Article>()
+                .select(Article::getArticleCover)
+                .eq(Article::getId, articleVO.getId())
+        ).getArticleCover();
+        imageReferenceService.handleImageReference(newArticleCover, oldArticleCover);
         // 保存
         this.saveOrUpdate(article);
         // 保存文章标签
@@ -126,6 +130,11 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
     public void deleteArticles(List<Long> articleIds) {
         articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
                 .in(ArticleTag::getArticleId, articleIds));
+        // 检索文章图片引用并删除引用
+        baseMapper.selectBatchIds(articleIds)
+                .stream()
+                .map(Article::getArticleCover)
+                .forEach(imageReferenceService::deleteImageReference);
         baseMapper.deleteBatchIds(articleIds);
     }
 }

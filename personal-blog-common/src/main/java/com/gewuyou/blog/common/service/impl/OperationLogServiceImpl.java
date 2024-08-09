@@ -64,4 +64,12 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
                 .toList();
         return new PageResultDTO<>(operationLogDTOs, operationLogPage.getTotal());
     }
+
+    /**
+     * 清空操作日志
+     */
+    @Override
+    public void cleanOperationLogs() {
+        baseMapper.delete(null);
+    }
 }

@@ -24,4 +24,9 @@ public interface IOperationLogService extends IService<OperationLog> {
      * @return 分页结果
      */
     PageResultDTO<OperationLogDTO> listOperationLogDTOs(ConditionVO conditionVO);
+
+    /**
+     * 清空操作日志
+     */
+    void cleanOperationLogs();
 }

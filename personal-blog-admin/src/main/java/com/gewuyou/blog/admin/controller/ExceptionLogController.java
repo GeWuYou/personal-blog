@@ -62,4 +62,17 @@ public class ExceptionLogController {
         exceptionLogService.removeByIds(exceptionLogIds);
         return Result.success();
     }
+
+    /**
+     * 清空异常日志
+     *
+     * @return 成功或失败
+     */
+    @Operation(summary = "清空异常日志", description = "清空异常日志")
+    @OperationLogging(type = OperationType.DELETE)
+    @DeleteMapping("/clean")
+    public Result<?> cleanExceptionLogs() {
+        exceptionLogService.cleanExceptionLogs();
+        return Result.success();
+    }
 }

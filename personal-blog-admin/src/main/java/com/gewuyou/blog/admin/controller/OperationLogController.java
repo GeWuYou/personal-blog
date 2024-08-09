@@ -61,4 +61,17 @@ public class OperationLogController {
         operationLogService.removeByIds(operationLogIds);
         return Result.success();
     }
+
+    /**
+     * 清空操作日志
+     *
+     * @return 操作结果
+     */
+    @Operation(summary = "清空操作日志", description = "清空操作日志")
+    @OperationLogging(type = OperationType.DELETE)
+    @DeleteMapping("/clean")
+    public Result<?> cleanOperationLogs() {
+        operationLogService.cleanOperationLogs();
+        return Result.success();
+    }
 }

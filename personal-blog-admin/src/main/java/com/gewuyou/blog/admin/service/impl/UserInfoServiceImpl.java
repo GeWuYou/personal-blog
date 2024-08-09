@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.UserAuthMapper;
 import com.gewuyou.blog.admin.mapper.UserInfoMapper;
+import com.gewuyou.blog.admin.service.IImageReferenceService;
 import com.gewuyou.blog.admin.service.IUserInfoService;
 import com.gewuyou.blog.admin.service.IUserRoleService;
 import com.gewuyou.blog.admin.strategy.context.UploadStrategyContext;
@@ -17,7 +18,10 @@ import com.gewuyou.blog.common.model.UserAuth;
 import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.model.UserRole;
 import com.gewuyou.blog.common.service.IRedisService;
-import com.gewuyou.blog.common.utils.*;
+import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.DateUtil;
+import com.gewuyou.blog.common.utils.PageUtil;
+import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.UserDisableVO;
 import com.gewuyou.blog.common.vo.UserRoleVO;
@@ -45,14 +49,21 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     private final JwtService jwtService;
     private final IRedisService redisService;
     private final UploadStrategyContext uploadStrategyContext;
+    private final IImageReferenceService imageReferenceService;
 
     @Autowired
-    public UserInfoServiceImpl(IUserRoleService userRoleService, UserAuthMapper userAuthMapper, JwtService jwtService, IRedisService redisService, UploadStrategyContext uploadStrategyContext) {
+    public UserInfoServiceImpl(IUserRoleService userRoleService,
+                               UserAuthMapper userAuthMapper,
+                               JwtService jwtService,
+                               IRedisService redisService,
+                               UploadStrategyContext uploadStrategyContext,
+                               IImageReferenceService imageReferenceService) {
         this.userRoleService = userRoleService;
         this.userAuthMapper = userAuthMapper;
         this.jwtService = jwtService;
         this.redisService = redisService;
         this.uploadStrategyContext = uploadStrategyContext;
+        this.imageReferenceService = imageReferenceService;
     }
 
     /**
@@ -170,15 +181,19 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     @ReadLock(RedisConstant.IMAGE_LOCK)
     public String updateUserAvatar(MultipartFile file) {
-        var avatar = uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.AVATAR.getPath());
+        var newAvatar = uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.AVATAR.getPath());
         var userInfo = UserInfo
                 .builder()
                 .id(UserUtil.getUserDetailsDTO().getUserInfoId())
-                .avatar(avatar)
+                .avatar(newAvatar)
                 .build();
-        redisService.sAdd(RedisConstant.DB_IMAGE_NAME, FileUtil.getFilePathByUrl(avatar));
+        imageReferenceService.handleImageReference(newAvatar, baseMapper
+                .selectOne(new LambdaQueryWrapper<UserInfo>()
+                        .select(UserInfo::getAvatar)
+                        .eq(UserInfo::getId, userInfo.getId()))
+                .getAvatar());
         baseMapper.updateById(userInfo);
-        return avatar;
+        return newAvatar;
     }
 
 }

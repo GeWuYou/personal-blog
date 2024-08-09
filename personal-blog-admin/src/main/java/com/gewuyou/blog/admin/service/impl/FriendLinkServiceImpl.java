@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.FriendLinkMapper;
 import com.gewuyou.blog.admin.service.IFriendLinkService;
+import com.gewuyou.blog.admin.service.IImageReferenceService;
 import com.gewuyou.blog.common.annotation.ReadLock;
 import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.dto.FriendLinkAdminDTO;
@@ -14,7 +15,6 @@ import com.gewuyou.blog.common.model.FriendLink;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.DateUtil;
-import com.gewuyou.blog.common.utils.FileUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.FriendLinkVO;
@@ -32,11 +32,11 @@ import java.util.Objects;
  */
 @Service
 public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendLink> implements IFriendLinkService {
-    private final IRedisService redisService;
+    private final IImageReferenceService imageReferenceService;
 
     @Autowired
-    public FriendLinkServiceImpl(IRedisService redisService) {
-        this.redisService = redisService;
+    public FriendLinkServiceImpl(IRedisService redisService, IImageReferenceService imageReferenceService) {
+        this.imageReferenceService = imageReferenceService;
     }
 
     /**
@@ -77,7 +77,12 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @ReadLock(RedisConstant.IMAGE_LOCK)
     public void saveOrUpdateFriendLink(FriendLinkVO friendLinkVO) {
         FriendLink friendLink = BeanCopyUtil.copyObject(friendLinkVO, FriendLink.class);
-        redisService.sAdd(RedisConstant.DB_IMAGE_NAME, FileUtil.getFilePathByUrl(friendLink.getLinkAvatar()));
+        String newLinkAvatar = friendLink.getLinkAvatar();
+        String oldLinkAvatar = baseMapper
+                .selectOne(new LambdaQueryWrapper<FriendLink>()
+                        .select(FriendLink::getLinkAvatar)
+                        .eq(FriendLink::getId, friendLinkVO.getId())).getLinkAvatar();
+        imageReferenceService.handleImageReference(newLinkAvatar, oldLinkAvatar);
         this.saveOrUpdate(friendLink);
     }
 }

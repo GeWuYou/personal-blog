@@ -24,4 +24,9 @@ public interface IExceptionLogService extends IService<ExceptionLog> {
      * @return 异常日志列表
      */
     PageResultDTO<ExceptionLogDTO> listExceptionLogDTOs(ConditionVO conditionVO);
+
+    /**
+     * 清除异常日志
+     */
+    void cleanExceptionLogs();
 }

@@ -15,7 +15,12 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 动态安全元数据源
+ * 动态安全元数据源类
+ * <p>
+ * 该类实现了Spring Security的FilterInvocationSecurityMetadataSource接口，
+ * 用于根据请求的URL和HTTP方法动态加载安全配置属性。该类通过调用DynamicSecurityService
+ * 的接口来加载安全数据源，并在每次请求时动态匹配相应的安全配置。
+ * </p>
  *
  * @author gewuyou
  * @since 2024-06-10 下午4:46:40
@@ -23,8 +28,14 @@ import java.util.Objects;
 @Component
 public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
+    /**
+     * 存储URL和对应的安全配置属性的映射表
+     */
     private static Map<String, ConfigAttribute> configAttributeMap = null;
 
+    /**
+     * 动态安全服务接口，用于加载安全数据源
+     */
     private final DynamicSecurityService dynamicSecurityService;
 
 
@@ -44,13 +55,14 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
     }
 
     /**
-     * Accesses the {@code ConfigAttribute}s that apply to a given secure object.
+     * 根据传入的HttpServletRequest对象获取对应的安全配置属性
+     * <p>
+     * 如果configAttributeMap为空，则重新加载数据源。根据请求的URL和HTTP方法，
+     * 使用AntPathMatcher进行模式匹配，返回匹配到的配置属性列表。
      *
-     * @param object the object being secured
-     * @return the attributes that apply to the passed in secured object. Should return an
-     * empty collection if there are no applicable attributes.
-     * @throws IllegalArgumentException if the passed object is not of a type supported by
-     *                                  the <code>SecurityMetadataSource</code> implementation
+     * @param object 要保护的对象，通常为HttpServletRequest
+     * @return 返回匹配到的配置属性集合，如果没有匹配到则返回空集合
+     * @throws IllegalArgumentException 如果传入的object不是HttpServletRequest实例
      */
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
@@ -76,13 +88,11 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
     }
 
     /**
-     * If available, returns all of the {@code ConfigAttribute}s defined by the
-     * implementing class.
+     * 获取所有定义的安全配置属性
      * <p>
-     * This is used by the {@link} to perform startup time
-     * validation of each {@code ConfigAttribute} configured against it.
+     * 当前实现返回null，因为不需要在启动时对配置属性进行全局验证。
      *
-     * @return the {@code ConfigAttribute}s or {@code null} if unsupported
+     * @return 返回null
      */
     @Override
     public Collection<ConfigAttribute> getAllConfigAttributes() {
@@ -90,11 +100,13 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
     }
 
     /**
-     * Indicates whether the {@code SecurityMetadataSource} implementation is able to
-     * provide {@code ConfigAttribute}s for the indicated secure object type.
+     * 判断是否支持传入的类类型
+     * <p>
+     * 检查是否支持FilterInvocation类或其子类，该方法用于确定该安全元数据源是否
+     * 可以为指定类型的对象提供安全配置属性。
      *
-     * @param clazz the class that is being queried
-     * @return true if the implementation can process the indicated class
+     * @param clazz 要查询的类
+     * @return 如果支持返回true，否则返回false
      */
     @Override
     public boolean supports(Class<?> clazz) {

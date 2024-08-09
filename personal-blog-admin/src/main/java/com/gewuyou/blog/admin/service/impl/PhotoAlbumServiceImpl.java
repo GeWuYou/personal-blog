@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.PhotoAlbumMapper;
 import com.gewuyou.blog.admin.mapper.PhotoMapper;
+import com.gewuyou.blog.admin.service.IImageReferenceService;
 import com.gewuyou.blog.admin.service.IPhotoAlbumService;
 import com.gewuyou.blog.common.annotation.ReadLock;
 import com.gewuyou.blog.common.constant.RedisConstant;
@@ -18,9 +19,7 @@ import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Photo;
 import com.gewuyou.blog.common.model.PhotoAlbum;
-import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
-import com.gewuyou.blog.common.utils.FileUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.PhotoAlbumVO;
@@ -45,12 +44,12 @@ import static com.gewuyou.blog.common.constant.CommonConstant.TRUE;
 public class PhotoAlbumServiceImpl extends ServiceImpl<PhotoAlbumMapper, PhotoAlbum> implements IPhotoAlbumService {
 
     private final PhotoMapper photoMapper;
-    private final IRedisService redisService;
+    private final IImageReferenceService imageReferenceService;
 
     @Autowired
-    public PhotoAlbumServiceImpl(PhotoMapper photoMapper, IRedisService redisService) {
+    public PhotoAlbumServiceImpl(PhotoMapper photoMapper, IImageReferenceService imageReferenceService) {
         this.photoMapper = photoMapper;
-        this.redisService = redisService;
+        this.imageReferenceService = imageReferenceService;
     }
 
     /**
@@ -70,7 +69,14 @@ public class PhotoAlbumServiceImpl extends ServiceImpl<PhotoAlbumMapper, PhotoAl
             throw new GlobalException(ResponseInformation.ALBUM_NAME_EXIST);
         }
         PhotoAlbum photoAlbum = BeanCopyUtil.copyObject(photoAlbumVO, PhotoAlbum.class);
-        redisService.sAdd(RedisConstant.DB_IMAGE_NAME, FileUtil.getFilePathByUrl(photoAlbum.getAlbumCover()));
+        String oldPhotoAlbumCover;
+        String newPhotoAlbumCover = photoAlbum.getAlbumCover();
+        if (Objects.isNull(existPhotoAlbum)) {
+            oldPhotoAlbumCover = null;
+        } else {
+            oldPhotoAlbumCover = existPhotoAlbum.getAlbumCover();
+        }
+        imageReferenceService.handleImageReference(newPhotoAlbumCover, oldPhotoAlbumCover);
         this.saveOrUpdate(photoAlbum);
     }
 
@@ -150,6 +156,7 @@ public class PhotoAlbumServiceImpl extends ServiceImpl<PhotoAlbumMapper, PhotoAl
                     .set(Photo::getIsDelete, TRUE)
                     .eq(Photo::getAlbumId, albumId));
         } else {
+            imageReferenceService.deleteImageReference(baseMapper.selectById(albumId).getAlbumCover());
             baseMapper.deleteById(albumId);
         }
     }

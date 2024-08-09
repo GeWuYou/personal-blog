@@ -24,7 +24,7 @@ public class ExceptionLogDTO {
      * 主键id
      */
     @Schema(description = "主键id")
-    private Long id;
+    private Integer id;
 
     /**
      * 操作url

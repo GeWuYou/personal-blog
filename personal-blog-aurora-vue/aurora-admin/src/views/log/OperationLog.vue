@@ -10,6 +10,13 @@
         @click="isDelete = true">
         批量删除
       </el-button>
+      <el-button
+        type="danger"
+        icon="el-icon-delete"
+        size="small"
+        :disabled="this.logs.length === 0"
+        @click="clean">清空
+      </el-button>
       <div style="margin-left: auto">
         <el-input
           v-model="keywords"
@@ -178,7 +185,7 @@ export default {
       } else {
         param = { data: this.logIds }
       }
-      _delete('/admin/operation/log', param.data, (_, message) => {
+      _delete('/admin/operation/log', param, (_, message) => {
         this.$notify.success({
           title: '成功',
           message: message
@@ -209,6 +216,20 @@ export default {
     check(optLog) {
       this.optLog = JSON.parse(JSON.stringify(optLog))
       this.isCheck = true
+    },
+    clean() {
+      _delete('/admin/operation/log/clean', {}, () => {
+        this.$notify.success({
+          title: '成功',
+          message: '清空成功'
+        })
+        this.listLogs()
+      }, () => {
+        this.$notify.error({
+          title: '失败',
+          message: '清空失败'
+        })
+      })
     }
   },
   computed: {

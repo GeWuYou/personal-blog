@@ -4,17 +4,22 @@ package com.gewuyou.blog.admin.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.admin.mapper.TalkMapper;
+import com.gewuyou.blog.admin.service.IImageReferenceService;
 import com.gewuyou.blog.admin.service.ITalkService;
 import com.gewuyou.blog.common.annotation.ReadLock;
 import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TalkAdminDTO;
+import com.gewuyou.blog.common.enums.ResponseInformation;
+import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Talk;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
-import com.gewuyou.blog.common.utils.CommonUtil;
+import com.gewuyou.blog.common.utils.FileUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -41,10 +46,13 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
 
     private final IRedisService redisService;
 
+    private final IImageReferenceService imageReferenceService;
+
     @Autowired
-    public TalkServiceImpl(ObjectMapper objectMapper, IRedisService redisService) {
+    public TalkServiceImpl(ObjectMapper objectMapper, IRedisService redisService, IImageReferenceService imageReferenceService) {
         this.objectMapper = objectMapper;
         this.redisService = redisService;
+        this.imageReferenceService = imageReferenceService;
     }
 
     /**
@@ -57,9 +65,29 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
     public void saveOrUpdateTalk(TalkVO talkVO) {
         Talk talk = BeanCopyUtil.copyObject(talkVO, Talk.class);
         talk.setUserId(UserUtil.getUserDetailsDTO().getUserInfoId());
-        redisService.sAdd(RedisConstant.DB_IMAGE_NAME,
-                (Object[]) CommonUtil.castList(objectMapper.convertValue(talk.getImages(), List.class),
-                        String.class).toArray(new String[0]));
+        String talkImages = talk.getImages();
+        try {
+            List<String> newImages = objectMapper
+                    .readValue(talkImages, new TypeReference<List<String>>() {
+                    })
+                    .stream()
+                    .map(FileUtil::getFilePathByUrl)
+                    .toList();
+            // 判断是新增还是更新
+            if (Objects.nonNull(talk.getId())) {
+                List<String> oldImages = objectMapper.readValue(baseMapper
+                        .selectOne(new LambdaQueryWrapper<Talk>()
+                                .select(Talk::getImages)
+                                .eq(Talk::getId, talk.getId()))
+                        .getImages(), new TypeReference<>() {
+                });
+                imageReferenceService.handleImageReferences(newImages, oldImages);
+            } else {
+                imageReferenceService.handleImageReferences(newImages, List.of());
+            }
+        } catch (JsonProcessingException e) {
+            throw new GlobalException(ResponseInformation.JSON_PARSE_ERROR);
+        }
         this.saveOrUpdate(talk);
     }
 
@@ -70,6 +98,20 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
      */
     @Override
     public void deleteTalks(List<Integer> talkIds) {
+        talkIds.forEach(id -> {
+            try {
+                objectMapper
+                        .readValue(
+                                baseMapper
+                                        .selectOne(new LambdaQueryWrapper<Talk>()
+                                                .select(Talk::getImages)
+                                                .eq(Talk::getId, id))
+                                        .getImages(), new TypeReference<List<String>>() {
+                                }).forEach(imageReferenceService::deleteImageReference);
+            } catch (JsonProcessingException e) {
+                throw new GlobalException(ResponseInformation.JSON_PARSE_ERROR);
+            }
+        });
         baseMapper.deleteBatchIds(talkIds);
     }
 
@@ -92,7 +134,12 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
         List<TalkAdminDTO> talkAdminDTOs = baseMapper.listTalkAdminDTOs(page, conditionVO).getRecords();
         talkAdminDTOs.forEach(item -> {
             if (StringUtils.isNotBlank(item.getImages())) {
-                item.setImageList(CommonUtil.castList(objectMapper.convertValue(item.getImages(), List.class), String.class));
+                try {
+                    item.setImageList(objectMapper.readValue(item.getImages(), new TypeReference<>() {
+                    }));
+                } catch (JsonProcessingException e) {
+                    throw new GlobalException(ResponseInformation.JSON_PARSE_ERROR);
+                }
             } else {
                 item.setImageList(List.of());
             }
@@ -110,7 +157,12 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
     public TalkAdminDTO getBackTalkById(Integer talkId) {
         TalkAdminDTO talkAdminDTO = baseMapper.getTalkAdminDTOById(talkId);
         if (StringUtils.isNotBlank(talkAdminDTO.getImages())) {
-            talkAdminDTO.setImageList(CommonUtil.castList(objectMapper.convertValue(talkAdminDTO.getImages(), List.class), String.class));
+            try {
+                talkAdminDTO.setImageList(objectMapper.readValue(talkAdminDTO.getImages(), new TypeReference<>() {
+                }));
+            } catch (JsonProcessingException e) {
+                throw new GlobalException(ResponseInformation.JSON_PARSE_ERROR);
+            }
         } else {
             talkAdminDTO.setImageList(List.of());
         }

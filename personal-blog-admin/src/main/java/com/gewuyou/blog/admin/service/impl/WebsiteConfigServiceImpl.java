@@ -12,6 +12,7 @@ import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.WebsiteConfig;
 import com.gewuyou.blog.common.service.IRedisService;
+import com.gewuyou.blog.common.utils.FileUtil;
 import com.gewuyou.blog.common.vo.WebsiteConfigVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,7 +81,7 @@ public class WebsiteConfigServiceImpl extends ServiceImpl<WebsiteConfigMapper, W
 
             // 将非空值保存到 Redis 中
             if (!urls.isEmpty()) {
-                redisService.sAdd(RedisConstant.DB_IMAGE_NAME, (Object[]) urls.toArray(new String[0]));
+                redisService.sAdd(RedisConstant.DB_IMAGE_NAME, urls.stream().map(FileUtil::getFilePathByUrl).toArray());
             }
             // 删除缓存
             redisService.delete(WEBSITE_CONFIG);

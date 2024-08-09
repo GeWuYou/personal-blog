@@ -1,8 +1,6 @@
 package com.gewuyou.blog.common.utils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -64,4 +62,29 @@ public class CollectionUtil {
         parentList.forEach(item -> childrenMap.remove(getId.apply(item)));
     }
 
+    public static <T> List<T> castList(Object obj, Class<T> clazz) {
+        List<T> result = new ArrayList<>();
+        if (obj instanceof List<?>) {
+            for (Object o : (List<?>) obj) {
+                result.add(clazz.cast(o));
+            }
+            return result;
+        }
+        return result;
+    }
+
+    public static <T> Set<T> castSet(Object obj, Class<T> clazz) {
+        Set<T> result = new HashSet<>();
+        if (obj instanceof Set<?>) {
+            for (Object o : (Set<?>) obj) {
+                result.add(clazz.cast(o));
+            }
+            return result;
+        }
+        return result;
+    }
+
+    public static <E> Collection<E> difference(Collection<E> c1, Collection<E> c2) {
+        return c1.stream().filter(e -> !c2.contains(e)).collect(Collectors.toList());
+    }
 }

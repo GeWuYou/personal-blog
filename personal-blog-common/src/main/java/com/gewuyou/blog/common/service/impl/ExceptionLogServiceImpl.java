@@ -57,4 +57,12 @@ public class ExceptionLogServiceImpl extends ServiceImpl<ExceptionLogMapper, Exc
                 .toList();
         return new PageResultDTO<>(exceptionLogDTOS, exceptionLogPage.getTotal());
     }
+
+    /**
+     * 清除异常日志
+     */
+    @Override
+    public void cleanExceptionLogs() {
+        baseMapper.delete(null);
+    }
 }
