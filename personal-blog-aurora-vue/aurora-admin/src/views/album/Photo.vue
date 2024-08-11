@@ -19,7 +19,8 @@
       </div>
       <div class="operation">
         <div class="all-check">
-          <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">
+          <el-checkbox :disabled="photos.length === 0" :indeterminate="isIndeterminate" v-model="checkAll"
+                       @change="handleCheckAllChange">
             全选
           </el-checkbox>
           <div class="check-count">已选择{{ selectPhotoIds.length }}张</div>
@@ -286,6 +287,7 @@ export default {
           message: message
         })
         this.uploads = []
+        this.photos = []
         this.listPhotos()
         this.getAlbumInfo()
       }, (message) => {
@@ -436,6 +438,7 @@ export default {
         })
         this.listPhotos()
         this.getAlbumInfo()
+        this.selectPhotoIds = []
       }, (message) => {
         this.$notify.error({
           title: '失败',

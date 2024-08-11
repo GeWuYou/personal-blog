@@ -271,6 +271,7 @@ export default {
             title: '失败',
             message: '操作失败'
           })
+        }, null, () => {
           this.addMenu = false
         })
       // this.axios.post('/api/admin/menus', this.menuForm).then(({ data }) => {

@@ -56,7 +56,9 @@
         </el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="danger" icon="el-icon-delete" size="small" @click="clean">清空</el-button>
+        <el-button type="danger" icon="el-icon-delete" size="small" :disabled="this.jobLogs.length === 0"
+                   @click="clean">清空
+        </el-button>
       </el-col>
     </el-row>
 
