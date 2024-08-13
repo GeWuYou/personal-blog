@@ -28,6 +28,7 @@ public class JacksonConfig {
     public Jackson2ObjectMapperBuilderCustomizer customizer() {
         return builder ->
                 builder.simpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                        .timeZone("Asia/Shanghai")
                         // long类型转string， 前端处理Long类型，数值过大会丢失精度
                         .serializerByType(Long.class, ToStringSerializer.instance)
                         .serializerByType(Long.TYPE, ToStringSerializer.instance)

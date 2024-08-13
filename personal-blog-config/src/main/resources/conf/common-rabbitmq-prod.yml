@@ -1,0 +1,16 @@
+spring:
+  rabbitmq:
+    host: 192.168.200.129
+    port: 5672
+    username: gewuyou
+    password: youyong21126
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 3000
+    virtual-host: /personal-blog
+
+
+

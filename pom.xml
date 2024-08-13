@@ -11,13 +11,14 @@
     <packaging>pom</packaging>
     <modules>
         <module>personal-blog-common</module>
-        <module>personal-blog-server</module>
-        <module>personal-blog-admin</module>
-        <module>personal-blog-search</module>
-        <module>personal-blog-eureka</module>
-        <module>personal-blog-extension</module>
-        <module>personal-blog-gateway</module>
         <module>personal-blog-security</module>
+        <module>personal-blog-eureka</module>
+        <module>personal-blog-gateway</module>
+        <module>personal-blog-config</module>
+        <module>personal-blog-admin</module>
+        <module>personal-blog-server</module>
+        <module>personal-blog-search</module>
+        <module>personal-blog-extension</module>
     </modules>
     <groupId>com.gewuyou</groupId>
     <artifactId>personal-blog</artifactId>

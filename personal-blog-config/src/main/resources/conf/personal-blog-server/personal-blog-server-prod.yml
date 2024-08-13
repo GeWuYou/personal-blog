@@ -1,0 +1,23 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: personal-blog-server
+  # 放行的url
+  security:
+    ignore:
+      urls:
+        - /swagger-ui.html
+        - /server/user-info/select/**
+        - /swagger-ui/**
+        - /v3/api-docs/**
+        - /swagger-resources/**
+        - /doc.html
+        - /webjars/**
+        - /druid/**
+        - /favicon.ico
+search:
+  mode: mysqlSearchStrategyImpl
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

@@ -1,31 +1,7 @@
 server:
   port: 8084
 spring:
-  profiles:
-    include: common-datasource,common-log,common-rabbitmq,common-private-mail,common-redis-cache,common-security,common-project-info
   application:
-    name: personal-blog-server
-  # 放行的url
-  security:
-    ignore:
-      urls:
-        - /swagger-ui.html
-        - /server/user-info/select/**
-        - /swagger-ui/**
-        - /v3/api-docs/**
-        - /swagger-resources/**
-        - /doc.html
-        - /webjars/**
-        - /druid/**
-        - /favicon.ico
-eureka:
-  client:
-    service-url:
-      defaultZone: http://127.0.0.1:10086/eureka
-  instance:
-    prefer-ip-address: true
-search:
-  mode: mysqlSearchStrategyImpl
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    name: personal-blog-server  # 模块名，与配置文件夹名一致
+  profiles:
+    active: dev

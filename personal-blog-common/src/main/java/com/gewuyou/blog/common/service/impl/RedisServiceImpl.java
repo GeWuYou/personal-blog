@@ -146,7 +146,7 @@ public class RedisServiceImpl implements IRedisService {
     /**
      * 获取对象
      *
-     * @param key   键
+     * @param key           键
      * @param typeReference 类型引用
      * @return 对象
      */

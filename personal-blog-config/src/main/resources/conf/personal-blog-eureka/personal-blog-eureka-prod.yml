@@ -1,0 +1,12 @@
+spring:
+  config:
+    import: common-log.yml
+  application:
+    name: personal-blog-eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.200.129:10086/eureka
+    # 防止Eureka启动时注册本身服务
+    register-with-eureka: false
+    fetch-registry: false

@@ -1,0 +1,7 @@
+spring:
+  config:
+    import: configserver:http://localhost:8888 # 导入Config Server配置
+  cloud:
+    config:
+      profile: dev                # 使用的配置文件环境
+      name: "${spring.application.name},common-log,common-eureka,"

@@ -1,0 +1,8 @@
+spring:
+  config:
+    import: configserver:http://localhost:8888 # 导入Config Server配置
+  cloud:
+    config:
+      profile: dev                # 使用的配置文件环境
+      #    记得修改配置 common-mail-private 为common-mail-public
+      name: "${spring.application.name},common-eureka,common-log,common-mail-private,common-datasource,common-security,common-redis,common-rabbitmq,common-project-info"

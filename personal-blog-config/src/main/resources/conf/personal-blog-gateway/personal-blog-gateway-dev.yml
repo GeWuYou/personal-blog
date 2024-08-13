@@ -1,0 +1,45 @@
+spring:
+  cloud:
+    gateway:
+      enabled: true
+      # 开启自动路由
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: personal-blog-server
+          uri: lb://personal-blog-server
+          predicates:
+            - Path=/api/v1/server/**
+          filters:
+            - StripPrefix=2
+        - id: personal-blog-admin
+          uri: lb://personal-blog-admin
+          predicates:
+            - Path=/api/v1/admin/**
+          filters:
+            - StripPrefix=2
+
+
+      # 全局的跨域处理
+      global-cors:
+        # 解决options请求被拦截问题
+        add-to-simple-url-handler-mapping: true
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: # 允许哪些网站的跨域请求
+              - "http://localhost:8080"
+              - "http://localhost:8081"
+              - "http://localhost:8083"
+              - "http://localhost:8084"
+              - "http://localhost:8085"
+              - "http://localhost:8086"
+            allowedMethods: # 允许的跨域ajax的请求方式
+              - "GET"
+              - "POST"
+              - "DELETE"
+              - "PUT"
+              - "OPTIONS"
+            allowedHeaders: "*" # 允许在请求中携带的头信息
+            allowCredentials: true # 是否允许携带cookie
+            maxAge: 360000 # 这次跨域检测的有效期

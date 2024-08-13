@@ -15,6 +15,11 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
+        <!-- Spring Cloud Starter Config -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.redisson</groupId>
 			<artifactId>redisson-spring-boot-starter</artifactId>
@@ -24,22 +29,6 @@
 			<groupId>com.gewuyou</groupId>
 			<artifactId>personal-blog-security</artifactId>
 			<scope>compile</scope>
-		</dependency>
-		<!--通用模块-->
-		<dependency>
-			<groupId>com.gewuyou</groupId>
-			<artifactId>personal-blog-common</artifactId>
-			<scope>compile</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>apiguardian-api</artifactId>
-					<groupId>org.apiguardian</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>httpclient</artifactId>
-					<groupId>org.apache.httpcomponents</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

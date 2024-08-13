@@ -37,3 +37,5 @@ build/
 /temp
 /personal-blog-aurora-vue/aurora-admin/node_modules
 /personal-blog-aurora-vue/aurora-blog/node_modules
+/personal-blog-config/src/main/resources/conf/common-mail-private.yml
+/personal-blog-config/src/main/resources/conf/personal-blog-admin/personal-blog-admin-upload-private.yml

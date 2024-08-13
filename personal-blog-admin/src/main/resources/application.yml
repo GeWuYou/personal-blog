@@ -1,45 +1,7 @@
 server:
   port: 8080
 spring:
-  # 放行的url
-  security:
-    ignore:
-      urls:
-        - /swagger-ui.html
-        - /admin/blog/**
-        - /admin/user/login
-        - /admin/
-        - /admin/report
-        - /swagger-ui/**
-        - /v3/api-docs/**
-        - /swagger-resources/**
-        - /doc.html
-        - /webjars/**
-        - /druid/**
-        - /favicon.ico
   application:
     name: personal-blog-admin
   profiles:
-    #    记得切换配置admin-upload-private 为admin-upload
-    include: common-log,common-private-mail,common-datasource,common-json,admin-upload-private,common-security,common-redis-cache,common-rabbitmq
-eureka:
-  instance:
-    prefer-ip-address: true
-    hostname: ${spring.application.name}
-  client:
-    service-url:
-      defaultZone: http://127.0.0.1:10086/eureka
-    fetch-registry: true
-    register-with-eureka: true # fetch-registry 与 register-with-eureka 都为 true 表示即为提供者, 亦为消费者
-
-    # 连接注册中心超时时间, 默认 5, 单位秒, 一般和注册中心服务失效时间配置一致
-    eureka-server-connect-timeout-seconds: 10
-    # 读取服务列表的超时时间, 默认 8, 单位秒
-    eureka-server-read-timeout-seconds: 10
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-swagger:
-  url:
-    - "http://localhost:8084/swagger-ui.html"
-    - "http://localhost:8080/swagger-ui.html"
+    active: dev

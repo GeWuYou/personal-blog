@@ -1,0 +1,11 @@
+spring:
+  config:
+    import: configserver:http://192.168.200.129:8888
+  cloud:
+    config:
+      profile: prod                # 使用的配置文件环境
+      #    记得修改配置 common-private-mail 为common-public-mail
+      name: "common-eureka-${spring.cloud.config.profile},common-log,common-private-mail,/
+      common-datasource-${spring.cloud.config.profile},/
+      common-security,common-redis-cache-${spring.cloud.config.profile},/
+      common-rabbitmq-${spring.cloud.config.profile},common-redisson-${spring-cloud.config.profile},common-project-info"

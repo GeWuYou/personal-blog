@@ -1,0 +1,9 @@
+spring:
+  config:
+    import: configserver:http://192.168.200.129:8888/
+  cloud:
+    config:
+      profile: prod                # 使用的配置文件环境
+      #    记得修改配置admin-upload-private 为admin-upload common-private-mail 为common-public-mail
+      name: "${spring.application.name},common-eureka,common-log,common-mail-private,common-datasource,${spring.application.name}-upload-private,common-security,common-redis,common-rabbitmq"
+
