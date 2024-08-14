@@ -39,3 +39,5 @@ build/
 /personal-blog-aurora-vue/aurora-blog/node_modules
 /personal-blog-config/src/main/resources/conf/common-mail-private.yml
 /personal-blog-config/src/main/resources/conf/personal-blog-admin/personal-blog-admin-upload-private.yml
+/personal-blog-config/src/main/resources/conf-git/
+/personal-blog-config/src/main/resources/application-git-private.yml

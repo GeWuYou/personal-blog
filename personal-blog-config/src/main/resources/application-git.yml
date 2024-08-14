@@ -1,0 +1,23 @@
+server:
+  port: 8888
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          #填入你的git仓库地址
+          uri: https://gitee.com/gewuyou/personal-blog-config
+          #填入你的git用户名
+          username: gewuyou
+          #填入你的git 私钥
+          password:
+          #填入你的配置路径
+          search-paths:
+            - ""
+            - personal-blog-admin
+            - personal-blog-eureka
+            - personal-blog-gateway
+            - personal-blog-server
+          #填入你的默认
+          default-label: master
+

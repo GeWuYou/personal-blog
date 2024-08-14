@@ -2,14 +2,10 @@ server:
   port: 8888
 spring:
   profiles:
-    active: native
+    # 自行切换为git或者native
+    active: git-private
   application:
     name: personal-blog-config
-  cloud:
-    config:
-      server:
-        native:
-          search-locations: "classpath:/conf,classpath:/conf/personal-blog-admin,classpath:/conf/personal-blog-server,classpath:/conf/personal-blog-eureka,classpath:/conf/personal-blog-gateway"
 logging:
   level:
     root: info
