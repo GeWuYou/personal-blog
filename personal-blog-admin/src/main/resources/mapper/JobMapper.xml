@@ -31,7 +31,7 @@
         remark
         FROM tb_job j
         <where>
-            <if test="jobSearchVO.jobName!=null">
+            <if test="jobSearchVO!=null">
                 <if test="jobSearchVO.jobName!=null">
                     AND j.job_name LIKE CONCAT('%', #{jobSearchVO.jobName}, '%')
                 </if>

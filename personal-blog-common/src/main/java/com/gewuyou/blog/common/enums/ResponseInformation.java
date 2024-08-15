@@ -75,8 +75,10 @@ public enum ResponseInformation {
     ASYNC_EXCEPTION(500, "异步任务异常"),
     CREATE_TASK_FAILED(500, "创建任务失败"),
     DELETE_TASK_FAILED(500, "删除任务失败"),
+    RUN_TASK_FAILED(500, "运行任务失败"),
     GET_WEBSITE_CONFIG_FAILED(500, "获取网站配置失败"),
     CREATE_DIRECTORY_FAILED(500, "创建目录失败"),
+    INIT_SCHEDULE_JOB_FAILED(500, "初始化定时任务失败"),
 
     /**
      * 错误参数

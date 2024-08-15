@@ -261,7 +261,6 @@
 </template>
 <script>
 import Crontab from '@/components/Crontab'
-import router from '@/router'
 import { _delete, _get, _post, _put } from '@/api/api'
 
 export default {
@@ -308,7 +307,7 @@ export default {
       this.listJobs()
     },
     listJobGroups() {
-      _get('/admin/job/groups', {}, (data) => this.jobGroups = data.data)
+      _get('/admin/job/groups', {}, (data) => this.jobGroups = data)
       // this.axios.get('/api/admin/jobs/jobGroups').then(({ data }) => {
       //   this.jobGroups = data.data
       // })
@@ -316,6 +315,12 @@ export default {
     listJobs() {
       this.searchParams.current = this.current
       this.searchParams.size = this.size
+      if (this.searchParams.jobGroup === '') {
+        this.searchParams.jobGroup = null
+      }
+      if (this.searchParams.jobName === '') {
+        this.searchParams.jobName = null
+      }
       _get('/admin/job/list', this.searchParams, (data) => {
         this.jobs = data.records
         this.count = Number(data.count)
@@ -540,10 +545,15 @@ export default {
       this.job = job
     },
     handleJobLog(jobId) {
-      router.push({ path: '/quartz/log/' + jobId })
+      this.$router.push({
+        path: '/quartz/log/',
+        query: {
+          quartzId: jobId
+        }
+      })
     },
     openLog() {
-      router.push({ path: '/quartz/log/all' })
+      this.$router.push({ path: '/quartz/log/', query: { quartzId: 'all' } })
     },
     afterClosed() {
       this.job = ''

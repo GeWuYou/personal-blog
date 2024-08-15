@@ -21,6 +21,7 @@ import com.gewuyou.blog.common.vo.JobRunVO;
 import com.gewuyou.blog.common.vo.JobSearchVO;
 import com.gewuyou.blog.common.vo.JobStatusVO;
 import com.gewuyou.blog.common.vo.JobVO;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -43,6 +44,7 @@ import java.util.concurrent.ExecutionException;
  * @since 2024-04-21
  */
 @Service
+@Slf4j
 public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobService {
 
 
@@ -188,8 +190,9 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
         String jobGroup = jobRunVO.getJobGroup();
         try {
             scheduler.triggerJob(ScheduleUtil.getJobKey(jobId, jobGroup));
-        } catch (SchedulerException e) {
-            throw new GlobalException(ResponseInformation.DELETE_TASK_FAILED);
+        } catch (Exception e) {
+            log.error("运行定时任务失败", e);
+            throw new GlobalException(ResponseInformation.RUN_TASK_FAILED);
         }
     }
 

@@ -160,10 +160,10 @@ import { _delete, _get } from '@/api/api'
 
 export default {
   created() {
-    if (this.$route.params.quartzId === 'all') {
+    if (this.$route.query.quartzId === 'all') {
       this.jobId = 0
-    } else if (this.$route.params.quartzId !== null) {
-      this.jobId = this.$route.params.quartzId
+    } else if (this.$route.query.quartzId !== null) {
+      this.jobId = this.$route.query.quartzId
     }
     if (this.jobId === this.$store.state.pageState.quartzLog.jobId) {
       this.current = this.$store.state.pageState.quartzLog.current
