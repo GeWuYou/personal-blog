@@ -5,7 +5,4 @@ spring:
     config:
       profile: prod                # 使用的配置文件环境
       #    记得修改配置 common-private-mail 为common-public-mail
-      name: "common-eureka-${spring.cloud.config.profile},common-log,common-private-mail,/
-      common-datasource-${spring.cloud.config.profile},/
-      common-security,common-redis-cache-${spring.cloud.config.profile},/
-      common-rabbitmq-${spring.cloud.config.profile},common-redisson-${spring-cloud.config.profile},common-project-info"
+      name: "${spring.application.name},common-eureka,common-log,common-mail-private,common-datasource,common-security,common-redis,common-rabbitmq,common-project-info,common-bus"

@@ -84,6 +84,13 @@ public class BlogQuartz {
     public void clearNotReferenceImage() {
         blogQuartzJobService.clearNotReferenceImage();
     }
+
+    /**
+     * 刷新所有配置
+     */
+    public void refreshAllConfig() {
+        blogQuartzJobService.refreshAllConfig();
+    }
     /**
      * 保存每日访问量
      */

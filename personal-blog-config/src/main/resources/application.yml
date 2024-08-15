@@ -3,9 +3,27 @@ server:
 spring:
   profiles:
     # 自行切换为git或者native
-    active: git-private
+    active: native
   application:
     name: personal-blog-config
+  rabbitmq:
+    host: 192.168.200.129
+    port: 5672
+    username: gewuyou
+    password: youyong21126
+    virtual-host: /personal-blog
+  cloud:
+    bus:
+      refresh:
+        enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      path-mapping:
+        busrefresh: bus-refresh
+
 logging:
   level:
     root: info

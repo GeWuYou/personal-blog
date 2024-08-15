@@ -9,8 +9,16 @@ import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.model.ImageReference;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Set;
@@ -24,18 +32,23 @@ import java.util.Set;
  * @since 2024-08-09 12:10:17
  */
 @Service
+@Slf4j
 public class BlogQuartzJobServiceImpl implements IBlogQuartzJobService {
     private final IRedisService redisService;
     private final UploadStrategyContext uploadStrategyContext;
     private final IImageReferenceService imageReferenceService;
     private final ImageReferenceMapper imageReferenceMapper;
+    private final RestTemplate restTemplate;
+    @Value("${spring.config.import}")
+    private String configServerUrl;
 
     @Autowired
-    public BlogQuartzJobServiceImpl(IRedisService redisService, UploadStrategyContext uploadStrategyContext, IImageReferenceService imageReferenceService, ImageReferenceMapper imageReferenceMapper) {
+    public BlogQuartzJobServiceImpl(IRedisService redisService, UploadStrategyContext uploadStrategyContext, IImageReferenceService imageReferenceService, ImageReferenceMapper imageReferenceMapper, RestTemplate restTemplate) {
         this.redisService = redisService;
         this.uploadStrategyContext = uploadStrategyContext;
         this.imageReferenceService = imageReferenceService;
         this.imageReferenceMapper = imageReferenceMapper;
+        this.restTemplate = restTemplate;
     }
 
     /**
@@ -67,5 +80,30 @@ public class BlogQuartzJobServiceImpl implements IBlogQuartzJobService {
         }
         // 删除数据库记录
         imageReferenceMapper.deleteBatchIds(notUsedImageReferences.stream().map(ImageReference::getId).toList());
+    }
+
+    /**
+     * 刷新所有配置
+     */
+    @Override
+    public void refreshAllConfig() {
+        try {
+            if (configServerUrl.startsWith("configserver:")) {
+                configServerUrl = configServerUrl.replace("configserver:", "") + "/actuator/bus-refresh";
+            }
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+            HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+            ResponseEntity<String> response = restTemplate.exchange(configServerUrl, HttpMethod.POST, requestEntity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("刷新配置成功");
+            } else {
+                log.debug("刷新配置失败");
+                throw new RuntimeException("刷新配置失败");
+            }
+        } catch (RestClientException e) {
+            log.error("刷新配置失败", e);
+            throw new RuntimeException("刷新配置失败", e);
+        }
     }
 }

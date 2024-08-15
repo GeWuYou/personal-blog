@@ -9,7 +9,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -27,7 +26,7 @@ public class ReadWriteLockAspect {
     private final RedissonClient redissonClient;
 
     @Autowired
-    public ReadWriteLockAspect(@Qualifier("redissonClient") RedissonClient redissonClient) {
+    public ReadWriteLockAspect(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 

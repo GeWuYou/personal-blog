@@ -4,4 +4,4 @@ spring:
   cloud:
     config:
       profile: prod               # 使用的配置文件环境
-      name: "common-log,${spring.application.name}"
+      name: "common-log,${spring.application.name},common-rabbitmq,common-bus"

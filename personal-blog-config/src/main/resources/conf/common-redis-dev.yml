@@ -18,8 +18,3 @@ spring:
       time-to-live: 60s
       # 指定是否使用全局键前缀
       use-key-prefix: false
-# redisson配置
-redisson:
-  host: "redis://192.168.200.129:6379"
-  database: 0
-  password: ""

@@ -13,4 +13,9 @@ public interface IBlogQuartzJobService {
     void clearTempImage();
 
     void clearNotReferenceImage();
+
+    /**
+     * 刷新所有配置
+     */
+    void refreshAllConfig();
 }
