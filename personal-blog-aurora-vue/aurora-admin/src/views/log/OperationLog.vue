@@ -45,13 +45,13 @@
       <el-table-column prop="userName" label="操作人员" align="center" />
       <el-table-column prop="ipAddress" label="登录ip" align="center" width="130" />
       <el-table-column prop="ipSource" label="登录地址" align="center" width="150" />
+      <el-table-column prop="duration" label="耗时(毫秒)" align="center" width="90" />
       <el-table-column prop="createTime" label="操作日期" align="center" width="190">
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right: 5px" />
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column prop="duration" label="耗时" align="center" width="150" />
       <el-table-column label="操作" align="center" width="150">
         <template slot-scope="scope">
           <el-button size="mini" type="text" slot="reference" @click="check(scope.row)">
@@ -99,7 +99,7 @@
         <el-form-item label="操作人员：">
           {{ optLog.userName }}
         </el-form-item>
-        <el-form-item label="耗时：">
+        <el-form-item label="耗时(毫秒)：">
           {{ optLog.duration }}
         </el-form-item>
       </el-form>

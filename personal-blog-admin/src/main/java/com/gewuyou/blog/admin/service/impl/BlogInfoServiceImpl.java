@@ -25,7 +25,6 @@ import org.springframework.util.DigestUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -105,19 +104,19 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
         CompletableFuture<Long> asyncTalkCount = CompletableFuture.supplyAsync(serverClient.selectTalkCount()::getData, asyncTaskExecutor);
         CompletableFuture<WebsiteConfigDTO> asyncWebsiteConfig = CompletableFuture.supplyAsync(serverClient.getWebsiteConfig()::getData, asyncTaskExecutor);
         CompletableFuture<Long> asyncViewCount = CompletableFuture.supplyAsync(() -> RedisUtil.getLongValue(redisService.get(BLOG_VIEWS_COUNT)), asyncTaskExecutor);
-        try {
-
-            return BlogHomeInfoDTO.builder()
-                    .articleCount(asyncArticleCount.get())
-                    .categoryCount(asyncCategoryCount.get())
-                    .tagCount(asyncTagCount.get())
-                    .talkCount(asyncTalkCount.get())
-                    .websiteConfigDTO(asyncWebsiteConfig.get())
-                    .viewCount(asyncViewCount.get()).build();
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("获取博客后台首页信息失败", e);
-            throw new GlobalException(ResponseInformation.SERVER_ERROR);
-        }
+        CompletableFuture<Void> asyncAllOf = CompletableFuture.allOf(asyncArticleCount, asyncCategoryCount, asyncTagCount, asyncTalkCount, asyncWebsiteConfig, asyncViewCount);
+        return asyncAllOf
+                .exceptionally(e -> {
+                    log.error("获取博客后台首页信息失败", e);
+                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                })
+                .thenApply(v -> BlogHomeInfoDTO.builder()
+                        .articleCount(asyncArticleCount.join())
+                        .categoryCount(asyncCategoryCount.join())
+                        .tagCount(asyncTagCount.join())
+                        .talkCount(asyncTalkCount.join())
+                        .websiteConfigDTO(asyncWebsiteConfig.join())
+                        .viewCount(asyncViewCount.join()).build()).join();
     }
 
     /**
@@ -127,37 +126,48 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
      */
     @Override
     public BlogAdminInfoDTO getBlogAdminInfo() {
-        Long viewsCount = RedisUtil.getLongValue(redisService.get(BLOG_VIEWS_COUNT));
-        Long messageCount = serverClient.selectCommentCountByType(Byte.valueOf("2")).getData();
-        Long userCount = serverClient.selectUserInfoCount().getData();
-        Long articleCount = serverClient.selectArticleCountNotDeleted().getData();
-        List<UniqueViewDTO> uniqueViews = uniqueViewService.listUniqueViews();
-        List<ArticleStatisticsDTO> articleStatisticsDTOs = serverClient.listArticleStatistics().getData();
-        List<CategoryDTO> categoryDTOs = serverClient.listCategories().getData();
-        List<TagDTO> tagDTOs = BeanCopyUtil.copyList(serverClient.listTags().getData(), TagDTO.class);
-        Map<Long, Double> articleMap = redisService.zReverseRangeWithScore(ARTICLE_VIEWS_COUNT, 0, 4)
+        CompletableFuture<Long> asyncViewCount = CompletableFuture.supplyAsync(() -> RedisUtil.getLongValue(redisService.get(BLOG_VIEWS_COUNT)), asyncTaskExecutor);
+        CompletableFuture<Long> asyncArticleCount = CompletableFuture.supplyAsync(serverClient.selectArticleCountNotDeleted()::getData, asyncTaskExecutor);
+        CompletableFuture<Long> asyncMessageCount = CompletableFuture.supplyAsync(serverClient.selectCommentCountByType(Byte.valueOf("2"))::getData, asyncTaskExecutor);
+        CompletableFuture<Long> asyncUserCount = CompletableFuture.supplyAsync(serverClient.selectUserInfoCount()::getData, asyncTaskExecutor);
+        CompletableFuture<List<UniqueViewDTO>> asyncUniqueView = CompletableFuture.supplyAsync(uniqueViewService::listUniqueViews, asyncTaskExecutor);
+        CompletableFuture<List<ArticleStatisticsDTO>> asyncArticleStatistics = CompletableFuture.supplyAsync(serverClient.listArticleStatistics()::getData, asyncTaskExecutor);
+        CompletableFuture<List<CategoryDTO>> asyncCategoryDTOs = CompletableFuture.supplyAsync(serverClient.listCategories()::getData, asyncTaskExecutor);
+        CompletableFuture<List<TagDTO>> asyncTagDTOs = CompletableFuture.supplyAsync(() -> BeanCopyUtil.copyList(serverClient.listTags().getData(), TagDTO.class), asyncTaskExecutor);
+        CompletableFuture<Map<Long, Double>> asyncArticleViews = CompletableFuture.supplyAsync(() -> redisService.zReverseRangeWithScore(ARTICLE_VIEWS_COUNT, 0, 4)
                 .entrySet().stream()
                 .collect(Collectors.toMap(
                         // 解决redis默认将数字key转为Integer类型的问题
                         entry -> RedisUtil.getLongValue(entry.getKey()),
                         Map.Entry::getValue
-                ));
-        BlogAdminInfoDTO auroraAdminInfoDTO = BlogAdminInfoDTO.builder()
-                .articleStatisticsDTOs(articleStatisticsDTOs)
-                .tagDTOs(tagDTOs)
-                .viewsCount(viewsCount)
-                .messageCount(messageCount)
-                .userCount(userCount)
-                .articleCount(articleCount)
-                .categoryDTOs(categoryDTOs)
-                .uniqueViewDTOs(uniqueViews)
-                .build();
-        if (CollectionUtils.isNotEmpty(articleMap)) {
-            List<ArticleRankDTO> articleRankDTOList = serverClient.listArticleRank(articleMap).getData();
-            auroraAdminInfoDTO.setArticleRankDTOs(articleRankDTOList);
-        } else {
-            auroraAdminInfoDTO.setArticleRankDTOs(List.of());
-        }
-        return auroraAdminInfoDTO;
+                )), asyncTaskExecutor);
+        // 等待所有任务完成
+        CompletableFuture<Void> asyncAllOf = CompletableFuture.allOf(asyncArticleCount, asyncMessageCount, asyncUserCount, asyncViewCount, asyncUniqueView, asyncArticleStatistics, asyncCategoryDTOs, asyncTagDTOs, asyncArticleViews);
+        // 任务完成后，获取结果
+        return asyncAllOf
+                .exceptionally(e -> {
+                    log.error("获取博客管理后台信息失败", e);
+                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                })
+                .thenApply(v -> {
+                    BlogAdminInfoDTO auroraAdminInfoDTO = BlogAdminInfoDTO.builder()
+                            .articleStatisticsDTOs(asyncArticleStatistics.join())
+                            .tagDTOs(asyncTagDTOs.join())
+                            .viewsCount(asyncViewCount.join())
+                            .messageCount(asyncMessageCount.join())
+                            .userCount(asyncUserCount.join())
+                            .articleCount(asyncArticleCount.join())
+                            .categoryDTOs(asyncCategoryDTOs.join())
+                            .uniqueViewDTOs(asyncUniqueView.join())
+                            .build();
+                    Map<Long, Double> articleMap = asyncArticleViews.join();
+                    if (CollectionUtils.isNotEmpty(articleMap)) {
+                        CompletableFuture<List<ArticleRankDTO>> asyncArticleRankDTOs = CompletableFuture.supplyAsync(serverClient.listArticleRank(articleMap)::getData, asyncTaskExecutor);
+                        auroraAdminInfoDTO.setArticleRankDTOs(asyncArticleRankDTOs.join());
+                    } else {
+                        auroraAdminInfoDTO.setArticleRankDTOs(List.of());
+                    }
+                    return auroraAdminInfoDTO;
+                }).join();
     }
 }
