@@ -58,6 +58,9 @@ public class BlogQuartzJobServiceImpl implements IBlogQuartzJobService {
     @WriteLock(RedisConstant.IMAGE_LOCK)
     public void clearTempImage() {
         Set<Object> objects = redisService.sDiff(RedisConstant.TEMP_IMAGE_NAME, RedisConstant.DB_IMAGE_NAME);
+        if (objects.isEmpty()) {
+            return;
+        }
         for (Object object : objects) {
             uploadStrategyContext.executeDeleteStrategy((String) object);
         }
@@ -74,6 +77,9 @@ public class BlogQuartzJobServiceImpl implements IBlogQuartzJobService {
     public void clearNotReferenceImage() {
         // 查询所有引用数为0的图片引用集合
         List<ImageReference> notUsedImageReferences = imageReferenceService.getNotUsedImageReferences();
+        if (notUsedImageReferences.isEmpty()) {
+            return;
+        }
         // 删除图片文件
         for (ImageReference imageReference : notUsedImageReferences) {
             uploadStrategyContext.executeDeleteStrategy(FileUtil.getFilePathByUrl(imageReference.getImageUrl()));

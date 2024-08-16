@@ -10,6 +10,7 @@ import com.gewuyou.blog.common.vo.ArticleTopFeaturedVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * <p>
@@ -52,6 +53,6 @@ public interface IArticleService extends IService<Article> {
      * @param articleIds 文章id列表
      * @return 导出文件名集合
      */
-    List<String> exportArticles(List<Integer> articleIds);
+    CompletableFuture<List<String>> exportArticles(List<Integer> articleIds);
 
 }

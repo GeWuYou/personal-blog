@@ -9,11 +9,13 @@ import io.minio.RemoveObjectArgs;
 import io.minio.StatObjectArgs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Executor;
 
 /**
  * Minio 上传策略实现
@@ -31,8 +33,8 @@ public class MinioUploadStrategyImpl extends AbstractUploadStrategyImpl {
     private volatile MinioClient minioClient;
 
     @Autowired
-    public MinioUploadStrategyImpl(MinioProperties minioProperties, IRedisService redisService) {
-        super(redisService);
+    public MinioUploadStrategyImpl(MinioProperties minioProperties, IRedisService redisService, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutoExecutor) {
+        super(redisService, asyncTaskExecutoExecutor);
         this.minioProperties = minioProperties;
     }
 

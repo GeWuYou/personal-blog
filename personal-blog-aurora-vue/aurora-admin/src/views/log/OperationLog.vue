@@ -51,6 +51,7 @@
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
+      <el-table-column prop="duration" label="耗时" align="center" width="150" />
       <el-table-column label="操作" align="center" width="150">
         <template slot-scope="scope">
           <el-button size="mini" type="text" slot="reference" @click="check(scope.row)">
@@ -97,6 +98,9 @@
         </el-form-item>
         <el-form-item label="操作人员：">
           {{ optLog.userName }}
+        </el-form-item>
+        <el-form-item label="耗时：">
+          {{ optLog.duration }}
         </el-form-item>
       </el-form>
     </el-dialog>

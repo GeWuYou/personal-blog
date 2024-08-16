@@ -97,4 +97,10 @@ public class OperationLogDTO {
      */
     @Schema(description = "创建时间")
     private Date createTime;
+
+    /**
+     * 操作耗时
+     */
+    @Schema(description = "操作耗时")
+    private Long duration;
 }

@@ -7,11 +7,13 @@ import com.gewuyou.blog.common.service.IRedisService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.concurrent.Executor;
 
 /**
  * 本地上传策略实现
@@ -32,8 +34,8 @@ public class LocalUploadStrategyImpl extends AbstractUploadStrategyImpl {
     private final String url;
 
     @Autowired
-    public LocalUploadStrategyImpl(LocalProperties localProperties, IRedisService redisService) {
-        super(redisService);
+    public LocalUploadStrategyImpl(LocalProperties localProperties, IRedisService redisService, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutoExecutor) {
+        super(redisService, asyncTaskExecutoExecutor);
         this.root = localProperties.getRoot();
         this.url = localProperties.getUrl();
     }

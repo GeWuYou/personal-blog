@@ -3,6 +3,7 @@ package com.gewuyou.blog.admin.strategy.interfaces;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 上传策略
@@ -18,7 +19,7 @@ public interface UploadStrategy {
      * @param path 上传路径
      * @return 上传后的路径
      */
-    String uploadFile(MultipartFile file, String path);
+    CompletableFuture<String> uploadFile(MultipartFile file, String path);
 
     /**
      * 上传文件
@@ -29,7 +30,7 @@ public interface UploadStrategy {
      * @return 上传后的路径
      */
 
-    String uploadFile(String fileName, InputStream inputStream, String path);
+    CompletableFuture<String> uploadFile(String fileName, InputStream inputStream, String path);
 
     /**
      * 删除文件

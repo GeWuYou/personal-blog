@@ -7,11 +7,14 @@ import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * 抽象上传策略实现
@@ -24,8 +27,11 @@ import java.time.LocalDateTime;
 public abstract class AbstractUploadStrategyImpl implements UploadStrategy {
     private final IRedisService redisService;
 
-    public AbstractUploadStrategyImpl(IRedisService redisService) {
+    private final Executor asyncTaskExecutor;
+
+    public AbstractUploadStrategyImpl(IRedisService redisService, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutoExecutor) {
         this.redisService = redisService;
+        this.asyncTaskExecutor = asyncTaskExecutoExecutor;
     }
 
     /**
@@ -36,17 +42,30 @@ public abstract class AbstractUploadStrategyImpl implements UploadStrategy {
      * @return 上传后的路径
      */
     @Override
-    public String uploadFile(MultipartFile file, String path) {
+    public CompletableFuture<String> uploadFile(MultipartFile file, String path) {
         try {
             String md5 = FileUtil.getMd5(file.getInputStream());
             String extName = FileUtil.getExtName(file.getOriginalFilename());
             String fileName = md5 + "-" + LocalDateTime.now().toString().replace(":", "-") + extName;
-            if (!exists(path + fileName)) {
-                upload(path, fileName, file.getInputStream());
-            }
-            // 保存文件名到redis
-            redisService.sAdd(RedisConstant.TEMP_IMAGE_NAME, "/" + path + fileName);
-            return getFileAccessUrl(path + fileName);
+            // 处理上传文件
+            return CompletableFuture.runAsync(() -> {
+                if (!exists(path + fileName)) {
+                    try {
+                        upload(path, fileName, file.getInputStream());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                log.info("文件上传成功，文件名：{}", fileName);
+            }, asyncTaskExecutor).exceptionally(e -> {
+                log.error("文件上传失败", e);
+                throw new GlobalException(ResponseInformation.FILE_UPLOAD_FAILED);
+            }).thenApply(v -> {
+                // 保存文件名到redis
+                redisService.sAdd(RedisConstant.TEMP_IMAGE_NAME, "/" + path + fileName);
+                // 返回访问地址
+                return getFileAccessUrl(path + fileName);
+            });
         } catch (Exception e) {
             log.error("获取文件MD5失败", e);
             throw new GlobalException(ResponseInformation.FILE_UPLOAD_FAILED);
@@ -62,15 +81,17 @@ public abstract class AbstractUploadStrategyImpl implements UploadStrategy {
      * @return 上传后的路径
      */
     @Override
-    public String uploadFile(String fileName, InputStream inputStream, String path) {
-        try {
-            upload(path, fileName, inputStream);
-            return getFileAccessUrl(path + fileName);
-        } catch (Exception e) {
-            log.error("获取文件资源路径失败", e);
+    public CompletableFuture<String> uploadFile(String fileName, InputStream inputStream, String path) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                upload(path, fileName, inputStream);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, asyncTaskExecutor).exceptionally(e -> {
+            log.error("文件上传失败", e);
             throw new GlobalException(ResponseInformation.FILE_UPLOAD_FAILED);
-        }
-
+        }).thenApply(v -> getFileAccessUrl(path + fileName));
     }
 
     /**

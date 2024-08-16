@@ -5,10 +5,12 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.gewuyou.blog.admin.config.entity.OssConfigProperties;
 import com.gewuyou.blog.common.service.IRedisService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.concurrent.Executor;
 
 /**
  * Oss上传策略实现
@@ -25,8 +27,8 @@ public class OssUploadStrategyImpl extends AbstractUploadStrategyImpl {
     private volatile OSS ossClient;
 
     @Autowired
-    public OssUploadStrategyImpl(OssConfigProperties ossConfigProperties, IRedisService redisService) {
-        super(redisService);
+    public OssUploadStrategyImpl(OssConfigProperties ossConfigProperties, IRedisService redisService, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutoExecutor) {
+        super(redisService, asyncTaskExecutoExecutor);
         this.ossConfigProperties = ossConfigProperties;
     }
 

@@ -9,6 +9,8 @@ import com.gewuyou.blog.common.vo.UserDisableVO;
 import com.gewuyou.blog.common.vo.UserRoleVO;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * 用户信息服务接口
  *
@@ -59,5 +61,5 @@ public interface IUserInfoService extends IService<UserInfo> {
      * @param file 头像文件
      * @return 头像url
      */
-    String updateUserAvatar(MultipartFile file);
+    CompletableFuture<String> updateUserAvatar(MultipartFile file);
 }

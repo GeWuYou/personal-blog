@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 用户信息服务实现
@@ -180,14 +181,14 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
      */
     @Override
     @ReadLock(RedisConstant.IMAGE_LOCK)
-    public String updateUserAvatar(MultipartFile file) {
+    public CompletableFuture<String> updateUserAvatar(MultipartFile file) {
         var newAvatar = uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.AVATAR.getPath());
         var userInfo = UserInfo
                 .builder()
                 .id(UserUtil.getUserDetailsDTO().getUserInfoId())
-                .avatar(newAvatar)
+                .avatar(newAvatar.join())
                 .build();
-        imageReferenceService.handleImageReference(newAvatar, baseMapper
+        imageReferenceService.handleImageReference(newAvatar.join(), baseMapper
                 .selectOne(new LambdaQueryWrapper<UserInfo>()
                         .select(UserInfo::getAvatar)
                         .eq(UserInfo::getId, userInfo.getId()))

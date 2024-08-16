@@ -105,7 +105,9 @@ public class UserInfoController {
     @PostMapping("/avatar")
     @Idempotent
     public Result<String> updateUserAvatar(MultipartFile file) {
-        return Result.success(userInfoService.updateUserAvatar(file));
+        return Result.success(userInfoService
+                .updateUserAvatar(file)
+                .join());
     }
 
 }

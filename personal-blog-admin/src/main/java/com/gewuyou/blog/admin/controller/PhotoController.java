@@ -54,10 +54,12 @@ public class PhotoController {
      */
     @Parameter(name = "file", description = "照片文件", in = ParameterIn.QUERY, required = true)
     @Operation(summary = "上传照片", description = "上传照片")
-    @OperationLogging(type = OperationType.UPLOAD)
+    @OperationLogging(type = OperationType.UPLOAD, logParams = false)
     @PostMapping("/upload")
     public Result<String> savePhotoAlbumCover(MultipartFile file) {
-        return Result.success(uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.PHOTO.getPath()));
+        return Result.success(uploadStrategyContext
+                .executeUploadStrategy(file, FilePathEnum.PHOTO.getPath())
+                .join());
     }
 
     /**

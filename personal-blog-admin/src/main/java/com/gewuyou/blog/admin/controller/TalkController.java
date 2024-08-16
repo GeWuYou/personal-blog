@@ -24,9 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 /**
- *
  * 说说表 前端控制器
- *
  *
  * @author gewuyou
  * @since 2024-04-23
@@ -58,7 +56,9 @@ public class TalkController {
     @OperationLogging(type = OperationType.UPLOAD)
     @PostMapping("/images")
     public Result<String> saveTalkImages(MultipartFile file) {
-        return Result.success(uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.TALK.getPath()));
+        return Result.success(uploadStrategyContext
+                .executeUploadStrategy(file, FilePathEnum.TALK.getPath())
+                .join());
     }
 
     /**

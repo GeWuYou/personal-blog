@@ -145,22 +145,29 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      * @return 导出文件名集合
      */
     @Override
-    public List<String> exportArticles(List<Integer> articleIds) {
+    public CompletableFuture<List<String>> exportArticles(List<Integer> articleIds) {
         // 查询文章列表
         List<Article> articles = baseMapper.selectList(
                 new LambdaQueryWrapper<Article>()
                         .select(Article::getArticleTitle, Article::getArticleContent)
                         .in(Article::getId, articleIds)
         );
-        List<String> urls = new ArrayList<>();
+        List<CompletableFuture<String>> futureUrls = new ArrayList<>();
         // 调用上传策略上传到指定路径
         articles.forEach(article -> {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(article.getArticleContent().getBytes(StandardCharsets.UTF_8));
-            String url = uploadStrategyContext.executeUploadStrategy(
+            var url = uploadStrategyContext.executeUploadStrategy(
                     article.getArticleTitle() + FileTypeEnum.MD.getTypeName(), inputStream, FilePathEnum.MD.getPath());
-            urls.add(url);
+            futureUrls.add(url);
         });
         // 返回上传的文件名集合
-        return urls;
+        return CompletableFuture.allOf(futureUrls
+                        .toArray(new CompletableFuture[0]))
+                .thenApply(
+                        item -> futureUrls
+                                .stream()
+                                .map(CompletableFuture::join)
+                                .toList()
+                );
     }
 }

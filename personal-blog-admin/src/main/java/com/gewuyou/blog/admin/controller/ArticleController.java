@@ -139,7 +139,9 @@ public class ArticleController {
     @OperationLogging(type = UPLOAD)
     @PostMapping("/images")
     public Result<String> saveArticleImages(MultipartFile file) {
-        return Result.success(uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.ARTICLE.getPath()));
+        return Result.success(uploadStrategyContext
+                .executeUploadStrategy(file, FilePathEnum.ARTICLE.getPath())
+                .join());
     }
 
     /**
@@ -185,6 +187,8 @@ public class ArticleController {
     @OperationLogging(type = EXPORT)
     @PostMapping("/export")
     public Result<List<String>> exportArticles(@RequestBody List<Integer> articleIds) {
-        return Result.success(articleService.exportArticles(articleIds));
+        return Result.success(articleService
+                .exportArticles(articleIds)
+                .join());
     }
 }

@@ -18,6 +18,7 @@ import eu.bitwalker.useragentutils.UserAgent;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static com.gewuyou.blog.common.constant.CommonConstant.UNKNOWN;
@@ -48,18 +50,22 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
 
     private final IUniqueViewService uniqueViewService;
 
+    private final Executor asyncTaskExecutor;
+
 
     @Autowired
     public BlogInfoServiceImpl(
             IRedisService redisService,
             HttpServletRequest request,
             ServerClient serverClient,
-            IUniqueViewService uniqueViewService
+            IUniqueViewService uniqueViewService,
+            @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor
     ) {
         this.redisService = redisService;
         this.request = request;
         this.serverClient = serverClient;
         this.uniqueViewService = uniqueViewService;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     /**
@@ -93,12 +99,12 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
      */
     @Override
     public BlogHomeInfoDTO getBlogHomeInfo() {
-        CompletableFuture<Long> asyncArticleCount = CompletableFuture.supplyAsync(serverClient.selectArticleCountNotDeleted()::getData);
-        CompletableFuture<Long> asyncCategoryCount = CompletableFuture.supplyAsync(serverClient.selectCategoryCount()::getData);
-        CompletableFuture<Long> asyncTagCount = CompletableFuture.supplyAsync(serverClient.selectTagCount()::getData);
-        CompletableFuture<Long> asyncTalkCount = CompletableFuture.supplyAsync(serverClient.selectTalkCount()::getData);
-        CompletableFuture<WebsiteConfigDTO> asyncWebsiteConfig = CompletableFuture.supplyAsync(serverClient.getWebsiteConfig()::getData);
-        CompletableFuture<Long> asyncViewCount = CompletableFuture.supplyAsync(() -> RedisUtil.getLongValue(redisService.get(BLOG_VIEWS_COUNT)));
+        CompletableFuture<Long> asyncArticleCount = CompletableFuture.supplyAsync(serverClient.selectArticleCountNotDeleted()::getData, asyncTaskExecutor);
+        CompletableFuture<Long> asyncCategoryCount = CompletableFuture.supplyAsync(serverClient.selectCategoryCount()::getData, asyncTaskExecutor);
+        CompletableFuture<Long> asyncTagCount = CompletableFuture.supplyAsync(serverClient.selectTagCount()::getData, asyncTaskExecutor);
+        CompletableFuture<Long> asyncTalkCount = CompletableFuture.supplyAsync(serverClient.selectTalkCount()::getData, asyncTaskExecutor);
+        CompletableFuture<WebsiteConfigDTO> asyncWebsiteConfig = CompletableFuture.supplyAsync(serverClient.getWebsiteConfig()::getData, asyncTaskExecutor);
+        CompletableFuture<Long> asyncViewCount = CompletableFuture.supplyAsync(() -> RedisUtil.getLongValue(redisService.get(BLOG_VIEWS_COUNT)), asyncTaskExecutor);
         try {
 
             return BlogHomeInfoDTO.builder()

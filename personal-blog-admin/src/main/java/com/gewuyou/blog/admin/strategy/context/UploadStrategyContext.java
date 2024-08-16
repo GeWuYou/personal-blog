@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 上传策略上下文
@@ -35,7 +36,7 @@ public class UploadStrategyContext {
      * @param path 路径
      * @return 上传结果
      */
-    public String executeUploadStrategy(MultipartFile file, String path) {
+    public CompletableFuture<String> executeUploadStrategy(MultipartFile file, String path) {
         return uploadStrategyMap.get(UploadModeEnum.getStrategy(uploadMode)).uploadFile(file, path);
     }
 
@@ -47,7 +48,7 @@ public class UploadStrategyContext {
      * @param path        路径
      * @return 上传结果
      */
-    public String executeUploadStrategy(String fileName, InputStream inputStream, String path) {
+    public CompletableFuture<String> executeUploadStrategy(String fileName, InputStream inputStream, String path) {
         return uploadStrategyMap.get(UploadModeEnum.getStrategy(uploadMode)).uploadFile(fileName, inputStream, path);
     }
 

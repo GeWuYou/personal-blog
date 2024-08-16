@@ -56,6 +56,8 @@ public class WebsiteConfigController {
      */
     @PostMapping("/config/images")
     public Result<String> savePhotoAlbumCover(MultipartFile file) {
-        return Result.success(uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.CONFIG.getPath()));
+        return Result.success(uploadStrategyContext
+                .executeUploadStrategy(file, FilePathEnum.CONFIG.getPath())
+                .join());
     }
 }
