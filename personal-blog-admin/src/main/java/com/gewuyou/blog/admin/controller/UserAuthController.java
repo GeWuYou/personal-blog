@@ -129,35 +129,32 @@ public class UserAuthController {
     }
 
     /**
-     * 重置密码接口
+     * 管理员重置密码接口
      *
-     * @param startResetPasswordVO 开始重置密码DTO
+     * @param adminPasswordVO 重置密码DTO
      * @return 重置密码结果
      */
     @Operation(summary = "重置密码接口", description = "重置密码接口")
-    @PostMapping("/reset-password/verify-code")
+    @PostMapping("/admin-password")
+    @OperationLogging(logResult = false, logParams = false, type = OperationType.UPDATE)
     @Idempotent
-    public Result<String> startResetPassword(@Validated @RequestBody StartResetPasswordVO startResetPasswordVO) {
-        if (userAuthService.verifyCode(startResetPasswordVO.getEmail(), startResetPasswordVO.getVerifyCode())) {
-            return Result.success(ResponseInformation.REGISTER_SUCCESS);
-        } else {
-            return Result.failure(ResponseInformation.VERIFICATION_CODE_ERROR);
-        }
+    public Result<String> doResetPassword(@Validated @RequestBody AdminPasswordVO adminPasswordVO) {
+        userAuthService.updateAdminPassword(adminPasswordVO);
+        return Result.success();
     }
 
     /**
-     * 重置密码接口
+     * 修改密码
      *
-     * @param doResetPasswordVO 重置密码DTO
-     * @return 重置密码结果
+     * @param userVO 用户视图信息
+     * @return 修改结果
      */
-    @Operation(summary = "重置密码接口", description = "重置密码接口")
-    @PostMapping("/reset-password")
-    @OperationLogging(logResult = false, logParams = false, type = OperationType.UPDATE)
-    @Idempotent
-    public Result<String> doResetPassword(@Validated @RequestBody DoResetPasswordVO doResetPasswordVO) {
-        // todo 重置密码接口
-        return null;
+    @Operation(summary = "修改密码", description = "修改密码")
+    @OperationLogging(type = OperationType.UPDATE)
+    @PutMapping("/user-password")
+    public Result<?> updatePassword(@Valid @RequestBody UserVO userVO) {
+        userAuthService.updatePassword(userVO);
+        return Result.success();
     }
 
     /**
@@ -189,6 +186,7 @@ public class UserAuthController {
      * @param qqLoginVO qq登录DTO
      * @return 登录结果
      */
+    @Operation(summary = "qq登录接口", description = "qq登录接口")
     @PostMapping("/oauth/qq")
     @Idempotent
     public Result<UserInfoDTO> qqLogin(@Valid @RequestBody QQLoginVO qqLoginVO) {

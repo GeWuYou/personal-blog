@@ -58,7 +58,7 @@ public enum ResponseInformation {
     WEIBO_LOGIN_ERROR(401, "微博登录失败"),
     WECHAT_LOGIN_ERROR(401, "微信登录失败"),
     REPEAT_REQUEST(400, "重复的请求"),
-
+    OLD_PASSWORD_ERROR(400, "旧密码错误"),
 
     NOT_FOUND(404, "未找到"),
     SERVER_ERROR(500, " 服务器内部出错 "),

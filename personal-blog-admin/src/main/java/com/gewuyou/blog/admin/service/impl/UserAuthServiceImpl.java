@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,10 +27,7 @@ import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.CommonUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
-import com.gewuyou.blog.common.vo.ConditionVO;
-import com.gewuyou.blog.common.vo.LoginVO;
-import com.gewuyou.blog.common.vo.QQLoginVO;
-import com.gewuyou.blog.common.vo.RegisterVO;
+import com.gewuyou.blog.common.vo.*;
 import com.gewuyou.blog.security.service.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
@@ -262,22 +260,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     }
 
     /**
-     * 重置密码
-     *
-     * @param email    邮箱
-     * @param password 密码
-     */
-    @Override
-    public void resetPassword(String email, String password) {
-        Optional<UserAuth> optionalUser = baseMapper.selectByEmail(email);
-        // 如果邮箱未注册，则抛出异常
-        if (optionalUser.isEmpty()) {
-            throw new GlobalException(ResponseInformation.USER_EMAIL_HAS_BEEN_REGISTERED);
-        }
-        baseMapper.updatePasswordByEmail(email, bCryptPasswordEncoder.encode(password));
-    }
-
-    /**
      * 检查用户名是否存在
      *
      * @param username 用户名
@@ -337,6 +319,51 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     @Override
     public UserInfoDTO qqLogin(QQLoginVO qqLoginVO) {
         return loginStrategyContext.executeLoginStrategy(qqLoginVO, LoginTypeEnum.QQ);
+    }
+
+    /**
+     * 修改管理员密码
+     *
+     * @param adminPasswordVO 管理员密码信息
+     */
+    @Override
+    public void updateAdminPassword(AdminPasswordVO adminPasswordVO) {
+        UserAuth userAuth = baseMapper.selectOne(
+                new LambdaQueryWrapper<UserAuth>()
+                        .eq(UserAuth::getId, UserUtil.getUserDetailsDTO().getUserAuthId())
+        );
+        if (Objects.nonNull(userAuth) && userAuth.getPassword().equals(bCryptPasswordEncoder.encode(adminPasswordVO.getOldPassword()))) {
+            baseMapper.updateById(UserAuth.builder()
+                    .id(userAuth.getId())
+                    .password(bCryptPasswordEncoder.encode(adminPasswordVO.getNewPassword()))
+                    .build());
+        } else {
+            throw new GlobalException(ResponseInformation.OLD_PASSWORD_ERROR);
+        }
+    }
+
+    /**
+     * 修改用户密码
+     *
+     * @param userVO 用户信息
+     */
+    @Override
+    public void updatePassword(UserVO userVO) {
+        // 检查验证码
+        if (!verifyCode(userVO.getEmail(), userVO.getCode())) {
+            throw new GlobalException(ResponseInformation.VERIFY_CODE_ERROR);
+        }
+        // 检查邮箱是否注册
+        UserAuth userAuth = baseMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
+                .eq(UserAuth::getEmail, userVO.getEmail()));
+        if (Objects.isNull(userAuth)) {
+            throw new GlobalException(ResponseInformation.USER_EMAIL_NOT_REGISTERED);
+        }
+        // 修改密码
+        baseMapper.updateById(UserAuth.builder()
+                .id(userAuth.getId())
+                .password(bCryptPasswordEncoder.encode(userVO.getPassword()))
+                .build());
     }
 
 }
