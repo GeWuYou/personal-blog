@@ -49,10 +49,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
      * 根据文章VO保存分类
      *
      * @param articleVO 文章VO
-     * @return 分类ID
+     * @return 分类
      */
     @Override
-    public Long saveCategoryByArticleVO(ArticleVO articleVO) {
+    public Category saveCategoryByArticleVO(ArticleVO articleVO) {
         // 查询是否存在该分类
         Category category = baseMapper.selectOne(
                 new LambdaQueryWrapper<Category>()
@@ -65,7 +65,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                     .build();
             baseMapper.insert(category);
         }
-        return category.getId();
+        return category;
     }
 
     /**

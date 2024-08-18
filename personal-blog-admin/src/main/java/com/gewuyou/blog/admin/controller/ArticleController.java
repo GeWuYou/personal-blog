@@ -136,7 +136,7 @@ public class ArticleController {
      */
     @Parameter(name = "file", description = "图片文件", in = ParameterIn.QUERY, required = true)
     @Operation(summary = "上传文章图片", description = "上传文章图片")
-    @OperationLogging(type = UPLOAD)
+    @OperationLogging(type = UPLOAD, logParams = false, logResult = false)
     @PostMapping("/images")
     public Result<String> saveArticleImages(MultipartFile file) {
         return Result.success(uploadStrategyContext
@@ -169,7 +169,7 @@ public class ArticleController {
             @Parameter(name = "type", description = "类型", in = ParameterIn.QUERY)
     })
     @Operation(summary = "导入文章", description = "导入文章")
-    @OperationLogging(type = UPLOAD)
+    @OperationLogging(type = UPLOAD, logParams = false)
     @PostMapping("/import")
     @Idempotent
     public Result<?> importArticles(MultipartFile file, @RequestParam(required = false) String type) {

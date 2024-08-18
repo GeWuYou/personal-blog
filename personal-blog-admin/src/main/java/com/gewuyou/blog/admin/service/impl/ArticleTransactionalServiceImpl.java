@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.gewuyou.blog.common.constant.RabbitMQConstant.SUBSCRIBE_EXCHANGE;
 import static com.gewuyou.blog.common.enums.ArticleStatusEnum.PUBLIC;
@@ -91,17 +92,25 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
     @ReadLock(RedisConstant.IMAGE_LOCK)
     public void saveOrUpdateArticle(ArticleVO articleVO) {
         // 保存文章分类
-        var categoryId = categoryService.saveCategoryByArticleVO(articleVO);
+        var category = categoryService.saveCategoryByArticleVO(articleVO);
         // 转换VO为实体
         Article article = BeanCopyUtil.copyObject(articleVO, Article.class);
         article.setUserId(UserUtil.getUserDetailsDTO().getUserInfoId());
-        article.setCategoryId(categoryId);
+        if (Objects.nonNull(category)) {
+            article.setCategoryId(category.getId());
+        }
         String newArticleCover = article.getArticleCover();
         // 先查询数据库中该文章的图片image_url
-        String oldArticleCover = baseMapper.selectOne(new LambdaQueryWrapper<Article>()
+        Article selectArticle = baseMapper.selectOne(new LambdaQueryWrapper<Article>()
                 .select(Article::getArticleCover)
                 .eq(Article::getId, articleVO.getId())
-        ).getArticleCover();
+        );
+        String oldArticleCover;
+        if (Objects.nonNull(selectArticle)) {
+            oldArticleCover = selectArticle.getArticleCover();
+        } else {
+            oldArticleCover = null;
+        }
         imageReferenceService.handleImageReference(newArticleCover, oldArticleCover);
         // 保存
         this.saveOrUpdate(article);
