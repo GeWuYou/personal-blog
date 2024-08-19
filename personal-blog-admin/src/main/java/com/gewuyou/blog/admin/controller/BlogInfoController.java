@@ -85,7 +85,7 @@ public class BlogInfoController {
      */
     @Parameter(name = "file", description = "图片文件", in = ParameterIn.QUERY, required = true)
     @Operation(summary = "上传博客配置图片", description = "上传博客配置图片")
-    @OperationLogging(type = OperationType.UPDATE)
+    @OperationLogging(type = OperationType.UPDATE, logParams = false, logResult = false)
     @PostMapping("/config/images")
     public Result<?> savePhotoAlbumCover(MultipartFile file) {
         return Result.success(uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.CONFIG.getPath()));

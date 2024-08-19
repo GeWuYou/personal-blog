@@ -1,7 +1,7 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 远程MySQL数据库
+ Source Server         : 虚拟机MySQL数据库
  Source Server Type    : MySQL
  Source Server Version : 80032
  Source Host           : 192.168.200.129:3306
@@ -11,7 +11,7 @@
  Target Server Version : 80032
  File Encoding         : 65001
 
- Date: 11/08/2024 15:51:35
+ Date: 18/08/2024 11:48:50
 */
 
 SET NAMES utf8mb4;
@@ -57,7 +57,7 @@ CREATE TABLE `tb_article`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `user_id`(`user_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文章表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文章表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_article
@@ -65,6 +65,7 @@ CREATE TABLE `tb_article`  (
 INSERT INTO `tb_article` VALUES (2, 'http://localhost:8082/api/v1/admin/blog/articles/526875b3af7439b62d70a52ec60f08c4.jpg', '测试置顶文章', '这是测试文章摘要', '# 这是篇测试置顶文章\n测试文本', 1, 1, 0, 1, 1, 1, 1, NULL, NULL, '2024-08-08 22:41:48', '2024-08-08 22:41:47');
 INSERT INTO `tb_article` VALUES (3, 'http://localhost:8082/api/v1/admin/blog/articles/be6eed297734ab1e853a9bdc65e05548.jpg', '文章2', '', '# 这是篇测试推荐文章\n测试文本', 0, 1, 0, 1, 1, 1, 1, NULL, NULL, '2024-07-22 12:54:58', '2024-07-22 12:54:58');
 INSERT INTO `tb_article` VALUES (4, 'http://localhost:8082/api/v1/admin/blog/articles/68abd59cf4a5019dd2ddbf3deef19d0e.jpg', '测试文章3', '', '这是第三篇文章', 0, 1, 0, 1, 1, 1, 1, NULL, NULL, '2024-07-22 12:54:46', '2024-07-22 12:54:46');
+INSERT INTO `tb_article` VALUES (5, 'http://localhost:8082/api/v1/admin/blog/articles/4d6192e538467d825d4425b0d8f5c64e-2024-08-18T11-40-22.880400500.jpg', '项目中哪些场景可以使用异步', '', '在项目中使用异步编程可以显著提高系统的性能和响应速度，特别是在处理大量 I/O 操作或需要长时间处理的任务时。以下是一些常见的场景，在这些场景中使用异步编程可能会带来显著的优势：\n\n1. 网络请求\n场景: 发起外部 API 调用、HTTP 请求、数据库查询等。\n优势: 异步处理网络请求可以避免线程被阻塞，提高系统并发处理能力。\n2. 文件操作\n场景: 读取或写入大文件、文件上传和下载等。\n优势: 文件操作通常是 I/O 密集型任务，异步处理可以释放主线程去处理其他任务。\n3. 数据库查询\n场景: 复杂的数据库查询、批量数据处理等。\n优势: 异步数据库操作可以避免长时间等待数据库响应，减少应用程序的延迟。\n4. 消息队列处理\n场景: 处理来自 RabbitMQ、Kafka 等消息队列的消息。\n优势: 异步处理消息队列中的消息，能够快速响应和处理高吞吐量的消息流。\n5. 任务调度\n场景: 定时任务、批处理任务、长时间运行的任务。\n优势: 通过异步任务调度，可以将长时间执行的任务放到后台处理，不影响系统的实时响应能力。\n6. 数据处理和计算\n场景: 大数据分析、数据转换和清洗等复杂计算任务。\n优势: 异步处理可以将计算密集型任务放在后台执行，防止阻塞主线程。\n7. 用户交互操作\n场景: Web 应用中的表单提交、按钮点击触发的后台任务等。\n优势: 异步处理用户操作后的后台任务，能够让用户界面保持响应性。\n8. 远程服务调用\n场景: 调用微服务、RPC 调用、远程数据库操作等。\n优势: 异步调用远程服务，避免因为网络延迟或服务不可用导致主线程被阻塞。\n9. 缓存更新\n场景: 更新 Redis、Memcached 等缓存数据。\n优势: 异步更新缓存，保证缓存的及时性，同时不影响主流程的执行。\n10. 日志记录\n场景: 大量日志写入、日志上传到远程服务器。\n优势: 异步写入日志，减少 I/O 操作对主线程的影响。\n通过在这些场景中使用异步编程，可以有效提升应用程序的性能和用户体验，避免因为同步操作导致的性能瓶颈和系统阻塞。\n![20180701 1236 ユウキ 5.jpeg](http://localhost:8082/api/v1/admin/blog/articles/8d9a59bca2c06fa528d29e1474b9ae08-2024-08-18T11-39-15.694900800.jpeg)', 0, 0, 0, 1, 1, 1, 1, NULL, NULL, '2024-08-18 11:40:42', '2024-08-18 11:40:43');
 
 -- ----------------------------
 -- Table structure for tb_article_tag
@@ -77,7 +78,7 @@ CREATE TABLE `tb_article_tag`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `article_id`(`article_id` ASC) USING BTREE,
   INDEX `tag_id`(`tag_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文章标签中间表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 33 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '文章标签中间表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_article_tag
@@ -85,6 +86,7 @@ CREATE TABLE `tb_article_tag`  (
 INSERT INTO `tb_article_tag` VALUES (21, 4, 1);
 INSERT INTO `tb_article_tag` VALUES (22, 3, 1);
 INSERT INTO `tb_article_tag` VALUES (30, 2, 1);
+INSERT INTO `tb_article_tag` VALUES (32, 5, 1);
 
 -- ----------------------------
 -- Table structure for tb_category
@@ -148,7 +150,7 @@ CREATE TABLE `tb_exception_log`  (
   `ip_source` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'ip属地',
   `create_time` datetime NOT NULL COMMENT '操作时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 371 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '异常日志表\r\n' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 418 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '异常日志表\r\n' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of tb_exception_log
@@ -184,7 +186,7 @@ CREATE TABLE `tb_image_reference`  (
   `image_url` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '图片路径',
   `is_delete` tinyint NOT NULL DEFAULT 0 COMMENT '是否删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '图片引用表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '图片引用表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_image_reference
@@ -192,6 +194,8 @@ CREATE TABLE `tb_image_reference`  (
 INSERT INTO `tb_image_reference` VALUES (3, 'http://localhost:8082/api/v1/admin/blog/photos/8d9a59bca2c06fa528d29e1474b9ae08-2024-08-11T14-36-11.856403400.jpeg', 0);
 INSERT INTO `tb_image_reference` VALUES (7, 'http://localhost:8082/api/v1/admin/blog/photos/526875b3af7439b62d70a52ec60f08c4-2024-08-11T14-56-35.195027600.jpg', 0);
 INSERT INTO `tb_image_reference` VALUES (8, 'http://localhost:8082/api/v1/admin/blog/photos/e88a5e47354a6708d62756806679659c-2024-08-11T15-50-22.018152900.jpg', 0);
+INSERT INTO `tb_image_reference` VALUES (9, '', 1);
+INSERT INTO `tb_image_reference` VALUES (10, 'http://localhost:8082/api/v1/admin/blog/articles/4d6192e538467d825d4425b0d8f5c64e-2024-08-18T11-40-22.880400500.jpg', 0);
 
 -- ----------------------------
 -- Table structure for tb_job
@@ -210,13 +214,16 @@ CREATE TABLE `tb_job`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '备注信息',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 89 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务调度表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 92 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务调度表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of tb_job
 -- ----------------------------
-INSERT INTO `tb_job` VALUES (87, '清理临时图片', '文件清理', 'blogQuartz.clearTempImage()', '* 0/15 * * * ?', 0, 1, 1, '2024-08-08 11:21:37', '2024-08-11 15:46:42', '清理图片');
-INSERT INTO `tb_job` VALUES (88, '清理未引用图片', '文件清理', 'blogQuartz.clearNotReferenceImage()', '* 5,20,35,50 * * * ?', 0, 1, 1, '2024-08-11 15:48:55', NULL, '清理未引用图片');
+INSERT INTO `tb_job` VALUES (87, '清理临时图片', '文件清理', 'blogQuartz.clearTempImage()', '0 0/15 * * * ?', 0, 1, 1, '2024-08-08 11:21:37', '2024-08-15 10:14:31', '清理图片');
+INSERT INTO `tb_job` VALUES (88, '清理未引用图片', '文件清理', 'blogQuartz.clearNotReferenceImage()', '0 5,20,35,50 * * * ?', 0, 1, 1, '2024-08-11 15:48:55', '2024-08-15 10:14:51', '清理未引用图片');
+INSERT INTO `tb_job` VALUES (89, '保存每日访问量', '统计数据', 'blogQuartz.saveUniqueView()', '0 0 4 * * ?', 0, 1, 1, '2024-08-15 10:14:08', '2024-08-15 11:52:08', '保存每日访问量');
+INSERT INTO `tb_job` VALUES (90, '统计用户地域分布', '统计数据', 'blogQuartz.statisticalUserArea()', '0 0 4 * * ?', 0, 1, 1, '2024-08-15 10:18:21', '2024-08-15 11:51:56', '统计用户地域分布');
+INSERT INTO `tb_job` VALUES (91, '刷新全部服务配置', '服务配置', 'blogQuartz.refreshAllConfig()', '* * * * * ?', 0, 0, 0, '2024-08-15 10:25:04', '2024-08-15 11:51:34', '请手动执行本方法，而不是定时执行');
 
 -- ----------------------------
 -- Table structure for tb_job_log
@@ -235,12 +242,11 @@ CREATE TABLE `tb_job_log`  (
   `start_time` datetime NULL DEFAULT NULL COMMENT '开始时间',
   `end_time` datetime NULL DEFAULT NULL COMMENT '结束时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6486 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务调度日志表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 6559 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务调度日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of tb_job_log
 -- ----------------------------
-INSERT INTO `tb_job_log` VALUES (6485, 88, '清理未引用图片', '文件清理', 'blogQuartz.clearNotReferenceImage()', '清理未引用图片 总共耗时：62毫秒', 1, '', '2024-08-11 15:49:23', '2024-08-11 15:49:23', '2024-08-11 15:49:23');
 
 -- ----------------------------
 -- Table structure for tb_menu
@@ -294,7 +300,7 @@ INSERT INTO `tb_menu` VALUES (209, '定时任务', '/quartz', '/quartz/Quartz.vu
 INSERT INTO `tb_menu` VALUES (210, '照片回收站', '/photos/delete', '/album/Delete.vue', 'el-icon-myhuishouzhan', '2024-08-11 14:57:19', '2024-08-11 14:57:19', 3, 205, 0);
 INSERT INTO `tb_menu` VALUES (213, '权限管理', '/permission-submenu', 'Layout', 'el-icon-mydaohanglantubiao_quanxianguanli', '2021-08-07 19:56:55', '2021-08-07 19:59:40', 4, NULL, 0);
 INSERT INTO `tb_menu` VALUES (214, '网站管理', '/website', '/website/Website.vue', 'el-icon-myxitong', '2021-08-07 20:06:41', NULL, 1, 4, 0);
-INSERT INTO `tb_menu` VALUES (220, '定时任务日志', '/quartz/log/all', '/log/QuartzLog.vue', 'el-icon-myguanyuwo', '2024-08-11 15:00:55', '2024-08-11 15:00:55', 2, 19, 0);
+INSERT INTO `tb_menu` VALUES (220, '定时任务日志', '/quartz/log/*', '/log/QuartzLog.vue', 'el-icon-myguanyuwo', '2024-08-15 12:37:53', '2024-08-15 12:37:53', 2, 19, 0);
 INSERT INTO `tb_menu` VALUES (221, '说说管理', '/talk-submenu', 'Layout', 'el-icon-mypinglun', '2022-08-15 17:27:10', '2022-08-15 17:27:39', 3, NULL, 0);
 INSERT INTO `tb_menu` VALUES (222, '说说列表', '/talk-list', '/talk/TalkList.vue', 'el-icon-myiconfontdongtaidianji', '2022-08-15 17:29:05', NULL, 1, 221, 0);
 INSERT INTO `tb_menu` VALUES (223, '发布说说', '/talks', '/talk/Talk.vue', 'el-icon-myfabusekuai', '2022-08-15 17:34:26', '2022-08-16 16:06:04', 2, 221, 0);
@@ -325,17 +331,14 @@ CREATE TABLE `tb_operation_log`  (
   `duration` bigint NULL DEFAULT NULL COMMENT '耗时',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `user_id`(`user_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 445 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 527 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_operation_log
 -- ----------------------------
-INSERT INTO `tb_operation_log` VALUES (439, '操作日志表 前端控制器', '/admin/operation/log/clean', 'DELETE', 'com.gewuyou.blog.admin.controller.OperationLogController.cleanOperationLogs', '清空操作日志', 'DELETE', '[]', NULL, 1, 'admin', '0:0:0:0:0:0:0:1', '', '2024-08-11 15:35:20', NULL, '2024-08-11T15:35:20.007147800', 4);
-INSERT INTO `tb_operation_log` VALUES (440, '资源表 前端控制器', '/admin/resource', 'SAVE_OR_UPDATE', 'com.gewuyou.blog.admin.controller.ResourceController.saveOrUpdateResource', '新增或修改资源', 'POST', '[{\"resourceName\":\"清空异常日志\",\"url\":\"/admin/exception/log/clean\",\"requestMethod\":\"DELETE\",\"parentId\":1195}]', NULL, 1, 'admin', '0:0:0:0:0:0:0:1', '', '2024-08-11 15:44:54', NULL, '2024-08-11T15:44:53.830841200', 575);
-INSERT INTO `tb_operation_log` VALUES (441, '异常日志表	 前端控制器', '/admin/exception/log/clean', 'DELETE', 'com.gewuyou.blog.admin.controller.ExceptionLogController.cleanExceptionLogs', '清空异常日志', 'DELETE', '[]', NULL, 1, 'admin', '0:0:0:0:0:0:0:1', '', '2024-08-11 15:45:18', NULL, '2024-08-11T15:45:18.156013700', 52);
-INSERT INTO `tb_operation_log` VALUES (442, '定时任务调度表 前端控制器', '/admin/job', 'UPDATE', 'com.gewuyou.blog.admin.controller.JobController.updateJob', '更新定时任务', 'PUT', '[{\"id\":87,\"jobName\":\"清理临时图片\",\"jobGroup\":\"文件清理\",\"invokeTarget\":\"blogQuartz.clearTempImage()\",\"cronExpression\":\"* 0/15 * * * ?\",\"misfirePolicy\":0,\"concurrent\":1,\"status\":1,\"remark\":\"清理图片\"}]', NULL, 1, 'admin', '0:0:0:0:0:0:0:1', '', '2024-08-11 15:46:42', NULL, '2024-08-11T15:46:41.837387800', 105);
-INSERT INTO `tb_operation_log` VALUES (443, '定时任务调度表 前端控制器', '/admin/job', 'SAVE', 'com.gewuyou.blog.admin.controller.JobController.saveJob', '添加定时任务', 'POST', '[{\"jobName\":\"清理未引用图片\",\"jobGroup\":\"文件清理\",\"invokeTarget\":\"blogQuartz.clearNotReferenceImage()\",\"cronExpression\":\"* 5,20,35,50 * * * ?\",\"misfirePolicy\":0,\"concurrent\":1,\"status\":1,\"remark\":\"清理未引用图片\"}]', NULL, 1, 'admin', '0:0:0:0:0:0:0:1', '', '2024-08-11 15:48:55', NULL, '2024-08-11T15:48:55.093034200', 8);
-INSERT INTO `tb_operation_log` VALUES (444, '照片前端控制器', '/admin/photo', 'SAVE', 'com.gewuyou.blog.admin.controller.PhotoController.savePhotos', '保存照片', 'POST', '[{\"albumId\":14,\"photoUrls\":[\"http://localhost:8082/api/v1/admin/blog/photos/e88a5e47354a6708d62756806679659c-2024-08-11T15-50-22.018152900.jpg\"]}]', NULL, 1, 'admin', '0:0:0:0:0:0:0:1', '', '2024-08-11 15:50:23', NULL, '2024-08-11T15:50:22.967779100', 16);
+INSERT INTO `tb_operation_log` VALUES (524, '操作日志表 前端控制器', '/admin/operation/log/clean', 'DELETE', 'com.gewuyou.blog.admin.controller.OperationLogController.cleanOperationLogs', '清空操作日志', 'DELETE', '[]', NULL, 1, 'admin', '0:0:0:0:0:0:0:1', '', '2024-08-18 11:48:24', NULL, '2024-08-18T11:48:24.209695800', 5);
+INSERT INTO `tb_operation_log` VALUES (525, '异常日志表	 前端控制器', '/admin/exception/log/clean', 'DELETE', 'com.gewuyou.blog.admin.controller.ExceptionLogController.cleanExceptionLogs', '清空异常日志', 'DELETE', '[]', NULL, 1, 'admin', '0:0:0:0:0:0:0:1', '', '2024-08-18 11:48:27', NULL, '2024-08-18T11:48:27.293949400', 25);
+INSERT INTO `tb_operation_log` VALUES (526, '定时任务调度日志表 前端控制器', '/admin/jobLog/clean', 'DELETE', 'com.gewuyou.blog.admin.controller.JobLogController.cleanJobLogs', '清空定时任务日志', 'DELETE', '[]', NULL, 1, 'admin', '0:0:0:0:0:0:0:1', '', '2024-08-18 11:48:31', NULL, '2024-08-18T11:48:30.585971400', 4);
 
 -- ----------------------------
 -- Table structure for tb_photo
@@ -922,11 +925,13 @@ CREATE TABLE `tb_unique_view`  (
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1539 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '访问统计表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1541 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '访问统计表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of tb_unique_view
 -- ----------------------------
+INSERT INTO `tb_unique_view` VALUES (1539, 3, '2024-08-14 10:14:55', NULL);
+INSERT INTO `tb_unique_view` VALUES (1540, 3, '2024-08-14 11:52:11', NULL);
 
 -- ----------------------------
 -- Table structure for tb_user_auth
@@ -951,7 +956,7 @@ CREATE TABLE `tb_user_auth`  (
 -- ----------------------------
 -- Records of tb_user_auth
 -- ----------------------------
-INSERT INTO `tb_user_auth` VALUES (1, 1, 'admin', '$2a$10$/Z90STxVyGOIfNhTfvzbEuJ9t1yHjrkN6pBMRAqd5g5SdNIrdt5Da', 1, '0:0:0:0:0:0:0:1', '', 'admin@qq.com', '2022-08-19 21:43:46', '2024-08-11 13:59:00', '2024-08-11 13:59:00');
+INSERT INTO `tb_user_auth` VALUES (1, 1, 'admin', '$2a$10$/Z90STxVyGOIfNhTfvzbEuJ9t1yHjrkN6pBMRAqd5g5SdNIrdt5Da', 1, '0:0:0:0:0:0:0:1', '', 'admin@qq.com', '2022-08-19 21:43:46', '2024-08-18 10:59:30', '2024-08-18 10:59:30');
 INSERT INTO `tb_user_auth` VALUES (1014, 4, 'user', '$2a$10$3GP1cdsdHzeiIkSkQk4hNOIWHfvpE2mEvFemkJWfMjKR4d3V49Bm6', 1, '0:0:0:0:0:0:0:1', '', '1063891901@qq.com', '2024-07-20 22:42:34', '2024-08-06 13:52:06', '2024-08-06 13:52:06');
 
 -- ----------------------------

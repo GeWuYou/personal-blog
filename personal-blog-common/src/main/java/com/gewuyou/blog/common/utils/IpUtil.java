@@ -16,10 +16,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -82,32 +79,6 @@ public class IpUtil {
 
 
     /**
-     * 获得MAC地址
-     *
-     * @param ip ip地址
-     * @return MAC地址
-     */
-    public static String getMACAddress(String ip) {
-        String str;
-        String macAddress = "";
-        try {
-            Process p = Runtime.getRuntime().exec("nbtstat -A " + ip);
-            InputStreamReader ir = new InputStreamReader(p.getInputStream());
-            LineNumberReader input = new LineNumberReader(ir);
-            for (int i = 1; i < 100; i++) {
-                str = input.readLine();
-                if (str != null && str.indexOf("MAC Address") > 1) {
-                    macAddress = str.substring(str.indexOf("MAC Address") + 14);
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            log.error("获取MAC地址失败", e);
-        }
-        return macAddress;
-    }
-
-    /**
      * 获取访问设备
      *
      * @param request 请求
@@ -125,7 +96,7 @@ public class IpUtil {
      */
     public static String getIpSource(String ipAddress) {
         if (ipAddress == null || !Util.isIpAddress(ipAddress)) {
-            log.error("Error: Invalid ip address");
+            log.error("Error: Invalid ip address [{}]", ipAddress);
             return "";
         }
         try {

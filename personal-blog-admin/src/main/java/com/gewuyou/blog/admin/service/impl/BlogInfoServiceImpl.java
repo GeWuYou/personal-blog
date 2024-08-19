@@ -73,6 +73,7 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
     @Override
     public void report() {
         String ipAddress = IpUtil.getIpAddress(request);
+        log.info("ip address: {}", ipAddress);
         UserAgent userAgent = IpUtil.getUserAgent(request);
         Browser browser = userAgent.getBrowser();
         OperatingSystem operatingSystem = userAgent.getOperatingSystem();

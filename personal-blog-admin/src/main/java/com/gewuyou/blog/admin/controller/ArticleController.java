@@ -77,7 +77,7 @@ public class ArticleController {
      * @return Result
      */
     @Operation(summary = "保存或更新文章", description = "保存或更新文章")
-    @OperationLogging(type = SAVE_OR_UPDATE)
+    @OperationLogging(type = SAVE_OR_UPDATE, logParams = false, logResult = false)
     @PostMapping
     @Idempotent
     public Result<?> saveOrUpdateArticle(@Validated @RequestBody ArticleVO articleVO) {
@@ -92,7 +92,7 @@ public class ArticleController {
      * @return Result
      */
     @Operation(summary = "修改文章是否置顶和推荐", description = "修改文章是否置顶和推荐")
-    @OperationLogging(type = UPDATE)
+    @OperationLogging(type = UPDATE, logParams = false, logResult = false)
     @PutMapping("/top-and-featured")
     public Result<?> updateArticleTopAndFeatured(@Validated @RequestBody ArticleTopFeaturedVO articleTopFeaturedVO) {
         articleService.updateArticleTopAndFeatured(articleTopFeaturedVO);

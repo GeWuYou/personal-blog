@@ -52,7 +52,7 @@ public class PhotoAlbumController {
      */
     @Parameter(name = "file", description = "相册封面文件", in = ParameterIn.QUERY, required = true)
     @Operation(summary = "上传相册封面", description = "上传相册封面")
-    @OperationLogging(type = OperationType.UPLOAD, logParams = false)
+    @OperationLogging(type = OperationType.UPLOAD, logParams = false, logResult = false)
     @PostMapping("/upload")
     public Result<String> savePhotoAlbumCover(MultipartFile file) {
         return Result.success(uploadStrategyContext

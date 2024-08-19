@@ -43,7 +43,7 @@ public class AboutController {
      * @return 响应信息
      */
     @Operation(summary = "更新关于信息", description = "更新关于信息")
-    @OperationLogging(type = OperationType.UPDATE)
+    @OperationLogging(type = OperationType.UPDATE, logParams = false, logResult = false)
     @PutMapping
     @Idempotent
     public Result<?> updateAbout(@Valid @RequestBody AboutVO aboutVO) {
