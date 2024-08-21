@@ -53,7 +53,7 @@ public class AboutServiceImpl extends ServiceImpl<AboutMapper, About> implements
             // 先尝试从缓存中获取
             Object about = redisService.get(ABOUT);
             if (Objects.nonNull(about)) {
-                content = objectMapper.readValue((String) about, String.class);
+                content = (String) about;
             }
             // 缓存中没有，从数据库中获取
             else {
