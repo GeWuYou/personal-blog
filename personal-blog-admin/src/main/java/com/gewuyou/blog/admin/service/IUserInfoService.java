@@ -1,15 +1,13 @@
 package com.gewuyou.blog.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.UserOnlineDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.UserDisableVO;
 import com.gewuyou.blog.common.vo.UserRoleVO;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * 用户信息服务接口
@@ -46,7 +44,7 @@ public interface IUserInfoService extends IService<UserInfo> {
      * @param conditionVO 条件VO
      * @return 分页结果
      */
-    PageResultDTO<UserOnlineDTO> listOnlineUsers(ConditionVO conditionVO);
+    PageResult<UserOnlineDTO> listOnlineUsers(ConditionVO conditionVO);
 
     /**
      * 移除在线用户
@@ -61,5 +59,5 @@ public interface IUserInfoService extends IService<UserInfo> {
      * @param file 头像文件
      * @return 头像url
      */
-    CompletableFuture<String> updateUserAvatar(MultipartFile file);
+    String updateUserAvatar(MultipartFile file);
 }

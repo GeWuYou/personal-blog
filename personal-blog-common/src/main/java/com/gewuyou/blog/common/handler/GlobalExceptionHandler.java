@@ -75,6 +75,7 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(200).body(Result.failure(HttpStatusCode.BAD_REQUEST, msg.toString()));
     }
+
     /**
      * 全局异常处理器
      *

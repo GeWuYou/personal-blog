@@ -5,8 +5,8 @@ import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.CommentDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.ReplyDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.CommentVO;
@@ -62,7 +62,7 @@ public class CommentController {
      */
     @Operation(summary = "获取评论", description = "获取评论")
     @GetMapping("/list")
-    public Result<PageResultDTO<CommentDTO>> getComments(CommentVO commentVO) {
+    public Result<PageResult<CommentDTO>> getComments(CommentVO commentVO) {
         return Result.success(commentService.listCommentDTOs(commentVO));
     }
 

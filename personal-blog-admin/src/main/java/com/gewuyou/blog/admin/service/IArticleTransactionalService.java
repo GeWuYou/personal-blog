@@ -3,8 +3,6 @@ package com.gewuyou.blog.admin.service;
 import com.gewuyou.blog.common.vo.ArticleVO;
 import com.gewuyou.blog.common.vo.DeleteVO;
 
-import java.util.List;
-
 /**
  * 文章事务服务接口
  *
@@ -25,11 +23,4 @@ public interface IArticleTransactionalService {
      * @param deleteVO 删除VO
      */
     void updateArticleDelete(DeleteVO deleteVO);
-
-    /**
-     * 物理删除文章
-     *
-     * @param articleIds 文章id列表
-     */
-    void deleteArticles(List<Long> articleIds);
 }

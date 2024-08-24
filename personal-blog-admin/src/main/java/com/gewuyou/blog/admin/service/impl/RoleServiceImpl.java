@@ -12,9 +12,9 @@ import com.gewuyou.blog.admin.service.IRoleMenuService;
 import com.gewuyou.blog.admin.service.IRoleResourceService;
 import com.gewuyou.blog.admin.service.IRoleService;
 import com.gewuyou.blog.common.constant.CommonConstant;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.RoleDTO;
 import com.gewuyou.blog.common.dto.UserRoleDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Role;
@@ -28,12 +28,14 @@ import com.gewuyou.blog.common.vo.RoleVO;
 import com.gewuyou.blog.security.source.DynamicSecurityMetadataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 /**
@@ -56,12 +58,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     private final RoleResourceMapper roleResourceMapper;
     private final RoleMenuMapper roleMenuMapper;
     private final ServerClient serverClient;
+    private final Executor asyncTaskExecutor;
 
     @Autowired
     public RoleServiceImpl(IRoleResourceService roleResourceService,
                            IRoleMenuService roleMenuService,
                            DynamicSecurityMetadataSource dynamicSecurityMetadataSource,
-                           UserRoleMapper userRoleMapper, RoleResourceMapper roleResourceMapper, RoleMenuMapper roleMenuMapper, ServerClient serverClient) {
+                           UserRoleMapper userRoleMapper, RoleResourceMapper roleResourceMapper, RoleMenuMapper roleMenuMapper, ServerClient serverClient, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.roleResourceService = roleResourceService;
         this.roleMenuService = roleMenuService;
         this.dynamicSecurityMetadataSource = dynamicSecurityMetadataSource;
@@ -69,6 +72,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         this.roleResourceMapper = roleResourceMapper;
         this.roleMenuMapper = roleMenuMapper;
         this.serverClient = serverClient;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
 
@@ -93,19 +97,19 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
      * @return 角色列表
      */
     @Override
-    public PageResultDTO<RoleDTO> listRoleDTOs(ConditionVO conditionVO) {
-        LambdaQueryWrapper<Role> queryWrapper = new LambdaQueryWrapper<Role>()
-                .like(StringUtils.isNotBlank(conditionVO.getKeywords()),
-                        Role::getRoleName, conditionVO.getKeywords());
-        CompletableFuture<Long> asyncCount = CompletableFuture.supplyAsync(() ->
-                baseMapper.selectCount(queryWrapper)
-        );
-        List<RoleDTO> roleDTOs = baseMapper.listRoleDTOs(PageUtil.getLimitCurrent(), PageUtil.getSize(), conditionVO);
-        try {
-            return new PageResultDTO<>(roleDTOs, asyncCount.get());
-        } catch (InterruptedException | ExecutionException e) {
-            throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
-        }
+    public PageResult<RoleDTO> listRoleDTOs(ConditionVO conditionVO) {
+        return CompletableFuture.supplyAsync(() ->
+                        baseMapper.selectCount(new LambdaQueryWrapper<Role>()
+                                .like(StringUtils.isNotBlank(conditionVO.getKeywords()),
+                                        Role::getRoleName, conditionVO.getKeywords()))
+                ).thenCombine(CompletableFuture.supplyAsync(
+                                () -> baseMapper.listRoleDTOs(PageUtil.getLimitCurrent(), PageUtil.getSize(), conditionVO)),
+                        (count, roleDTOs) -> new PageResult<>(roleDTOs, count))
+                .exceptionally(e -> {
+                    log.error("获取角色列表失败!", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**
@@ -114,6 +118,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
      * @param roleVO 角色信息
      */
     @Override
+    @Async("asyncTaskExecutor")
     public void saveOrUpdateRole(RoleVO roleVO) {
         Role roleCheck = baseMapper.selectOne(new LambdaQueryWrapper<Role>()
                 .select(Role::getId)
@@ -162,6 +167,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
      * @param roleIdList 角色ID列表
      */
     @Override
+    @Async("asyncTaskExecutor")
     public void deleteRoles(List<Integer> roleIdList) {
         Long count = userRoleMapper.selectCount(
                 new LambdaQueryWrapper<UserRole>()

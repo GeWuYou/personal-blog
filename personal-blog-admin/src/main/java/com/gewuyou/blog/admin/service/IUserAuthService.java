@@ -2,10 +2,10 @@ package com.gewuyou.blog.admin.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.UserAdminDTO;
 import com.gewuyou.blog.common.dto.UserAreaDTO;
 import com.gewuyou.blog.common.dto.UserInfoDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.model.UserAuth;
 import com.gewuyou.blog.common.vo.*;
@@ -70,7 +70,7 @@ public interface IUserAuthService extends IService<UserAuth> {
      * @param conditionVO 条件
      * @return 用户列表
      */
-    PageResultDTO<UserAdminDTO> listUsers(ConditionVO conditionVO);
+    PageResult<UserAdminDTO> listUsers(ConditionVO conditionVO);
 
     /**
      * 登录

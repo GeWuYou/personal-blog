@@ -3,7 +3,7 @@ package com.gewuyou.blog.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.dto.CommentAdminDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.Comment;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.ReviewVO;
@@ -23,7 +23,7 @@ public interface ICommentService extends IService<Comment> {
      * @param conditionVO 条件
      * @return 评论列表
      */
-    PageResultDTO<CommentAdminDTO> listCommentsAdminDTOs(ConditionVO conditionVO);
+    PageResult<CommentAdminDTO> listCommentsAdminDTOs(ConditionVO conditionVO);
 
     /**
      * 审核评论

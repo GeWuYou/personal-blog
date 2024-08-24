@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.admin.mapper.ArticleMapper;
-import com.gewuyou.blog.admin.mapper.ArticleTagMapper;
 import com.gewuyou.blog.admin.service.IArticleTagService;
 import com.gewuyou.blog.admin.service.IArticleTransactionalService;
 import com.gewuyou.blog.admin.service.ICategoryService;
@@ -15,7 +14,6 @@ import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Article;
-import com.gewuyou.blog.common.model.ArticleTag;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ArticleVO;
@@ -45,7 +43,6 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
     private final IArticleTagService articleTagService;
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
-    private final ArticleTagMapper articleTagMapper;
     private final IImageReferenceService imageReferenceService;
 
 
@@ -55,13 +52,11 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
             IArticleTagService articleTagService,
             RabbitTemplate rabbitTemplate,
             ObjectMapper objectMapper,
-            ArticleTagMapper articleTagMapper,
             IImageReferenceService imageReferenceService) {
         this.categoryService = categoryService;
         this.articleTagService = articleTagService;
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
-        this.articleTagMapper = articleTagMapper;
         this.imageReferenceService = imageReferenceService;
     }
 
@@ -130,20 +125,4 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
         }
     }
 
-    /**
-     * 删除文章
-     *
-     * @param articleIds 文章id列表
-     */
-    @Override
-    public void deleteArticles(List<Long> articleIds) {
-        articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
-                .in(ArticleTag::getArticleId, articleIds));
-        // 检索文章图片引用并删除引用
-        baseMapper.selectBatchIds(articleIds)
-                .stream()
-                .map(Article::getArticleCover)
-                .forEach(imageReferenceService::deleteImageReference);
-        baseMapper.deleteBatchIds(articleIds);
-    }
 }

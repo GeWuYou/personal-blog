@@ -5,8 +5,8 @@ import com.gewuyou.blog.admin.strategy.context.UploadStrategyContext;
 import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.PhotoAdminDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.FilePathEnum;
 import com.gewuyou.blog.common.enums.OperationType;
@@ -70,7 +70,7 @@ public class PhotoController {
      */
     @Operation(summary = "获取照片列表", description = "获取照片列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<PhotoAdminDTO>> listPhotos(ConditionVO conditionVO) {
+    public Result<PageResult<PhotoAdminDTO>> listPhotos(ConditionVO conditionVO) {
         return Result.success(photoService.listPhotoAdminDTOs(conditionVO));
     }
 

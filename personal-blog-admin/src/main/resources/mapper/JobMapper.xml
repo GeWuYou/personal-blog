@@ -1,23 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.admin.mapper.JobMapper">
-
-    <select id="countJobs" resultType="java.lang.Long">
-        SELECT COUNT(DISTINCT j.id)
-        FROM tb_job j
-        <where>
-            <if test="jobSearchVO.jobName!=null">
-                AND j.job_name LIKE CONCAT('%', #{jobSearchVO.jobName}, '%')
-            </if>
-            <if test="jobSearchVO.jobGroup!=null">
-                AND j.job_group = #{jobSearchVO.jobGroup}
-            </if>
-            <if test="jobSearchVO.status!=null">
-                AND j.status = #{jobSearchVO.status}
-            </if>
-        </where>
-    </select>
-    <select id="listJobs" resultType="com.gewuyou.blog.common.dto.JobDTO">
+    <select id="listJobDTOs" resultType="com.gewuyou.blog.common.dto.JobDTO">
         SELECT
         id AS id,
         job_name AS jobName,

@@ -5,7 +5,7 @@ import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.JobDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.JobRunVO;
@@ -105,7 +105,7 @@ public class JobController {
      */
     @Operation(summary = "获取任务列表", description = "获取任务列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<JobDTO>> listJobs(JobSearchVO jobSearchVO) {
+    public Result<PageResult<JobDTO>> listJobs(JobSearchVO jobSearchVO) {
         return Result.success(jobService.listJobDTOs(jobSearchVO));
     }
 
@@ -143,6 +143,6 @@ public class JobController {
     @Operation(summary = "获取所有任务组", description = "获取所有任务组")
     @GetMapping("/groups")
     public Result<List<String>> listJobGroup() {
-        return Result.success(jobService.listJobGroups());
+        return Result.success(jobService.listJobGroups().join());
     }
 }

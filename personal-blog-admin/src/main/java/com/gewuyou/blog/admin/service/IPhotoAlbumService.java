@@ -1,9 +1,9 @@
 package com.gewuyou.blog.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.PhotoAlbumAdminDTO;
 import com.gewuyou.blog.common.dto.PhotoAlbumDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.PhotoAlbum;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.PhotoAlbumVO;
@@ -30,7 +30,7 @@ public interface IPhotoAlbumService extends IService<PhotoAlbum> {
      * @param conditionVO 条件
      * @return 分页结果
      */
-    PageResultDTO<PhotoAlbumAdminDTO> listPhotoAlbumsAdminDTOs(ConditionVO conditionVO);
+    PageResult<PhotoAlbumAdminDTO> listPhotoAlbumsAdminDTOs(ConditionVO conditionVO);
 
     /**
      * 获取后台相册信息列表

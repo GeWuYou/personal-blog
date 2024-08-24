@@ -17,17 +17,22 @@ import com.gewuyou.blog.common.model.Resource;
 import com.gewuyou.blog.common.model.RoleResource;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.CollectionUtil;
+import com.gewuyou.blog.common.utils.CompletableFutureUtil;
 import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.ResourceVO;
 import com.gewuyou.blog.security.source.DynamicSecurityMetadataSource;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static com.gewuyou.blog.common.constant.CommonConstant.FALSE;
@@ -48,13 +53,15 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     private final ServerClient serverClient;
     private final RestTemplate restTemplate;
     private final SwaggerProperties swaggerProperties;
+    private final Executor asyncTaskExecutor;
 
-    public ResourceServiceImpl(RoleResourceMapper roleResourceMapper, DynamicSecurityMetadataSource dynamicSecurityMetadataSource, ServerClient serverClient, RestTemplate restTemplate, SwaggerProperties swaggerProperties) {
+    public ResourceServiceImpl(RoleResourceMapper roleResourceMapper, DynamicSecurityMetadataSource dynamicSecurityMetadataSource, ServerClient serverClient, RestTemplate restTemplate, SwaggerProperties swaggerProperties, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.roleResourceMapper = roleResourceMapper;
         this.dynamicSecurityMetadataSource = dynamicSecurityMetadataSource;
         this.serverClient = serverClient;
         this.restTemplate = restTemplate;
         this.swaggerProperties = swaggerProperties;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     /**
@@ -65,27 +72,41 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      */
     @Override
     public List<ResourceDTO> listResourceDTOs(ConditionVO conditionVO) {
-        // 获取所有资源列表
-        List<Resource> resources = baseMapper.selectList(new LambdaQueryWrapper<Resource>()
-                .like(StringUtils.isNotBlank(conditionVO.getKeywords()), Resource::getResourceName,
-                        conditionVO.getKeywords()));
-        // 筛选出顶级资源列表
-        var topResources = listTopResourceDTOs(resources);
-        // 获取子资源列表
-        var childrenMap = listResourceDTOChildrenMap(resources);
-        // 将子资源绑定到父资源上
-        var resourceDTOs = CollectionUtil.processItemsWithChildren(topResources, childrenMap, ResourceDTO::getId, ResourceDTO::setChildren, true);
-        // 将剩余资源添加到资源列表中
-        if (CollectionUtils.isNotEmpty(childrenMap)) {
-            resourceDTOs.addAll(
-                    childrenMap
-                            .values()
-                            .stream()
-                            .flatMap(Collection::stream)
-                            .toList()
-            );
-        }
-        return resourceDTOs;
+        return CompletableFuture.supplyAsync(
+                        // 获取所有资源列表
+                        () -> baseMapper.selectList(new LambdaQueryWrapper<Resource>()
+                                .like(StringUtils.isNotBlank(conditionVO.getKeywords()), Resource::getResourceName,
+                                        conditionVO.getKeywords())), asyncTaskExecutor)
+                .thenCompose(
+                        resources -> CompletableFuture
+                                .supplyAsync(
+                                        // 筛选出顶级资源列表
+                                        () -> listTopResourceDTOs(resources), asyncTaskExecutor)
+                                .thenCombine(
+                                        CompletableFuture.supplyAsync(
+                                                // 获取子资源列表
+                                                () -> listResourceDTOChildrenMap(resources), asyncTaskExecutor),
+                                        (topResources, childrenMap) -> {
+                                            // 将子资源绑定到父资源上
+                                            var resourceDTOs = CollectionUtil.processItemsWithChildren(topResources, childrenMap, ResourceDTO::getId, ResourceDTO::setChildren, true);
+                                            // 将剩余资源添加到资源列表中
+                                            if (CollectionUtils.isNotEmpty(childrenMap)) {
+                                                resourceDTOs.addAll(
+                                                        childrenMap
+                                                                .values()
+                                                                .stream()
+                                                                .flatMap(Collection::stream)
+                                                                .toList()
+                                                );
+                                            }
+                                            return resourceDTOs;
+                                        })
+                )
+                .exceptionally(e -> {
+                    log.error("查询资源列表失败", e);
+                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                })
+                .join();
     }
 
     /**
@@ -94,6 +115,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param resourceId 资源ID
      */
     @Override
+    @Async("asyncTaskExecutor")
     public void deleteResource(Integer resourceId) {
         Long count = roleResourceMapper.selectCount(new LambdaQueryWrapper<RoleResource>()
                 .eq(RoleResource::getResourceId, resourceId));
@@ -118,9 +140,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     @Override
     public void saveOrUpdateResource(ResourceVO resourceVO) {
         Resource resource = BeanCopyUtil.copyObject(resourceVO, Resource.class);
-        this.saveOrUpdate(resource);
-        dynamicSecurityMetadataSource.clearDataSource();
-        serverClient.clearConfigAttributeMap();
+        CompletableFutureUtil.runAsyncWithExceptionAlly(() -> this.saveOrUpdate(resource), asyncTaskExecutor);
+        CompletableFutureUtil.runAsyncWithExceptionAlly(dynamicSecurityMetadataSource::clearDataSource, asyncTaskExecutor);
+        CompletableFutureUtil.runAsyncWithExceptionAlly(serverClient::clearConfigAttributeMap, asyncTaskExecutor);
     }
 
     /**
@@ -130,28 +152,40 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      */
     @Override
     public List<LabelOptionDTO> listResourceOptionDTO() {
-        List<Resource> resources = baseMapper.selectList(new LambdaQueryWrapper<Resource>()
-                .select(Resource::getId, Resource::getResourceName, Resource::getParentId)
-                .eq(Resource::getIsAnonymous, FALSE));
-        var parents = listTopResourceDTOs(resources);
-        var childrenMap = listResourceDTOChildrenMap(resources);
-        return parents.stream().map(item -> {
-            List<LabelOptionDTO> list = new ArrayList<>();
-            var children = childrenMap.get(item.getId());
-            if (CollectionUtils.isNotEmpty(children)) {
-                list = children.stream()
-                        .map(resource -> LabelOptionDTO.builder()
-                                .id(resource.getId())
-                                .label(resource.getResourceName())
-                                .build())
-                        .collect(Collectors.toList());
-            }
-            return LabelOptionDTO.builder()
-                    .id(item.getId())
-                    .label(item.getResourceName())
-                    .children(list)
-                    .build();
-        }).toList();
+        return CompletableFuture.supplyAsync(() -> baseMapper.selectList(new LambdaQueryWrapper<Resource>()
+                        .select(Resource::getId, Resource::getResourceName, Resource::getParentId)
+                        .eq(Resource::getIsAnonymous, FALSE)), asyncTaskExecutor)
+                .thenCompose(
+                        resources ->
+                                CompletableFuture.supplyAsync(
+                                                () -> listTopResourceDTOs(resources), asyncTaskExecutor)
+                                        .thenCombine(
+                                                CompletableFuture.supplyAsync(
+                                                        () -> listResourceDTOChildrenMap(resources), asyncTaskExecutor),
+                                                (parents, childrenMap) -> parents.stream().map(item -> {
+                                                    List<LabelOptionDTO> list = new ArrayList<>();
+                                                    var children = childrenMap.get(item.getId());
+                                                    if (CollectionUtils.isNotEmpty(children)) {
+                                                        list = children.stream()
+                                                                .map(resource -> LabelOptionDTO.builder()
+                                                                        .id(resource.getId())
+                                                                        .label(resource.getResourceName())
+                                                                        .build())
+                                                                .collect(Collectors.toList());
+                                                    }
+                                                    return LabelOptionDTO.builder()
+                                                            .id(item.getId())
+                                                            .label(item.getResourceName())
+                                                            .children(list)
+                                                            .build();
+                                                }).toList()
+                                        )
+                )
+                .exceptionally(e -> {
+                    log.error("查询资源选项失败", e);
+                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                })
+                .join();
     }
 
     /**
@@ -172,9 +206,13 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
      * @param resources 资源列表
      */
     @Transactional(rollbackFor = Exception.class)
+    @SuppressWarnings("unchecked")
     public void importResource(List<Resource> resources) {
         for (String s : swaggerProperties.getUrl()) {
             Map<String, Object> data = restTemplate.getForObject(s, Map.class);
+            if (Objects.isNull(data)) {
+                continue;
+            }
             List<Map<String, String>> tags = (List<Map<String, String>>) data.get("tags");
             tags.forEach(item -> {
                 var resource = Resource

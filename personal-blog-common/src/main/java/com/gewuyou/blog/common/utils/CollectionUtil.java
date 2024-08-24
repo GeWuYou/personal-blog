@@ -84,6 +84,15 @@ public class CollectionUtil {
         return result;
     }
 
+    /**
+     * 集合差集
+     *
+     * @param c1  集合1
+     * @param c2  集合2
+     * @param <E> 元素类型
+     * @return 差集
+     * @apiNote 求集合1和2的差集即为集合1中存在而集合2中不存在的元素
+     */
     public static <E> Collection<E> difference(Collection<E> c1, Collection<E> c2) {
         return c1.stream().filter(e -> !c2.contains(e)).collect(Collectors.toList());
     }

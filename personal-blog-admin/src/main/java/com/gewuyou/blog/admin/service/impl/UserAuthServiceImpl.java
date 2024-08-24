@@ -14,7 +14,11 @@ import com.gewuyou.blog.admin.mapper.UserRoleMapper;
 import com.gewuyou.blog.admin.service.IUserAuthService;
 import com.gewuyou.blog.admin.strategy.context.LoginStrategyContext;
 import com.gewuyou.blog.common.constant.CommonConstant;
-import com.gewuyou.blog.common.dto.*;
+import com.gewuyou.blog.common.dto.EmailDTO;
+import com.gewuyou.blog.common.dto.UserAdminDTO;
+import com.gewuyou.blog.common.dto.UserAreaDTO;
+import com.gewuyou.blog.common.dto.UserInfoDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.enums.LoginTypeEnum;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.enums.RoleEnum;
@@ -34,6 +38,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -78,6 +85,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
     private final UserInfoMapper userInfoMapper;
+    private final Executor asyncTaskExecutor;
 
 
     @Autowired
@@ -88,7 +96,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
             ServerClient serverClient,
             LoginStrategyContext loginStrategyContext,
             JwtService jwtService, RabbitTemplate rabbitTemplate,
-            ObjectMapper objectMapper, UserInfoMapper userInfoMapper) {
+            ObjectMapper objectMapper, UserInfoMapper userInfoMapper, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.redisService = redisService;
         this.userRoleMapper = userRoleMapper;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -98,6 +106,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
         this.userInfoMapper = userInfoMapper;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     /**
@@ -277,14 +286,16 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      * @return 用户列表
      */
     @Override
-    public PageResultDTO<UserAdminDTO> listUsers(ConditionVO conditionVO) {
-        Integer count = baseMapper.countUsers(conditionVO);
-        if (count == 0) {
-            return new PageResultDTO<>();
-        }
-        Page<UserAdminDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
-        List<UserAdminDTO> userAdminDTOS = baseMapper.listUsers(page, conditionVO).getRecords();
-        return new PageResultDTO<>(userAdminDTOS, count.longValue());
+    public PageResult<UserAdminDTO> listUsers(ConditionVO conditionVO) {
+        return CompletableFuture.supplyAsync(
+                        () -> baseMapper.listUsers(new Page<>(PageUtil.getCurrent(), PageUtil.getSize()), conditionVO),
+                        asyncTaskExecutor
+                ).thenApply(PageResult::new)
+                .exceptionally(e -> {
+                    log.error("获取用户列表失败", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**

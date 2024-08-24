@@ -4,7 +4,7 @@ package com.gewuyou.blog.admin.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.dto.CategoryAdminDTO;
 import com.gewuyou.blog.common.dto.CategoryOptionDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.Category;
 import com.gewuyou.blog.common.vo.ArticleVO;
 import com.gewuyou.blog.common.vo.CategoryVO;
@@ -38,7 +38,7 @@ public interface ICategoryService extends IService<Category> {
      * @param conditionVO 条件
      * @return 后台分类列表
      */
-    PageResultDTO<CategoryAdminDTO> listCategoryAdminDTOs(ConditionVO conditionVO);
+    PageResult<CategoryAdminDTO> listCategoryAdminDTOs(ConditionVO conditionVO);
 
     /**
      * 查询后台分类选项列表

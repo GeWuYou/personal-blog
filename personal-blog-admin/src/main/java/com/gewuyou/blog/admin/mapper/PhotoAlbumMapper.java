@@ -9,8 +9,6 @@ import com.gewuyou.blog.common.vo.ConditionVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
-
 /**
  * <p>
  * 相册 Mapper 接口
@@ -29,5 +27,5 @@ public interface PhotoAlbumMapper extends BaseMapper<PhotoAlbum> {
      * @param conditionVO 条件对象
      * @return 相册列表
      */
-    List<PhotoAlbumAdminDTO> listPhotoAlbumsAdminDTOs(Page<PhotoAlbumAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
+    Page<PhotoAlbumAdminDTO> listPhotoAlbumsAdminDTOs(Page<PhotoAlbumAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
 }

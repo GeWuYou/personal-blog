@@ -4,7 +4,7 @@ package com.gewuyou.blog.admin.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.dto.ArticleAdminDTO;
 import com.gewuyou.blog.common.dto.ArticleAdminViewDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.Article;
 import com.gewuyou.blog.common.vo.ArticleTopFeaturedVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -29,7 +29,7 @@ public interface IArticleService extends IService<Article> {
      * @param conditionVO 条件VO
      * @return 文章列表DTO
      */
-    PageResultDTO<ArticleAdminDTO> listArticlesAdminDTOs(ConditionVO conditionVO);
+    PageResult<ArticleAdminDTO> listArticlesAdminDTOs(ConditionVO conditionVO);
 
     /**
      * 更新文章置顶和推荐
@@ -55,4 +55,10 @@ public interface IArticleService extends IService<Article> {
      */
     CompletableFuture<List<String>> exportArticles(List<Integer> articleIds);
 
+    /**
+     * 物理删除文章
+     *
+     * @param articleIds 文章id列表
+     */
+    void deleteArticles(List<Long> articleIds);
 }

@@ -9,7 +9,7 @@ import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.ArticleAdminDTO;
 import com.gewuyou.blog.common.dto.ArticleAdminViewDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.FilePathEnum;
 import com.gewuyou.blog.common.vo.ArticleTopFeaturedVO;
@@ -50,8 +50,7 @@ public class ArticleController {
             IArticleTransactionalService articleTransactionalService,
             UploadStrategyContext uploadStrategyContext,
             ArticleImportStrategyContext articleImportStrategyContext,
-            IArticleService articleService
-    ) {
+            IArticleService articleService) {
         this.articleTransactionalService = articleTransactionalService;
         this.uploadStrategyContext = uploadStrategyContext;
         this.articleImportStrategyContext = articleImportStrategyContext;
@@ -62,11 +61,11 @@ public class ArticleController {
      * 获取后台文章列表
      *
      * @param conditionVO 条件VO
-     * @return PageResultDTO<ArticleAdminDTO>
+     * @return PageResult<ArticleAdminDTO>
      */
     @Operation(summary = "获取后台文章列表", description = "获取后台文章列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<ArticleAdminDTO>> listArticlesAdmin(ConditionVO conditionVO) {
+    public Result<PageResult<ArticleAdminDTO>> listArticlesAdmin(ConditionVO conditionVO) {
         return Result.success(articleService.listArticlesAdminDTOs(conditionVO));
     }
 
@@ -124,7 +123,7 @@ public class ArticleController {
     @DeleteMapping
     @Idempotent
     public Result<?> deleteArticles(@RequestBody List<Long> articleIds) {
-        articleTransactionalService.deleteArticles(articleIds);
+        articleService.deleteArticles(articleIds);
         return Result.success();
     }
 

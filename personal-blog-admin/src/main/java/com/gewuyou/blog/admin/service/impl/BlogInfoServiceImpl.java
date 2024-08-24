@@ -107,17 +107,17 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
         CompletableFuture<Long> asyncViewCount = CompletableFuture.supplyAsync(() -> RedisUtil.getLongValue(redisService.get(BLOG_VIEWS_COUNT)), asyncTaskExecutor);
         CompletableFuture<Void> asyncAllOf = CompletableFuture.allOf(asyncArticleCount, asyncCategoryCount, asyncTagCount, asyncTalkCount, asyncWebsiteConfig, asyncViewCount);
         return asyncAllOf
-                .exceptionally(e -> {
-                    log.error("获取博客后台首页信息失败", e);
-                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
-                })
                 .thenApply(v -> BlogHomeInfoDTO.builder()
                         .articleCount(asyncArticleCount.join())
                         .categoryCount(asyncCategoryCount.join())
                         .tagCount(asyncTagCount.join())
                         .talkCount(asyncTalkCount.join())
                         .websiteConfigDTO(asyncWebsiteConfig.join())
-                        .viewCount(asyncViewCount.join()).build()).join();
+                        .viewCount(asyncViewCount.join()).build())
+                .exceptionally(e -> {
+                    log.error("获取博客后台首页信息失败", e);
+                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                }).join();
     }
 
     /**
@@ -146,11 +146,7 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
         CompletableFuture<Void> asyncAllOf = CompletableFuture.allOf(asyncArticleCount, asyncMessageCount, asyncUserCount, asyncViewCount, asyncUniqueView, asyncArticleStatistics, asyncCategoryDTOs, asyncTagDTOs, asyncArticleViews);
         // 任务完成后，获取结果
         return asyncAllOf
-                .exceptionally(e -> {
-                    log.error("获取博客管理后台信息失败", e);
-                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
-                })
-                .thenApply(v -> {
+                .thenCompose(v -> {
                     BlogAdminInfoDTO auroraAdminInfoDTO = BlogAdminInfoDTO.builder()
                             .articleStatisticsDTOs(asyncArticleStatistics.join())
                             .tagDTOs(asyncTagDTOs.join())
@@ -168,7 +164,12 @@ public class BlogInfoServiceImpl implements IBlogInfoService {
                     } else {
                         auroraAdminInfoDTO.setArticleRankDTOs(List.of());
                     }
-                    return auroraAdminInfoDTO;
-                }).join();
+                    return CompletableFuture.completedFuture(auroraAdminInfoDTO);
+                })
+                .exceptionally(e -> {
+                    log.error("获取博客管理后台信息失败", e);
+                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                })
+                .join();
     }
 }

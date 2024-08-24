@@ -4,8 +4,8 @@ import com.gewuyou.blog.admin.service.IUserInfoService;
 import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.UserOnlineDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -74,7 +74,7 @@ public class UserInfoController {
      */
     @Operation(summary = "查看在线用户", description = "查看在线用户")
     @GetMapping("/online")
-    public Result<PageResultDTO<UserOnlineDTO>> listOnlineUsers(ConditionVO conditionVO) {
+    public Result<PageResult<UserOnlineDTO>> listOnlineUsers(ConditionVO conditionVO) {
         return Result.success(userInfoService.listOnlineUsers(conditionVO));
     }
 
@@ -106,8 +106,6 @@ public class UserInfoController {
     @Idempotent
     public Result<String> updateUserAvatar(MultipartFile file) {
         return Result.success(userInfoService
-                .updateUserAvatar(file)
-                .join());
+                .updateUserAvatar(file));
     }
-
 }

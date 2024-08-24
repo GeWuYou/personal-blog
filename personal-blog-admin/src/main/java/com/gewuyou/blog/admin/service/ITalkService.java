@@ -2,8 +2,8 @@ package com.gewuyou.blog.admin.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TalkAdminDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.Talk;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.TalkVO;
@@ -39,7 +39,7 @@ public interface ITalkService extends IService<Talk> {
      * @param conditionVO 条件VO
      * @return 分页结果DTO
      */
-    PageResultDTO<TalkAdminDTO> listBackTalkAdminDTOs(ConditionVO conditionVO);
+    PageResult<TalkAdminDTO> listBackTalkAdminDTOs(ConditionVO conditionVO);
 
     /**
      * 根据ID获取后台说说DTO

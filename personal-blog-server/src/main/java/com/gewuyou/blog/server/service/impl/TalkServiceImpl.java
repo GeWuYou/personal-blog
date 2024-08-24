@@ -1,15 +1,14 @@
 package com.gewuyou.blog.server.service.impl;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.common.dto.CommentCountDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TalkDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.enums.CommentTypeEnum;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
@@ -20,14 +19,15 @@ import com.gewuyou.blog.server.mapper.TalkMapper;
 import com.gewuyou.blog.server.service.ITalkService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
-
-import static com.gewuyou.blog.common.enums.ArticleStatusEnum.PUBLIC;
 
 /**
  * <p>
@@ -42,11 +42,13 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
 
     private final CommentMapper commentMapper;
     private final ObjectMapper objectMapper;
+    private final Executor asyncTaskExecutor;
 
     @Autowired
-    public TalkServiceImpl(CommentMapper commentMapper, ObjectMapper objectMapper) {
+    public TalkServiceImpl(CommentMapper commentMapper, ObjectMapper objectMapper, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.commentMapper = commentMapper;
         this.objectMapper = objectMapper;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     @Override
@@ -60,32 +62,39 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
      * @return 说说列表
      */
     @Override
-    public PageResultDTO<TalkDTO> listTalkDTOs() {
-        Long count = baseMapper.selectCount(
-                new LambdaQueryWrapper<Talk>()
-                        .eq(Talk::getStatus, PUBLIC.getStatus())
-        );
-        if (count == 0) {
-            return new PageResultDTO<>();
-        }
-        Page<TalkDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
-        List<TalkDTO> talkDTOS = baseMapper.listTalkDTOs(page).getRecords();
-        List<Integer> talkIds = talkDTOS
-                .stream()
-                .map(TalkDTO::getId)
-                .toList();
-        Map<Integer, Long> commentCountMap = commentMapper
-                .listCommentCountByTypeAndTopicIds(CommentTypeEnum.TALK.getType(), talkIds)
-                .stream()
-                .collect(Collectors.toMap(CommentCountDTO::getId, CommentCountDTO::getCommentCount));
-        talkDTOS
-                .forEach(
-                        item -> {
-                            item.setCommentCount(commentCountMap.getOrDefault(item.getId(), 0L));
-                            setImagesByTalkDTO(item);
-                        }
-                );
-        return new PageResultDTO<>(talkDTOS, count);
+    public PageResult<TalkDTO> listTalkDTOs() {
+        return CompletableFuture
+                .supplyAsync(
+                        () -> baseMapper.listTalkDTOs(new Page<>(PageUtil.getCurrent(), PageUtil.getSize())),
+                        asyncTaskExecutor)
+                .thenApply(talkDTOPage ->
+                {
+                    List<TalkDTO> records = talkDTOPage.getRecords();
+                    Map<Integer, Long> commentCountMap = commentMapper
+                            .listCommentCountByTypeAndTopicIds(
+                                    CommentTypeEnum.TALK.getType(),
+                                    records
+                                            .stream()
+                                            .map(TalkDTO::getId)
+                                            .toList())
+                            .stream()
+                            .collect(Collectors
+                                    .toMap(
+                                            CommentCountDTO::getId, CommentCountDTO::getCommentCount));
+                    records.stream()
+                            .peek(
+                                    item ->
+                                            item
+                                                    .setCommentCount(
+                                                            commentCountMap.getOrDefault(item.getId(), 0L)))
+                            .forEach(this::setImagesByTalkDTO);
+                    return new PageResult<>(records, talkDTOPage.getTotal());
+                })
+                .exceptionally(e -> {
+                    log.error("获取说说列表失败!", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**

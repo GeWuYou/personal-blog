@@ -3,6 +3,7 @@ package com.gewuyou.blog.server.controller;
 import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.*;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.vo.ArticleAccessPasswordVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -50,11 +51,11 @@ public class ArticleController {
     /**
      * 获取文章列表
      *
-     * @return PageResultDTO<ArticleRankDTO>
+     * @return PageResult<ArticleRankDTO>
      */
     @Operation(summary = "获取文章列表", description = "获取文章列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<ArticleCardDTO>> listArticles() {
+    public Result<PageResult<ArticleCardDTO>> listArticles() {
         return Result.success(articleService.listArticleCardDTOs());
     }
 
@@ -63,12 +64,12 @@ public class ArticleController {
      * 根据文章分类id获取文章列表
      *
      * @param categoryId 文章分类id
-     * @return PageResultDTO<ArticleCardDTO>
+     * @return PageResult<ArticleCardDTO>
      */
     @Parameter(name = "capacityId", description = "文章分类id", in = ParameterIn.QUERY, required = true)
     @Operation(summary = "根据文章分类id获取文章列表", description = "根据文章分类id获取文章列表")
     @GetMapping("/list/categoryId")
-    public Result<PageResultDTO<ArticleCardDTO>> listArticlesByCategoryId(@RequestParam Long categoryId) {
+    public Result<PageResult<ArticleCardDTO>> listArticlesByCategoryId(@RequestParam Long categoryId) {
         return Result.success(articleService.listArticleCardDTOsByCategoryId(categoryId));
     }
 
@@ -103,23 +104,23 @@ public class ArticleController {
      * 根据标签id获取文章列表
      *
      * @param tagId 标签id
-     * @return PageResultDTO<ArticleCardDTO>
+     * @return PageResult<ArticleCardDTO>
      */
     @Parameter(name = "tagId", description = "标签id", in = ParameterIn.QUERY, required = true)
     @Operation(summary = "根据标签id获取文章列表", description = "根据标签id获取文章列表")
     @GetMapping("/list/tagId")
-    public Result<PageResultDTO<ArticleCardDTO>> listArticlesByTagId(@RequestParam Long tagId) {
+    public Result<PageResult<ArticleCardDTO>> listArticlesByTagId(@RequestParam Long tagId) {
         return Result.success(articleService.listArticleCardDTOsByTagId(tagId));
     }
 
     /**
      * 获取所有文章归档
      *
-     * @return PageResultDTO<ArchiveDTO>
+     * @return PageResult<ArchiveDTO>
      */
     @Operation(summary = "获取所有文章归档", description = "获取所有文章归档")
     @GetMapping("/list/archives")
-    public Result<PageResultDTO<ArchiveDTO>> listArchives() {
+    public Result<PageResult<ArchiveDTO>> listArchives() {
         return Result.success(articleService.listArchiveDTOs());
     }
 

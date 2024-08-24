@@ -4,9 +4,9 @@ import com.gewuyou.blog.admin.service.ITagService;
 import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TagAdminDTO;
 import com.gewuyou.blog.common.dto.TagOptionDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -43,7 +43,7 @@ public class TagController {
      */
     @Operation(summary = "查询后台标签列表", description = "查询后台标签列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<TagAdminDTO>> listTagsAdmin(ConditionVO conditionVO) {
+    public Result<PageResult<TagAdminDTO>> listTagsAdmin(ConditionVO conditionVO) {
         return Result.success(tagService.listTagsAdminDTOs(conditionVO));
     }
 

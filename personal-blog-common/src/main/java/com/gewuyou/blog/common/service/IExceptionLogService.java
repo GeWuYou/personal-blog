@@ -3,7 +3,7 @@ package com.gewuyou.blog.common.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.dto.ExceptionLogDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.ExceptionLog;
 import com.gewuyou.blog.common.vo.ConditionVO;
 
@@ -23,7 +23,7 @@ public interface IExceptionLogService extends IService<ExceptionLog> {
      * @param conditionVO 条件
      * @return 异常日志列表
      */
-    PageResultDTO<ExceptionLogDTO> listExceptionLogDTOs(ConditionVO conditionVO);
+    PageResult<ExceptionLogDTO> listExceptionLogDTOs(ConditionVO conditionVO);
 
     /**
      * 清除异常日志

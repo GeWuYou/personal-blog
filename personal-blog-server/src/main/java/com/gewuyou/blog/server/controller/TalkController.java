@@ -1,8 +1,8 @@
 package com.gewuyou.blog.server.controller;
 
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TalkDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.server.service.ITalkService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,7 +42,7 @@ public class TalkController {
      */
     @Operation(summary = "查看说说列表", description = "查看说说列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<TalkDTO>> listTalks() {
+    public Result<PageResult<TalkDTO>> listTalks() {
         return Result.success(talkService.listTalkDTOs());
     }
 

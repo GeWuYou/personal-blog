@@ -5,18 +5,21 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.ArticleMapper;
+import com.gewuyou.blog.admin.mapper.ArticleTagMapper;
 import com.gewuyou.blog.admin.mapper.CategoryMapper;
 import com.gewuyou.blog.admin.mapper.TagMapper;
 import com.gewuyou.blog.admin.service.IArticleService;
+import com.gewuyou.blog.admin.service.IImageReferenceService;
 import com.gewuyou.blog.admin.strategy.context.UploadStrategyContext;
 import com.gewuyou.blog.common.dto.ArticleAdminDTO;
 import com.gewuyou.blog.common.dto.ArticleAdminViewDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.enums.FilePathEnum;
 import com.gewuyou.blog.common.enums.FileTypeEnum;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Article;
+import com.gewuyou.blog.common.model.ArticleTag;
 import com.gewuyou.blog.common.model.Category;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
@@ -25,6 +28,7 @@ import com.gewuyou.blog.common.utils.RedisUtil;
 import com.gewuyou.blog.common.vo.ArticleTopFeaturedVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -34,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static com.gewuyou.blog.common.constant.RedisConstant.ARTICLE_VIEWS_COUNT;
@@ -54,20 +58,26 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final CategoryMapper categoryMapper;
     private final TagMapper tagMapper;
     private final UploadStrategyContext uploadStrategyContext;
-
+    private final Executor asyncTaskExecutor;
+    private final ArticleTagMapper articleTagMapper;
+    private final IImageReferenceService imageReferenceService;
 
     @Autowired
     public ArticleServiceImpl(
             IRedisService redisService,
             CategoryMapper categoryMapper,
             TagMapper tagMapper,
-            UploadStrategyContext uploadStrategyContext
-    ) {
-
+            UploadStrategyContext uploadStrategyContext,
+            Executor asyncTaskExecutor,
+            ArticleTagMapper articleTagMapper,
+            IImageReferenceService imageReferenceService) {
         this.redisService = redisService;
         this.categoryMapper = categoryMapper;
         this.tagMapper = tagMapper;
         this.uploadStrategyContext = uploadStrategyContext;
+        this.asyncTaskExecutor = asyncTaskExecutor;
+        this.articleTagMapper = articleTagMapper;
+        this.imageReferenceService = imageReferenceService;
     }
 
     /**
@@ -77,32 +87,35 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      * @return 文章列表DTO
      */
     @Override
-    public PageResultDTO<ArticleAdminDTO> listArticlesAdminDTOs(ConditionVO conditionVO) {
-        CompletableFuture<Long> asyncCount = CompletableFuture.supplyAsync(
-                () -> baseMapper.countArticleAdmins(conditionVO));
-        Page<ArticleAdminDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
-        var articles = baseMapper.listArticlesAdmins(page, conditionVO).getRecords();
-        Map<Long, Double> viewsCountMap = redisService.zAllScore(ARTICLE_VIEWS_COUNT).entrySet().stream()
-                .collect(Collectors.toMap(
-                        // 解决redis默认将数字key转为Integer类型的问题
-                        entry -> RedisUtil.getLongValue(entry.getKey()),
-                        Map.Entry::getValue
-                ));
-        var articleAdminDTOS = articles
-                .stream()
-                .peek(articleAdminDTO -> {
-                    Double viewsCount = viewsCountMap.get(articleAdminDTO.getId());
-                    if (Objects.nonNull(viewsCount)) {
-                        articleAdminDTO.setViewsCount(viewsCount.longValue());
-                    }
+    public PageResult<ArticleAdminDTO> listArticlesAdminDTOs(ConditionVO conditionVO) {
+        return CompletableFuture.supplyAsync(
+                        () -> {
+                            Page<ArticleAdminDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
+                            return baseMapper.listArticlesAdmins(page, conditionVO);
+                        }, asyncTaskExecutor
+                ).thenApply(articles -> {
+                    Map<Long, Double> viewsCountMap = redisService.zAllScore(ARTICLE_VIEWS_COUNT).entrySet().stream()
+                            .collect(Collectors.toMap(
+                                    // 解决redis默认将数字key转为Integer类型的问题
+                                    entry -> RedisUtil.getLongValue(entry.getKey()),
+                                    Map.Entry::getValue
+                            ));
+                    return new PageResult<>(articles
+                            .getRecords()
+                            .stream()
+                            .peek(articleAdminDTO -> {
+                                Double viewsCount = viewsCountMap.get(articleAdminDTO.getId());
+                                if (Objects.nonNull(viewsCount)) {
+                                    articleAdminDTO.setViewsCount(viewsCount.longValue());
+                                }
+                            })
+                            .toList(), articles.getTotal());
                 })
-                .toList();
-        try {
-            return new PageResultDTO<>(articleAdminDTOS, asyncCount.get());
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("获取文章数量失败", e);
-            throw new GlobalException(ResponseInformation.GET_COUNT_ERROR);
-        }
+                .exceptionally(e -> {
+                    log.error("获取文章列表失败", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**
@@ -111,6 +124,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      * @param articleTopFeaturedVO 文章置顶和推荐VO
      */
     @Override
+    @Async("asyncTaskExecutor")
     public void updateArticleTopAndFeatured(ArticleTopFeaturedVO articleTopFeaturedVO) {
         Article article = Article.builder()
                 .id(articleTopFeaturedVO.getId())
@@ -128,14 +142,38 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      */
     @Override
     public ArticleAdminViewDTO getArticleAdminViewDTOById(Long articleId) {
-        Article article = baseMapper.selectById(articleId);
-        Category category = categoryMapper.selectById(article.getCategoryId());
-        String categoryName = Objects.isNull(category) ? null : category.getCategoryName();
-        List<String> tagNames = tagMapper.listTagNamesByArticleId(articleId);
-        ArticleAdminViewDTO articleAdminViewDTO = BeanCopyUtil.copyObject(article, ArticleAdminViewDTO.class);
-        articleAdminViewDTO.setCategoryName(categoryName);
-        articleAdminViewDTO.setTagNames(tagNames);
-        return articleAdminViewDTO;
+        // 异步获取文章信息
+        CompletableFuture<Article> articleFuture = CompletableFuture
+                .supplyAsync(() -> baseMapper.selectById(articleId), asyncTaskExecutor);
+        // 异步获取标签信息
+        CompletableFuture<List<String>> tagNamesFuture = CompletableFuture.supplyAsync(
+                () -> tagMapper.listTagNamesByArticleId(articleId), asyncTaskExecutor);
+        // 异步获取分类信息
+        CompletableFuture<String> categoryNameFuture = articleFuture.thenComposeAsync(article ->
+                CompletableFuture.supplyAsync(() -> {
+                    Category category = categoryMapper.selectById(article.getCategoryId());
+                    return Objects.isNull(category) ? null : category.getCategoryName();
+                }, asyncTaskExecutor)
+        );
+        // 合并结果
+        return CompletableFuture.allOf(articleFuture, categoryNameFuture, tagNamesFuture)
+                .thenApply(v -> {
+                    // 处理结果并构建 DTO
+                    Article article = articleFuture.join();
+                    String categoryName = categoryNameFuture.join();
+                    List<String> tagNames = tagNamesFuture.join();
+
+                    ArticleAdminViewDTO articleAdminViewDTO = BeanCopyUtil.copyObject(article, ArticleAdminViewDTO.class);
+                    articleAdminViewDTO.setCategoryName(categoryName);
+                    articleAdminViewDTO.setTagNames(tagNames);
+
+                    return articleAdminViewDTO;
+                })
+                .exceptionally(e -> {
+                    log.error("获取信息失败", e);
+                    throw new GlobalException(ResponseInformation.GET_INFO_ERROR);
+                })
+                .join();
     }
 
     /**
@@ -168,6 +206,28 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                                 .stream()
                                 .map(CompletableFuture::join)
                                 .toList()
-                );
+                ).exceptionally(e -> {
+                    log.error("async export articles failed", e);
+                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                });
+    }
+
+    /**
+     * 删除文章
+     *
+     * @param articleIds 文章id列表
+     */
+    @Override
+    @Async("asyncTaskExecutor")
+    public void deleteArticles(List<Long> articleIds) {
+        articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
+                .in(ArticleTag::getArticleId, articleIds));
+        // 检索文章图片引用并删除引用
+        imageReferenceService.deleteImageReference(
+                baseMapper.selectBatchIds(articleIds)
+                        .stream()
+                        .map(Article::getArticleCover)
+                        .toList());
+        baseMapper.deleteBatchIds(articleIds);
     }
 }

@@ -4,7 +4,7 @@ import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.ExceptionLogDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.service.IExceptionLogService;
@@ -44,7 +44,7 @@ public class ExceptionLogController {
      */
     @Operation(summary = "获取异常日志列表", description = "获取异常日志列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<ExceptionLogDTO>> listExceptionLogs(ConditionVO conditionVO) {
+    public Result<PageResult<ExceptionLogDTO>> listExceptionLogs(ConditionVO conditionVO) {
         return Result.success(exceptionLogService.listExceptionLogDTOs(conditionVO));
     }
 

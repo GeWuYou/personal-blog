@@ -1,5 +1,6 @@
-package com.gewuyou.blog.common.dto;
+package com.gewuyou.blog.common.entity;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,7 +8,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 页面结果 DTO
+ * 分页结果返回对象
  *
  * @author gewuyou
  * @since 2024-04-23 下午10:53:04
@@ -15,7 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @Builder
-public class PageResultDTO<T> {
+public class PageResult<T> {
     /**
      * 记录
      */
@@ -26,8 +27,13 @@ public class PageResultDTO<T> {
      */
     private Long count;
 
-    public PageResultDTO() {
+    public PageResult() {
         this.records = List.of();
         this.count = 0L;
+    }
+
+    public PageResult(Page<T> page) {
+        this.records = page.getRecords();
+        this.count = page.getTotal();
     }
 }

@@ -112,6 +112,8 @@ public enum ResponseInformation {
     FAILED_TO_UPDATE_WEBSITE_CONFIGURATION(4002, "更新网站配置失败"),
     IMPORT_ARTICLE_FAILED(4003, "导入文章失败"),
     GET_COUNT_ERROR(4004, "获取计数失败"),
+    GET_INFO_ERROR(4005, "获取信息失败"),
+    GET_ARTICLE_LIST_FAILED(4006, "获取文章列表失败"),
     /**
      * 验证错误
      */

@@ -5,7 +5,7 @@ import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.JobLogDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.JobLogSearchVO;
@@ -43,7 +43,7 @@ public class JobLogController {
      */
     @Operation(summary = "获取定时任务日志列表", description = "获取定时任务日志列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<JobLogDTO>> listJobLogs(JobLogSearchVO jobLogSearchVO) {
+    public Result<PageResult<JobLogDTO>> listJobLogs(JobLogSearchVO jobLogSearchVO) {
         return Result.success(jobLogService.listJobLogDTOs(jobLogSearchVO));
     }
 

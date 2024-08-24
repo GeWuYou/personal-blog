@@ -202,7 +202,7 @@ export default {
       } else {
         param = { data: [id] }
       }
-      _delete('/admin/role', param.data, (_, message) => {
+      _delete('/admin/role', param, (_, message) => {
         this.$notify.success({
           title: '成功',
           message: message

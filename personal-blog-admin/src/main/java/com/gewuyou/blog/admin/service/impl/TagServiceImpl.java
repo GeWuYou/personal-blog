@@ -8,9 +8,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.ArticleTagMapper;
 import com.gewuyou.blog.admin.mapper.TagMapper;
 import com.gewuyou.blog.admin.service.ITagService;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TagAdminDTO;
 import com.gewuyou.blog.common.dto.TagOptionDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.ArticleTag;
@@ -19,10 +19,12 @@ import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.TagVO;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * <p>
@@ -48,16 +50,15 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
      * @return 标签列表
      */
     @Override
-    public PageResultDTO<TagAdminDTO> listTagsAdminDTOs(ConditionVO conditionVO) {
-        Long count = baseMapper.selectCount(new LambdaQueryWrapper<Tag>()
-                .like(StringUtils.isNotBlank(conditionVO.getKeywords()),
-                        Tag::getTagName, conditionVO.getKeywords()));
-        if (count == 0) {
-            return new PageResultDTO<>();
-        }
-        Page<TagAdminDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
-        var tagAdminDTOs = baseMapper.listTags(page, conditionVO).getRecords();
-        return new PageResultDTO<>(tagAdminDTOs, count);
+    public PageResult<TagAdminDTO> listTagsAdminDTOs(ConditionVO conditionVO) {
+        return CompletableFuture.supplyAsync(
+                        () -> baseMapper.listTags(new Page<>(PageUtil.getCurrent(), PageUtil.getSize()), conditionVO))
+                .thenApply(PageResult::new)
+                .exceptionally(e -> {
+                    log.error("获取标签列表失败!", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**
@@ -81,6 +82,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
      * @param tagVO 标签信息
      */
     @Override
+    @Async("asyncTaskExecutor")
     public void saveOrUpdateTag(TagVO tagVO) {
         Tag existTag = baseMapper.selectOne(new LambdaQueryWrapper<Tag>()
                 .select(Tag::getId)
@@ -102,6 +104,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
      * @param tagIds 标签id列表
      */
     @Override
+    @Async("asyncTaskExecutor")
     public void deleteTag(List<Long> tagIds) {
         Long count = articleTagMapper.selectCount(new LambdaQueryWrapper<ArticleTag>()
                 .in(ArticleTag::getTagId, tagIds));

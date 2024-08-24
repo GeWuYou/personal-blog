@@ -21,14 +21,6 @@ import org.apache.ibatis.annotations.Param;
 public interface ArticleMapper extends BaseMapper<Article> {
 
     /**
-     * 根据条件分页查询查询后台文章数量
-     *
-     * @param conditionVO 条件VO
-     * @return 文章卡片列表DTO
-     */
-    Long countArticleAdmins(@Param("conditionVO") ConditionVO conditionVO);
-
-    /**
      * 根据条件分页查询文章列表
      *
      * @param page        分页对象

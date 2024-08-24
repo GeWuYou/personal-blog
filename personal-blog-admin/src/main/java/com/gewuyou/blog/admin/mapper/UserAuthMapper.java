@@ -27,7 +27,5 @@ public interface UserAuthMapper extends BaseMapper<UserAuth> {
 
     void updatePasswordByEmail(@Param("email") String email, @Param("password") String password);
 
-    Integer countUsers(@Param("conditionVO") ConditionVO conditionVO);
-
     Page<UserAdminDTO> listUsers(Page<UserAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
 }

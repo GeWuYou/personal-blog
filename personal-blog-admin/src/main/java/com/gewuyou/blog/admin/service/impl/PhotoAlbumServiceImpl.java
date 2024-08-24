@@ -3,7 +3,6 @@ package com.gewuyou.blog.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.PhotoAlbumMapper;
@@ -12,22 +11,26 @@ import com.gewuyou.blog.admin.service.IImageReferenceService;
 import com.gewuyou.blog.admin.service.IPhotoAlbumService;
 import com.gewuyou.blog.common.annotation.ReadLock;
 import com.gewuyou.blog.common.constant.RedisConstant;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.PhotoAlbumAdminDTO;
 import com.gewuyou.blog.common.dto.PhotoAlbumDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Photo;
 import com.gewuyou.blog.common.model.PhotoAlbum;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.CompletableFutureUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.PhotoAlbumVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import static com.gewuyou.blog.common.constant.CommonConstant.FALSE;
 import static com.gewuyou.blog.common.constant.CommonConstant.TRUE;
@@ -45,11 +48,13 @@ public class PhotoAlbumServiceImpl extends ServiceImpl<PhotoAlbumMapper, PhotoAl
 
     private final PhotoMapper photoMapper;
     private final IImageReferenceService imageReferenceService;
+    private final Executor asyncTaskExecutor;
 
     @Autowired
-    public PhotoAlbumServiceImpl(PhotoMapper photoMapper, IImageReferenceService imageReferenceService) {
+    public PhotoAlbumServiceImpl(PhotoMapper photoMapper, IImageReferenceService imageReferenceService, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.photoMapper = photoMapper;
         this.imageReferenceService = imageReferenceService;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     /**
@@ -76,8 +81,19 @@ public class PhotoAlbumServiceImpl extends ServiceImpl<PhotoAlbumMapper, PhotoAl
         } else {
             oldPhotoAlbumCover = existPhotoAlbum.getAlbumCover();
         }
-        imageReferenceService.handleImageReference(newPhotoAlbumCover, oldPhotoAlbumCover);
-        this.saveOrUpdate(photoAlbum);
+        CompletableFuture<Void> asyncHandleImageReference = CompletableFuture
+                .runAsync(
+                        () -> imageReferenceService
+                                .handleImageReference(newPhotoAlbumCover, oldPhotoAlbumCover));
+        CompletableFuture<Void> asyncSaveOrUpdate = CompletableFuture
+                .runAsync(
+                        () -> this.saveOrUpdate(photoAlbum), asyncTaskExecutor);
+        CompletableFuture
+                .allOf(asyncHandleImageReference, asyncSaveOrUpdate)
+                .exceptionally(e -> {
+                    log.error("async exception", e);
+                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                });
     }
 
     /**
@@ -87,17 +103,16 @@ public class PhotoAlbumServiceImpl extends ServiceImpl<PhotoAlbumMapper, PhotoAl
      * @return 分页结果
      */
     @Override
-    public PageResultDTO<PhotoAlbumAdminDTO> listPhotoAlbumsAdminDTOs(ConditionVO conditionVO) {
-        Long count = baseMapper.selectCount(new LambdaQueryWrapper<PhotoAlbum>()
-                .eq(PhotoAlbum::getIsDelete, FALSE)
-                .like(StringUtils.isNotBlank(conditionVO.getKeywords()), PhotoAlbum::getAlbumName, conditionVO.getKeywords())
-        );
-        if (count == 0) {
-            return new PageResultDTO<>();
-        }
-        Page<PhotoAlbumAdminDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
-        List<PhotoAlbumAdminDTO> photoAlbumAdminDTOs = baseMapper.listPhotoAlbumsAdminDTOs(page, conditionVO);
-        return new PageResultDTO<>(photoAlbumAdminDTOs, page.getTotal());
+    public PageResult<PhotoAlbumAdminDTO> listPhotoAlbumsAdminDTOs(ConditionVO conditionVO) {
+        return CompletableFuture.supplyAsync(
+                        () -> baseMapper.listPhotoAlbumsAdminDTOs(new Page<>(PageUtil.getCurrent(), PageUtil.getSize()), conditionVO)
+                        , asyncTaskExecutor)
+                .thenApply(PageResult::new)
+                .exceptionally(e -> {
+                    log.error("获取后台相册列表失败", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**
@@ -122,14 +137,23 @@ public class PhotoAlbumServiceImpl extends ServiceImpl<PhotoAlbumMapper, PhotoAl
      */
     @Override
     public PhotoAlbumAdminDTO getPhotoAlbumByIdAdminDTO(Integer albumId) {
-        PhotoAlbum photoAlbum = baseMapper.selectById(albumId);
-        Long count = baseMapper.selectCount(new LambdaQueryWrapper<PhotoAlbum>()
-                .eq(PhotoAlbum::getId, albumId)
-                .eq(PhotoAlbum::getIsDelete, FALSE)
-        );
-        PhotoAlbumAdminDTO photoAlbumAdminDTO = BeanCopyUtil.copyObject(photoAlbum, PhotoAlbumAdminDTO.class);
-        photoAlbumAdminDTO.setPhotoCount(count);
-        return photoAlbumAdminDTO;
+        return CompletableFuture
+                .supplyAsync(
+                        () -> baseMapper.selectById(albumId), asyncTaskExecutor)
+                .thenCombine(CompletableFuture.supplyAsync(
+                        () -> baseMapper.selectCount(new LambdaQueryWrapper<PhotoAlbum>()
+                        .eq(PhotoAlbum::getId, albumId)
+                        .eq(PhotoAlbum::getIsDelete, FALSE)
+                ), asyncTaskExecutor), (photoAlbum, count) -> {
+                    PhotoAlbumAdminDTO photoAlbumAdminDTO = BeanCopyUtil.copyObject(photoAlbum, PhotoAlbumAdminDTO.class);
+                    photoAlbumAdminDTO.setPhotoCount(count);
+                    return photoAlbumAdminDTO;
+                })
+                .exceptionally(e -> {
+                    log.error("async exception", e);
+                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                })
+                .join();
     }
 
     /**
@@ -145,19 +169,19 @@ public class PhotoAlbumServiceImpl extends ServiceImpl<PhotoAlbumMapper, PhotoAl
         );
         // 判断相册下是否有照片存在,如果存在则逻辑删除，不存在说明是空相册物理删除
         if (count > 0) {
-            baseMapper
+            CompletableFutureUtil.runAsyncWithExceptionAlly(() -> baseMapper
                     .updateById(
                             PhotoAlbum.builder()
                                     .id(albumId)
                                     .isDelete(TRUE)
                                     .build()
-                    );
-            photoMapper.update(new Photo(), new LambdaUpdateWrapper<Photo>()
+                    ), asyncTaskExecutor);
+            CompletableFutureUtil.runAsyncWithExceptionAlly(() -> photoMapper.update(new Photo(), new LambdaUpdateWrapper<Photo>()
                     .set(Photo::getIsDelete, TRUE)
-                    .eq(Photo::getAlbumId, albumId));
+                    .eq(Photo::getAlbumId, albumId)), asyncTaskExecutor);
         } else {
-            imageReferenceService.deleteImageReference(baseMapper.selectById(albumId).getAlbumCover());
-            baseMapper.deleteById(albumId);
+            CompletableFutureUtil.runAsyncWithExceptionAlly(() -> imageReferenceService.deleteImageReference(baseMapper.selectById(albumId).getAlbumCover()), asyncTaskExecutor);
+            CompletableFutureUtil.runAsyncWithExceptionAlly(() -> baseMapper.deleteById(albumId), asyncTaskExecutor);
         }
     }
 }

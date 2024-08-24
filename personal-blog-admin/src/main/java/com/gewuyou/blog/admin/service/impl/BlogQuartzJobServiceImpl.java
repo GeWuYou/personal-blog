@@ -17,7 +17,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -104,10 +103,9 @@ public class BlogQuartzJobServiceImpl implements IBlogQuartzJobService {
             if (response.getStatusCode().is2xxSuccessful()) {
                 log.info("刷新配置成功");
             } else {
-                log.debug("刷新配置失败");
                 throw new RuntimeException("刷新配置失败");
             }
-        } catch (RestClientException e) {
+        } catch (Exception e) {
             log.error("刷新配置失败", e);
             throw new RuntimeException("刷新配置失败", e);
         }

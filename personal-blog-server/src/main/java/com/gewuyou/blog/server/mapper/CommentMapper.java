@@ -33,7 +33,7 @@ public interface CommentMapper extends BaseMapper<Comment> {
      * @param commentVO 评论VO
      * @return 评论列表
      */
-    List<CommentDTO> listCommentDTOs(Page<CommentDTO> page, @Param("commentVO") CommentVO commentVO);
+    Page<CommentDTO> listCommentDTOs(Page<CommentDTO> page, @Param("commentVO") CommentVO commentVO);
 
 
     /**

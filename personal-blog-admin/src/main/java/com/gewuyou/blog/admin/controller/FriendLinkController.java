@@ -5,7 +5,7 @@ import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.FriendLinkAdminDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -44,7 +44,7 @@ public class FriendLinkController {
      */
     @Operation(summary = "查看后台友链列表", description = "查看后台友链列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<FriendLinkAdminDTO>> listFriendLinkDTO(ConditionVO conditionVO) {
+    public Result<PageResult<FriendLinkAdminDTO>> listFriendLinkDTO(ConditionVO conditionVO) {
         return Result.success(friendLinkService.listFriendLinksAdminDTOs(conditionVO));
     }
 

@@ -6,7 +6,7 @@ import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.CategoryAdminDTO;
 import com.gewuyou.blog.common.dto.CategoryOptionDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.CategoryVO;
@@ -43,7 +43,7 @@ public class CategoryController {
      */
     @Operation(summary = "查看后台分类列表", description = "查看后台分类列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<CategoryAdminDTO>> listCategoriesAdmin(ConditionVO conditionVO) {
+    public Result<PageResult<CategoryAdminDTO>> listCategoriesAdmin(ConditionVO conditionVO) {
         return Result.success(categoryService.listCategoryAdminDTOs(conditionVO));
     }
 

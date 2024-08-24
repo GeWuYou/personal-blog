@@ -8,7 +8,7 @@ import com.gewuyou.blog.admin.mapper.JobMapper;
 import com.gewuyou.blog.admin.service.IJobService;
 import com.gewuyou.blog.admin.util.ScheduleUtil;
 import com.gewuyou.blog.common.dto.JobDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.enums.JobStatusEnum;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
@@ -26,6 +26,8 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -33,7 +35,7 @@ import org.springframework.util.Assert;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 
 /**
  * <p>
@@ -49,10 +51,12 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
 
 
     private final Scheduler scheduler;
+    private final Executor asyncTaskExecutor;
 
     @Autowired
-    public JobServiceImpl(Scheduler scheduler) {
+    public JobServiceImpl(Scheduler scheduler, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.scheduler = scheduler;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     /**
@@ -136,15 +140,16 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
      * @return 定时任务列表
      */
     @Override
-    public PageResultDTO<JobDTO> listJobDTOs(JobSearchVO jobSearchVO) {
-        CompletableFuture<Long> asyncCount = CompletableFuture.supplyAsync(() -> baseMapper.countJobs(jobSearchVO));
-        Page<JobDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
-        Page<JobDTO> jobDTOs = baseMapper.listJobs(page, jobSearchVO);
-        try {
-            return new PageResultDTO<>(jobDTOs.getRecords(), asyncCount.get());
-        } catch (InterruptedException | ExecutionException e) {
-            throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
-        }
+    public PageResult<JobDTO> listJobDTOs(JobSearchVO jobSearchVO) {
+        return CompletableFuture.supplyAsync(() ->
+                                baseMapper.listJobDTOs(new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize()), jobSearchVO)
+                        , asyncTaskExecutor)
+                .thenApply(PageResult::new)
+                .exceptionally(e -> {
+                    log.error("分页查询定时任务列表失败", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**
@@ -202,8 +207,9 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, Job> implements IJobS
      * @return 定时任务组名列表
      */
     @Override
-    public List<String> listJobGroups() {
-        return baseMapper.listJobGroups();
+    @Async("asyncTaskExecutor")
+    public CompletableFuture<List<String>> listJobGroups() {
+        return CompletableFuture.completedFuture(baseMapper.listJobGroups());
     }
 
     /**

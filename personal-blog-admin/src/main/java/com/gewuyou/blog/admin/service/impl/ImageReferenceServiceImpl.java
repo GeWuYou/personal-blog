@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.ImageReferenceMapper;
 import com.gewuyou.blog.admin.service.IImageReferenceService;
@@ -14,6 +15,9 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
+import static com.gewuyou.blog.common.constant.CommonConstant.FALSE;
+import static com.gewuyou.blog.common.constant.CommonConstant.TRUE;
 
 /**
  * 图像引用服务实现
@@ -40,8 +44,25 @@ public class ImageReferenceServiceImpl extends ServiceImpl<ImageReferenceMapper,
         ImageReference imageReference = ImageReference
                 .builder()
                 .imageUrl(imageUrl)
+                .isDelete(FALSE)
                 .build();
         baseMapper.insert(imageReference);
+    }
+
+    /**
+     * 批量添加图像引用
+     *
+     * @param imageUrls 图像引用地址列表
+     */
+    @Override
+    public void addImageReference(List<String> imageUrls) {
+        if (CollectionUtils.isEmpty(imageUrls)) {
+            return;
+        }
+        List<ImageReference> imageReferences = imageUrls.stream()
+                .map(imageUrl -> ImageReference.builder().isDelete(FALSE).imageUrl(imageUrl).build())
+                .toList();
+        baseMapper.insertBatch(imageReferences);
     }
 
     /**
@@ -55,8 +76,26 @@ public class ImageReferenceServiceImpl extends ServiceImpl<ImageReferenceMapper,
         if (Objects.isNull(imageReference)) {
             return;
         }
-        imageReference.setIsDelete(Byte.valueOf("1"));
+        imageReference.setIsDelete(TRUE);
         baseMapper.updateById(imageReference);
+    }
+
+    /**
+     * 批量逻辑删除图像引用
+     *
+     * @param imageUrls 图像引用地址列表
+     */
+    @Override
+    public void deleteImageReference(List<String> imageUrls) {
+        if (CollectionUtils.isEmpty(imageUrls)) {
+            return;
+        }
+        List<ImageReference> imageReferences = baseMapper.selectByImageUrls(imageUrls);
+        if (CollectionUtils.isEmpty(imageReferences)) {
+            return;
+        }
+        imageReferences.forEach(imageReference -> imageReference.setIsDelete(TRUE));
+        baseMapper.updateBatchById(imageReferences);
     }
 
     /**
@@ -69,11 +108,11 @@ public class ImageReferenceServiceImpl extends ServiceImpl<ImageReferenceMapper,
         return baseMapper
                 .selectList(new LambdaQueryWrapper<ImageReference>()
                         .select(ImageReference::getId, ImageReference::getImageUrl)
-                        .eq(ImageReference::getIsDelete, Byte.valueOf("1")));
+                        .eq(ImageReference::getIsDelete, TRUE));
     }
 
     /**
-     * 处理图片引用的增减逻辑
+     * 处理图片引用的增删逻辑
      *
      * @param newImageUrl 新的图片URL
      * @param oldImageUrl 旧的图片URL
@@ -97,7 +136,7 @@ public class ImageReferenceServiceImpl extends ServiceImpl<ImageReferenceMapper,
     }
 
     /**
-     * 处理图片引用的增减逻辑
+     * 处理图片引用的增删逻辑
      *
      * @param newImageUrls 新图片URL列表
      * @param oldImageUrls 旧图片URL列表
