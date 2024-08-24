@@ -18,7 +18,8 @@ export default defineComponent({
     const appStore = useAppStore()
     return {
       url: toRefs(props).url,
-      default: computed(() => appStore.websiteConfig.touristAvatar || 'https://www.gravatar.com/avatar?d=mp')
+      // fixme: 默认头像
+      default: computed(() => appStore.websiteConfig.touristAvatar || '')
     }
   }
 })
