@@ -24,10 +24,14 @@ import com.gewuyou.blog.common.vo.IsHiddenVO;
 import com.gewuyou.blog.common.vo.MenuVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static com.gewuyou.blog.common.constant.CommonConstant.COMPONENT;
@@ -44,12 +48,14 @@ import static com.gewuyou.blog.common.constant.CommonConstant.COMPONENT;
 public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IMenuService {
 
     private final RoleMenuMapper roleMenuMapper;
+    private final Executor asyncTaskExecutor;
 
     @Autowired
     public MenuServiceImpl(
-            RoleMenuMapper roleMenuMapper
-    ) {
+            RoleMenuMapper roleMenuMapper,
+            @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.roleMenuMapper = roleMenuMapper;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     /**
@@ -59,14 +65,27 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
      */
     @Override
     public List<UserMenuDTO> listUserMenus() {
-        // 获取用户菜单列表
-        List<Menu> menus = baseMapper.listMenusByUserInfoId(UserUtil.getUserDetailsDTO().getUserInfoId());
-        // 筛选出顶级菜单
-        var topMenuDTOs = listTopMenuDTOs(menus);
-        // 筛选出分组后的二级菜单
-        var menuMapDTOs = listMenuDTOChildrenMap(menus);
-        // 将顶级菜单列表转换为 UserMenuDTO 对象列表
-        return convertUserMenuList(topMenuDTOs, menuMapDTOs);
+        return CompletableFuture.supplyAsync(
+                        // 获取用户菜单列表
+                        () -> baseMapper.listMenusByUserInfoId(UserUtil.getUserDetailsDTO().getUserInfoId()),
+                        asyncTaskExecutor)
+                .thenCompose(menus ->
+                        CompletableFuture
+                                // 筛选出顶级菜单
+                                .supplyAsync(() -> listTopMenuDTOs(menus),
+                                        asyncTaskExecutor)
+                                .thenCombine(
+                                        // 筛选出分组后的二级菜单
+                                        CompletableFuture.supplyAsync(() -> listMenuDTOChildrenMap(menus),
+                                                asyncTaskExecutor),
+                                        // 将顶级菜单列表转换为 UserMenuDTO 对象列表
+                                        this::convertUserMenuList
+                                ))
+                .exceptionally(e -> {
+                    log.error("获取用户菜单列表失败", e);
+                    return List.of();
+                })
+                .join();
     }
 
     /**
@@ -77,33 +96,49 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
      */
     @Override
     public List<MenuDTO> listMenus(ConditionVO conditionVO) {
-        // 根据搜索内容进行模糊查询获取符合条件的菜单列表
-        List<Menu> menus = baseMapper
-                .selectList(new LambdaQueryWrapper<Menu>()
-                        .like(
-                                StringUtils
-                                        .isNotBlank(conditionVO.getKeywords()),
-                                Menu::getName,
-                                conditionVO.getKeywords()));
-        // 筛选出顶级菜单
-        var topMenus = listTopMenuDTOs(menus);
-        // 筛选出分组后的二级菜单并与关联顶级菜单id
-        var childrenMap = listMenuDTOChildrenMap(menus);
-        // 将子菜单绑定到父菜单下
-        var menuDTOs = CollectionUtil.processItemsWithChildren(topMenus, childrenMap, MenuDTO::getId, MenuDTO::setChildren, true);
-        // 在childrenMap中剩余菜单是没有顶级菜单的，需要单独添加到菜单列表中
-        if (CollectionUtils.isNotEmpty(childrenMap)) {
-            menuDTOs
-                    .addAll(
-                            childrenMap
-                                    .values()
-                                    .stream()
-                                    .flatMap(Collection::stream)
-                                    .toList()
-                    );
-        }
-        // 返回菜单列表
-        return menuDTOs;
+        return CompletableFuture.supplyAsync(
+                        // 根据搜索内容进行模糊查询获取符合条件的菜单列表
+                        () -> baseMapper
+                                .selectList(new LambdaQueryWrapper<Menu>()
+                                        .like(
+                                                StringUtils
+                                                        .isNotBlank(conditionVO.getKeywords()),
+                                                Menu::getName,
+                                                conditionVO.getKeywords())), asyncTaskExecutor)
+                .thenCompose(menus ->
+                        CompletableFuture
+                                .supplyAsync(
+                                        // 筛选出顶级菜单
+                                        () -> listTopMenuDTOs(menus),
+                                        asyncTaskExecutor)
+                                .thenCombine(CompletableFuture
+                                                .supplyAsync(
+                                                        // 筛选出分组后的二级菜单并与关联顶级菜单id
+                                                        () -> listMenuDTOChildrenMap(menus), asyncTaskExecutor),
+                                        (topMenus, childrenMap) -> {
+                                            // 将子菜单绑定到父菜单下
+                                            List<MenuDTO> menuDTOs = CollectionUtil.processItemsWithChildren(
+                                                    topMenus, childrenMap, MenuDTO::getId,
+                                                    MenuDTO::setChildren, true);
+                                            // 在childrenMap中剩余菜单是没有顶级菜单的，需要单独添加到菜单列表中
+                                            if (CollectionUtils.isNotEmpty(childrenMap)) {
+                                                menuDTOs
+                                                        .addAll(
+                                                                childrenMap
+                                                                        .values()
+                                                                        .stream()
+                                                                        .flatMap(Collection::stream)
+                                                                        .toList()
+                                                        );
+                                            }
+                                            return menuDTOs;
+                                        }))
+                .exceptionally(e -> {
+                    log.error("获取菜单列表失败", e);
+                    return List.of();
+                })
+                // 返回菜单列表
+                .join();
     }
 
     /**
@@ -124,6 +159,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
      * @param isHiddenVO 菜单是否隐藏信息
      */
     @Override
+    @Async("asyncTaskExecutor")
     public void updateMenuIsHidden(IsHiddenVO isHiddenVO) {
         Menu menu = BeanCopyUtil.copyObject(isHiddenVO, Menu.class);
         this.updateById(menu);
@@ -162,39 +198,49 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
      */
     @Override
     public List<LabelOptionDTO> listRoleMenuOptions() {
-        // 获取菜单列表信息
-        List<Menu> menus = baseMapper.selectList(
-                new LambdaQueryWrapper<Menu>()
-                        .select(Menu::getId, Menu::getName, Menu::getParentId, Menu::getOrderNum)
-        );
-        // 筛选出顶级菜单
-        var topMenus = listTopMenuDTOs(menus);
-        // 筛选出分组后的二级菜单并与关联顶级菜单id
-        var childrenMap = listMenuDTOChildrenMap(menus);
-        return topMenus
-                .stream()
-                .map(
-                        item -> {
-                            List<LabelOptionDTO> list = new ArrayList<>();
-                            var children = childrenMap.get(item.getId());
-                            // 判断当前需要转换的顶级菜单是否有子菜单
-                            if (CollectionUtils.isNotEmpty(children)) {
-                                list = children
+        return CompletableFuture.supplyAsync(
+                        // 获取菜单列表信息
+                        () -> baseMapper.selectList(
+                                new LambdaQueryWrapper<Menu>()
+                                        .select(Menu::getId, Menu::getName, Menu::getParentId, Menu::getOrderNum)
+                        ), asyncTaskExecutor)
+                .thenCompose(menus -> CompletableFuture.supplyAsync(
+                                // 筛选出顶级菜单
+                                () ->
+                                        listTopMenuDTOs(menus),
+                                asyncTaskExecutor
+                        ).thenCombine(
+                                // 筛选出分组后的二级菜单并与关联顶级菜单id
+                                CompletableFuture.supplyAsync(() -> listMenuDTOChildrenMap(menus), asyncTaskExecutor),
+                                (topMenus, childrenMap) -> topMenus
                                         .stream()
-                                        .sorted(Comparator.comparing(MenuDTO::getOrderNum))
                                         .map(
-                                                menu -> LabelOptionDTO.builder()
-                                                        .id(menu.getId())
-                                                        .label(menu.getName())
-                                                        .build())
-                                        .toList();
-                            }
-                            return LabelOptionDTO.builder()
-                                    .id(item.getId())
-                                    .label(item.getName())
-                                    .children(list)
-                                    .build();
-                        }).toList();
+                                                item -> {
+                                                    List<LabelOptionDTO> list = new ArrayList<>();
+                                                    var children = childrenMap.get(item.getId());
+                                                    // 判断当前需要转换的顶级菜单是否有子菜单
+                                                    if (CollectionUtils.isNotEmpty(children)) {
+                                                        list = children
+                                                                .stream()
+                                                                .sorted(Comparator.comparing(MenuDTO::getOrderNum))
+                                                                .map(
+                                                                        menu -> LabelOptionDTO.builder()
+                                                                                .id(menu.getId())
+                                                                                .label(menu.getName())
+                                                                                .build())
+                                                                .toList();
+                                                    }
+                                                    return LabelOptionDTO.builder()
+                                                            .id(item.getId())
+                                                            .label(item.getName())
+                                                            .children(list)
+                                                            .build();
+                                                }).toList()
+                        )
+                ).exceptionally(e -> {
+                    log.error("获取角色菜单选项列表失败", e);
+                    return List.of();
+                }).join();
     }
 
     /**
@@ -281,7 +327,6 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                 .stream()
                 // 过滤出一级菜单
                 .filter(item -> Objects.isNull(item.getParentId()))
-
                 // 排序
                 .sorted(Comparator.comparingInt(Menu::getOrderNum))
                 .map(item -> {

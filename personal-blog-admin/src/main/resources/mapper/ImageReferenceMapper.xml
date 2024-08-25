@@ -1,6 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.admin.mapper.ImageReferenceMapper">
+    <insert id="insertBatch">
+        INSERT INTO tb_image_reference (image_url, is_delete)
+        VALUES
+        <foreach collection="imageReferences" item="item" separator=",">
+            (#{item.imageUrl}, #{item.isDelete})
+        </foreach>
+    </insert>
+    <update id="updateBatchById">
+        UPDATE tb_image_reference
+        <set>
+            <foreach collection="imageReferences" item="item" separator=",">
+                is_delete = CASE id
+                WHEN #{item.id} THEN #{item.isDelete}
+                ELSE is_delete
+                END,
+                image_url = CASE id
+                WHEN #{item.id} THEN #{item.imageUrl}
+                ELSE image_url
+                END
+            </foreach>
+        </set>
+        WHERE id IN
+        <foreach collection="imageReferences" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </update>
 
     <select id="selectByImageUrl" resultType="com.gewuyou.blog.common.model.ImageReference">
         SELECT id,
@@ -8,5 +34,15 @@
                is_delete
         FROM tb_image_reference
         WHERE image_url = #{imageUrl}
+    </select>
+    <select id="selectByImageUrls" resultType="com.gewuyou.blog.common.model.ImageReference">
+        SELECT id,
+        image_url,
+        is_delete
+        FROM tb_image_reference
+        WHERE image_url IN
+        <foreach collection="imageUrls" item="imageUrl" open="(" separator="," close=")">
+            #{imageUrl}
+        </foreach>
     </select>
 </mapper>

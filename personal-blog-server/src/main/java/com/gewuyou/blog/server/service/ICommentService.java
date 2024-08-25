@@ -4,8 +4,8 @@ package com.gewuyou.blog.server.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.dto.CommentAdminDTO;
 import com.gewuyou.blog.common.dto.CommentDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.ReplyDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.Comment;
 import com.gewuyou.blog.common.vo.CommentVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -38,7 +38,7 @@ public interface ICommentService extends IService<Comment> {
      * @param commentVO 评论VO
      * @return 评论列表
      */
-    PageResultDTO<CommentDTO> listCommentDTOs(CommentVO commentVO);
+    PageResult<CommentDTO> listCommentDTOs(CommentVO commentVO);
 
     /**
      * 根据评论ID获取回复列表
@@ -61,7 +61,7 @@ public interface ICommentService extends IService<Comment> {
      * @param conditionVO 条件
      * @return 评论列表
      */
-    PageResultDTO<CommentAdminDTO> listCommentsAdminDTOs(ConditionVO conditionVO);
+    PageResult<CommentAdminDTO> listCommentsAdminDTOs(ConditionVO conditionVO);
 
     /**
      * 审核评论

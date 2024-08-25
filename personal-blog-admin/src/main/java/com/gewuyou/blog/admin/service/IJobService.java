@@ -3,7 +3,7 @@ package com.gewuyou.blog.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.dto.JobDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.Job;
 import com.gewuyou.blog.common.vo.JobRunVO;
 import com.gewuyou.blog.common.vo.JobSearchVO;
@@ -11,6 +11,7 @@ import com.gewuyou.blog.common.vo.JobStatusVO;
 import com.gewuyou.blog.common.vo.JobVO;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * <p>
@@ -57,7 +58,7 @@ public interface IJobService extends IService<Job> {
      * @param jobSearchVO 定时任务查询条件
      * @return 定时任务列表
      */
-    PageResultDTO<JobDTO> listJobDTOs(JobSearchVO jobSearchVO);
+    PageResult<JobDTO> listJobDTOs(JobSearchVO jobSearchVO);
 
     /**
      * 更新定时任务状态
@@ -78,5 +79,5 @@ public interface IJobService extends IService<Job> {
      *
      * @return 定时任务组名列表
      */
-    List<String> listJobGroups();
+    CompletableFuture<List<String>> listJobGroups();
 }

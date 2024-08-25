@@ -19,12 +19,25 @@ public interface IImageReferenceService {
     void addImageReference(String imageUrl);
 
     /**
+     * 批量添加图像引用
+     *
+     * @param imageUrls 图像引用地址列表
+     */
+    void addImageReference(List<String> imageUrls);
+
+    /**
      * 删除图像引用
      *
      * @param imageUrl 图像引用地址
      */
     void deleteImageReference(String imageUrl);
 
+    /**
+     * 批量删除图像引用
+     *
+     * @param imageUrls 图像引用地址列表
+     */
+    void deleteImageReference(List<String> imageUrls);
     /**
      * 获取所有图像引用
      *
@@ -46,5 +59,5 @@ public interface IImageReferenceService {
      * @param newImageUrls 新的图片URL列表
      * @param oldImageUrls 旧的图片URL列表
      */
-    void handleImageReferences(List<String> newImageUrls, List<String> oldImageUrls);
+    void handleImageReference(List<String> newImageUrls, List<String> oldImageUrls);
 }

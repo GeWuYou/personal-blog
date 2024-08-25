@@ -50,6 +50,36 @@ function _post(url, data, success, failure = defaultFailureMessage, error = defa
 }
 
 /**
+ * 异步post请求（上传文件）
+ * @param url 请求url
+ * @param data 提交的数据
+ * @param success 成功响应回调
+ * @param failure 失败响应回调
+ * @param error 错误响应回调
+ * @param callback 回调函数
+ * @private
+ */
+function _postFile(url, data, success, failure = defaultFailureMessage, error = defaultErrorMessage, callback = () => {
+}) {
+  // 发送post异步请求
+  instance.post(url, data, {
+    // 设置提交方式为multipart/form-data提交
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }).
+    // 设置回调函数
+    then(({ data }) => {
+      if (data.success) {
+        success(data.data, data.message, data.code)
+      } else {
+        (failure ?? defaultFailureMessage)(data.message, data.code)
+      }
+      callback()
+    }).catch(error)
+}
+
+/**
  * 异步get请求
  * @param url 请求url
  * @param data 请求参数
@@ -127,4 +157,4 @@ function _delete(url, params, success, failure = defaultFailureMessage, error = 
     }).catch(error)
 }
 
-export { _get, _post, _put, _delete }
+export { _get, _post, _put, _delete, _postFile }

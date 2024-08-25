@@ -243,7 +243,7 @@ export default {
   },
   computed: {
     avatarUpload() {
-      return this.baseUrl + '/admin/config/images'
+      return this.baseUrl + '/admin/website/config/images'
     }
   },
   methods: {
@@ -251,9 +251,6 @@ export default {
       _get('/server/website/config', {}, (data) => {
         this.websiteConfigForm = data
       })
-      // this.axios.get('/api/admin/website/config').then(({ data }) => {
-      //   this.websiteConfigForm = data.data
-      // })
     },
     handleAuthorAvatarSuccess(response) {
       this.websiteConfigForm.authorAvatar = response.data

@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.gewuyou.blog.common.constant.CommonConstant.TRUE;
+
 /**
  * 动态安全服务实现
  *
@@ -41,7 +43,7 @@ public class DynamicSecurityServiceImpl implements DynamicSecurityService {
                 sb.append(role).append(",");
             }
             // 匿名
-            if (resourceRoleDTO.getIsAnonymous().equals(Byte.valueOf("1"))) {
+            if (resourceRoleDTO.getIsAnonymous().equals(TRUE)) {
                 map.put(resourceRoleDTO.getUrl() + ":" + resourceRoleDTO.getRequestMethod(),
                         new SecurityConfig("anonymous"));
                 continue;

@@ -58,12 +58,11 @@ public class IdempotentAspect {
 
     private String getIdempotentKey(ProceedingJoinPoint joinPoint, HttpServletRequest request) {
         // 根据请求参数生成唯一键，可以根据实际情况调整
-        // 使用了mac地址、uri方法名和参数的哈希值作为键
+        // 使用 ip地址、uri方法名和参数的哈希值作为键
         var ip = IpUtil.getIpAddress(request);
-        var mac = IpUtil.getMACAddress(ip);
+        log.info("ip: {}", ip);
         var methodName = joinPoint.getSignature().getName();
         var params = Arrays.toString(joinPoint.getArgs());
-        log.info("mac: {}, method: {}, args: {}", mac, params, methodName);
-        return "idempotent:" + mac + ":" + methodName + ":" + params.hashCode();
+        return "idempotent:" + ip + ":" + methodName + ":" + params.hashCode();
     }
 }

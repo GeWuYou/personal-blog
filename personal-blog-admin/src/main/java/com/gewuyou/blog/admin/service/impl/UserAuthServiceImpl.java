@@ -1,6 +1,7 @@
 package com.gewuyou.blog.admin.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -13,7 +14,11 @@ import com.gewuyou.blog.admin.mapper.UserRoleMapper;
 import com.gewuyou.blog.admin.service.IUserAuthService;
 import com.gewuyou.blog.admin.strategy.context.LoginStrategyContext;
 import com.gewuyou.blog.common.constant.CommonConstant;
-import com.gewuyou.blog.common.dto.*;
+import com.gewuyou.blog.common.dto.EmailDTO;
+import com.gewuyou.blog.common.dto.UserAdminDTO;
+import com.gewuyou.blog.common.dto.UserAreaDTO;
+import com.gewuyou.blog.common.dto.UserInfoDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.enums.LoginTypeEnum;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.enums.RoleEnum;
@@ -26,16 +31,14 @@ import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.CommonUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
-import com.gewuyou.blog.common.vo.ConditionVO;
-import com.gewuyou.blog.common.vo.LoginVO;
-import com.gewuyou.blog.common.vo.QQLoginVO;
-import com.gewuyou.blog.common.vo.RegisterVO;
+import com.gewuyou.blog.common.vo.*;
 import com.gewuyou.blog.security.service.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -80,6 +85,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
     private final UserInfoMapper userInfoMapper;
+    private final Executor asyncTaskExecutor;
 
 
     @Autowired
@@ -90,7 +96,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
             ServerClient serverClient,
             LoginStrategyContext loginStrategyContext,
             JwtService jwtService, RabbitTemplate rabbitTemplate,
-            ObjectMapper objectMapper, UserInfoMapper userInfoMapper) {
+            ObjectMapper objectMapper, UserInfoMapper userInfoMapper, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.redisService = redisService;
         this.userRoleMapper = userRoleMapper;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -100,6 +106,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
         this.userInfoMapper = userInfoMapper;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     /**
@@ -195,7 +202,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      * @param registerVO 注册数据传输类
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void verifyEmailAndRegister(RegisterVO registerVO) {
         Optional<UserAuth> optionalUser = baseMapper.selectByEmail(registerVO.getEmail());
         // 如果邮箱已注册，则抛出异常
@@ -262,22 +269,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     }
 
     /**
-     * 重置密码
-     *
-     * @param email    邮箱
-     * @param password 密码
-     */
-    @Override
-    public void resetPassword(String email, String password) {
-        Optional<UserAuth> optionalUser = baseMapper.selectByEmail(email);
-        // 如果邮箱未注册，则抛出异常
-        if (optionalUser.isEmpty()) {
-            throw new GlobalException(ResponseInformation.USER_EMAIL_HAS_BEEN_REGISTERED);
-        }
-        baseMapper.updatePasswordByEmail(email, bCryptPasswordEncoder.encode(password));
-    }
-
-    /**
      * 检查用户名是否存在
      *
      * @param username 用户名
@@ -295,14 +286,16 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      * @return 用户列表
      */
     @Override
-    public PageResultDTO<UserAdminDTO> listUsers(ConditionVO conditionVO) {
-        Integer count = baseMapper.countUsers(conditionVO);
-        if (count == 0) {
-            return new PageResultDTO<>();
-        }
-        Page<UserAdminDTO> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
-        List<UserAdminDTO> userAdminDTOS = baseMapper.listUsers(page, conditionVO).getRecords();
-        return new PageResultDTO<>(userAdminDTOS, count.longValue());
+    public PageResult<UserAdminDTO> listUsers(ConditionVO conditionVO) {
+        return CompletableFuture.supplyAsync(
+                        () -> baseMapper.listUsers(new Page<>(PageUtil.getCurrent(), PageUtil.getSize()), conditionVO),
+                        asyncTaskExecutor
+                ).thenApply(PageResult::new)
+                .exceptionally(e -> {
+                    log.error("获取用户列表失败", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**
@@ -337,6 +330,51 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
     @Override
     public UserInfoDTO qqLogin(QQLoginVO qqLoginVO) {
         return loginStrategyContext.executeLoginStrategy(qqLoginVO, LoginTypeEnum.QQ);
+    }
+
+    /**
+     * 修改管理员密码
+     *
+     * @param adminPasswordVO 管理员密码信息
+     */
+    @Override
+    public void updateAdminPassword(AdminPasswordVO adminPasswordVO) {
+        UserAuth userAuth = baseMapper.selectOne(
+                new LambdaQueryWrapper<UserAuth>()
+                        .eq(UserAuth::getId, UserUtil.getUserDetailsDTO().getUserAuthId())
+        );
+        if (Objects.nonNull(userAuth) && userAuth.getPassword().equals(bCryptPasswordEncoder.encode(adminPasswordVO.getOldPassword()))) {
+            baseMapper.updateById(UserAuth.builder()
+                    .id(userAuth.getId())
+                    .password(bCryptPasswordEncoder.encode(adminPasswordVO.getNewPassword()))
+                    .build());
+        } else {
+            throw new GlobalException(ResponseInformation.OLD_PASSWORD_ERROR);
+        }
+    }
+
+    /**
+     * 修改用户密码
+     *
+     * @param userVO 用户信息
+     */
+    @Override
+    public void updatePassword(UserVO userVO) {
+        // 检查验证码
+        if (!verifyCode(userVO.getEmail(), userVO.getCode())) {
+            throw new GlobalException(ResponseInformation.VERIFY_CODE_ERROR);
+        }
+        // 检查邮箱是否注册
+        UserAuth userAuth = baseMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
+                .eq(UserAuth::getEmail, userVO.getEmail()));
+        if (Objects.isNull(userAuth)) {
+            throw new GlobalException(ResponseInformation.USER_EMAIL_NOT_REGISTERED);
+        }
+        // 修改密码
+        baseMapper.updateById(UserAuth.builder()
+                .id(userAuth.getId())
+                .password(bCryptPasswordEncoder.encode(userVO.getPassword()))
+                .build());
     }
 
 }

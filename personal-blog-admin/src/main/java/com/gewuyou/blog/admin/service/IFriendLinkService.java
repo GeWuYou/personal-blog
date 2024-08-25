@@ -2,7 +2,7 @@ package com.gewuyou.blog.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.dto.FriendLinkAdminDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.FriendLink;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.FriendLinkVO;
@@ -20,7 +20,7 @@ public interface IFriendLinkService extends IService<FriendLink> {
      * @param conditionVO 条件
      * @return 分页结果
      */
-    PageResultDTO<FriendLinkAdminDTO> listFriendLinksAdminDTOs(ConditionVO conditionVO);
+    PageResult<FriendLinkAdminDTO> listFriendLinksAdminDTOs(ConditionVO conditionVO);
 
     /**
      * 保存或更新友链

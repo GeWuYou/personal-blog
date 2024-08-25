@@ -9,7 +9,7 @@ import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.ArticleAdminDTO;
 import com.gewuyou.blog.common.dto.ArticleAdminViewDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.FilePathEnum;
 import com.gewuyou.blog.common.vo.ArticleTopFeaturedVO;
@@ -50,8 +50,7 @@ public class ArticleController {
             IArticleTransactionalService articleTransactionalService,
             UploadStrategyContext uploadStrategyContext,
             ArticleImportStrategyContext articleImportStrategyContext,
-            IArticleService articleService
-    ) {
+            IArticleService articleService) {
         this.articleTransactionalService = articleTransactionalService;
         this.uploadStrategyContext = uploadStrategyContext;
         this.articleImportStrategyContext = articleImportStrategyContext;
@@ -62,11 +61,11 @@ public class ArticleController {
      * 获取后台文章列表
      *
      * @param conditionVO 条件VO
-     * @return PageResultDTO<ArticleAdminDTO>
+     * @return PageResult<ArticleAdminDTO>
      */
     @Operation(summary = "获取后台文章列表", description = "获取后台文章列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<ArticleAdminDTO>> listArticlesAdmin(ConditionVO conditionVO) {
+    public Result<PageResult<ArticleAdminDTO>> listArticlesAdmin(ConditionVO conditionVO) {
         return Result.success(articleService.listArticlesAdminDTOs(conditionVO));
     }
 
@@ -77,7 +76,7 @@ public class ArticleController {
      * @return Result
      */
     @Operation(summary = "保存或更新文章", description = "保存或更新文章")
-    @OperationLogging(type = SAVE_OR_UPDATE)
+    @OperationLogging(type = SAVE_OR_UPDATE, logParams = false, logResult = false)
     @PostMapping
     @Idempotent
     public Result<?> saveOrUpdateArticle(@Validated @RequestBody ArticleVO articleVO) {
@@ -92,7 +91,7 @@ public class ArticleController {
      * @return Result
      */
     @Operation(summary = "修改文章是否置顶和推荐", description = "修改文章是否置顶和推荐")
-    @OperationLogging(type = UPDATE)
+    @OperationLogging(type = UPDATE, logParams = false, logResult = false)
     @PutMapping("/top-and-featured")
     public Result<?> updateArticleTopAndFeatured(@Validated @RequestBody ArticleTopFeaturedVO articleTopFeaturedVO) {
         articleService.updateArticleTopAndFeatured(articleTopFeaturedVO);
@@ -124,7 +123,7 @@ public class ArticleController {
     @DeleteMapping
     @Idempotent
     public Result<?> deleteArticles(@RequestBody List<Long> articleIds) {
-        articleTransactionalService.deleteArticles(articleIds);
+        articleService.deleteArticles(articleIds);
         return Result.success();
     }
 
@@ -136,7 +135,7 @@ public class ArticleController {
      */
     @Parameter(name = "file", description = "图片文件", in = ParameterIn.QUERY, required = true)
     @Operation(summary = "上传文章图片", description = "上传文章图片")
-    @OperationLogging(type = UPLOAD)
+    @OperationLogging(type = UPLOAD, logParams = false, logResult = false)
     @PostMapping("/images")
     public Result<String> saveArticleImages(MultipartFile file) {
         return Result.success(uploadStrategyContext
@@ -169,7 +168,7 @@ public class ArticleController {
             @Parameter(name = "type", description = "类型", in = ParameterIn.QUERY)
     })
     @Operation(summary = "导入文章", description = "导入文章")
-    @OperationLogging(type = UPLOAD)
+    @OperationLogging(type = UPLOAD, logParams = false)
     @PostMapping("/import")
     @Idempotent
     public Result<?> importArticles(MultipartFile file, @RequestParam(required = false) String type) {

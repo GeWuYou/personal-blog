@@ -3,7 +3,7 @@ package com.gewuyou.blog.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.dto.JobLogDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.JobLog;
 import com.gewuyou.blog.common.vo.JobLogSearchVO;
 
@@ -25,7 +25,7 @@ public interface IJobLogService extends IService<JobLog> {
      * @param jobLogSearchVO 查询条件
      * @return 分页结果
      */
-    PageResultDTO<JobLogDTO> listJobLogDTOs(JobLogSearchVO jobLogSearchVO);
+    PageResult<JobLogDTO> listJobLogDTOs(JobLogSearchVO jobLogSearchVO);
 
     /**
      * 批量删除定时任务调度日志

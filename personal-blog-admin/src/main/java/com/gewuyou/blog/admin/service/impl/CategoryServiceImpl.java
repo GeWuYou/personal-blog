@@ -9,21 +9,25 @@ import com.gewuyou.blog.admin.mapper.CategoryMapper;
 import com.gewuyou.blog.admin.service.ICategoryService;
 import com.gewuyou.blog.common.dto.CategoryAdminDTO;
 import com.gewuyou.blog.common.dto.CategoryOptionDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Article;
 import com.gewuyou.blog.common.model.Category;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
+import com.gewuyou.blog.common.utils.CompletableFutureUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ArticleVO;
 import com.gewuyou.blog.common.vo.CategoryVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 import static com.gewuyou.blog.common.enums.ArticleStatusEnum.DRAFT;
 
@@ -39,9 +43,11 @@ import static com.gewuyou.blog.common.enums.ArticleStatusEnum.DRAFT;
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements ICategoryService {
 
     private final ArticleMapper articleMapper;
+    private final Executor asyncTaskExecutor;
 
-    public CategoryServiceImpl(ArticleMapper articleMapper) {
+    public CategoryServiceImpl(ArticleMapper articleMapper, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.articleMapper = articleMapper;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
 
@@ -49,23 +55,23 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
      * 根据文章VO保存分类
      *
      * @param articleVO 文章VO
-     * @return 分类ID
+     * @return 分类
      */
     @Override
-    public Long saveCategoryByArticleVO(ArticleVO articleVO) {
+    public Category saveCategoryByArticleVO(ArticleVO articleVO) {
         // 查询是否存在该分类
         Category category = baseMapper.selectOne(
                 new LambdaQueryWrapper<Category>()
                         .eq(Category::getCategoryName, articleVO.getCategoryName())
         );
         // 如果不存在，并且文章状态不是草稿，则创建新分类并保存
-        if (Objects.isNull(category) && !articleVO.getStatus().equals(DRAFT.getStatus())) {
+        if (Objects.isNull(category) && !DRAFT.getStatus().equals(articleVO.getStatus())) {
             category = Category.builder()
                     .categoryName(articleVO.getCategoryName())
                     .build();
             baseMapper.insert(category);
         }
-        return category.getId();
+        return category;
     }
 
     /**
@@ -75,22 +81,17 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
      * @return 后台分类列表
      */
     @Override
-    public PageResultDTO<CategoryAdminDTO> listCategoryAdminDTOs(ConditionVO conditionVO) {
-        Long count = baseMapper
-                .selectCount(
-                        new LambdaQueryWrapper<Category>()
-                                .like(
-                                        StringUtils.isNoneBlank(conditionVO.getKeywords()),
-                                        Category::getCategoryName,
-                                        conditionVO.getKeywords()
-                                )
-                );
-        if (count == 0) {
-            return new PageResultDTO<>();
-        }
-        Page<CategoryAdminDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
-        var categoryAdminDTOs = baseMapper.listCategories(page, conditionVO).getRecords();
-        return new PageResultDTO<>(categoryAdminDTOs, count);
+    public PageResult<CategoryAdminDTO> listCategoryAdminDTOs(ConditionVO conditionVO) {
+        return CompletableFutureUtil
+                .supplyAsyncWithExceptionAlly(
+                        () -> baseMapper.listCategories(
+                                new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize()), conditionVO), asyncTaskExecutor)
+                .thenApply(PageResult::new)
+                .exceptionally(e -> {
+                    log.error("查询后台分类列表失败", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**
@@ -136,6 +137,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
      * @param categoryVO 分类VO
      */
     @Override
+    @Async("asyncTaskExecutor")
     public void saveOrUpdateCategory(CategoryVO categoryVO) {
         Category existCategory = baseMapper.selectOne(
                 new LambdaQueryWrapper<Category>()

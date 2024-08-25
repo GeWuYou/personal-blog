@@ -8,6 +8,8 @@ import com.gewuyou.blog.common.exception.TaskException;
 import com.gewuyou.blog.common.model.Job;
 import org.quartz.*;
 
+import static com.gewuyou.blog.common.constant.CommonConstant.TRUE;
+
 /**
  * 调度工具类
  * <p>
@@ -28,7 +30,7 @@ public class ScheduleUtil {
      * @return Quartz 任务类的类型
      */
     private static Class<? extends org.quartz.Job> getQuartzJobClass(Job job) {
-        boolean isConcurrent = Byte.valueOf("1").equals(job.getConcurrent());
+        boolean isConcurrent = TRUE.equals(job.getConcurrent());
         return isConcurrent ? QuartzJobExecution.class : QuartzDisallowConcurrentExecution.class;
     }
 

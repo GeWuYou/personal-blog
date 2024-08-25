@@ -3,6 +3,7 @@ package com.gewuyou.blog.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gewuyou.blog.common.dto.*;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.Article;
 import com.gewuyou.blog.common.vo.ArticleAccessPasswordVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -48,7 +49,7 @@ public interface IArticleService extends IService<Article> {
      *
      * @return 文章列表
      */
-    PageResultDTO<ArticleCardDTO> listArticleCardDTOs();
+    PageResult<ArticleCardDTO> listArticleCardDTOs();
 
     /**
      * 根据分类id查询文章列表
@@ -56,7 +57,7 @@ public interface IArticleService extends IService<Article> {
      * @param categoryId 分类id
      * @return 文章列表卡片DTO
      */
-    PageResultDTO<ArticleCardDTO> listArticleCardDTOsByCategoryId(Long categoryId);
+    PageResult<ArticleCardDTO> listArticleCardDTOsByCategoryId(Long categoryId);
 
     /**
      * 根据标签id查询文章
@@ -79,14 +80,14 @@ public interface IArticleService extends IService<Article> {
      * @param tagId 标签id
      * @return 文章列表卡片DTO
      */
-    PageResultDTO<ArticleCardDTO> listArticleCardDTOsByTagId(Long tagId);
+    PageResult<ArticleCardDTO> listArticleCardDTOsByTagId(Long tagId);
 
     /**
      * 查询文章归档
      *
      * @return 文章归档DTO
      */
-    PageResultDTO<ArchiveDTO> listArchiveDTOs();
+    PageResult<ArchiveDTO> listArchiveDTOs();
 
     /**
      * 根据搜索条件搜索文章

@@ -142,8 +142,7 @@ export default {
         this.$message.error('两次密码输入不一致')
         return false
       }
-      // todo 修改密码接口
-      _put('/admin/user/reset-password', this.passwordForm, () => {
+      _put('/admin/user/admin-password', this.passwordForm, () => {
         this.passwordForm.oldPassword = ''
         this.passwordForm.newPassword = ''
         this.passwordForm.confirmPassword = ''

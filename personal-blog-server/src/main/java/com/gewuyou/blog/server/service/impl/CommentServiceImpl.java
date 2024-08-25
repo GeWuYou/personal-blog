@@ -2,13 +2,13 @@ package com.gewuyou.blog.server.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gewuyou.blog.common.dto.*;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.enums.CommentTypeEnum;
 import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
@@ -32,6 +32,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static com.gewuyou.blog.common.constant.CommonConstant.*;
@@ -58,6 +59,7 @@ import static com.gewuyou.blog.common.enums.CommentTypeEnum.ARTICLE;
 public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> implements ICommentService {
 
     private final IWebsiteConfigService websiteConfigService;
+    private final Executor asyncTaskExecutor;
     @Value("${project.website-url}")
     private String websiteUrl;
     private static final List<Byte> types = new ArrayList<>();
@@ -73,13 +75,14 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
             UserInfoMapper userInfoMapper,
             RabbitTemplate rabbitTemplate,
             ObjectMapper objectMapper,
-            IWebsiteConfigService websiteConfigService) {
+            IWebsiteConfigService websiteConfigService, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.articleMapper = articleMapper;
         this.talkMapper = talkMapper;
         this.userInfoMapper = userInfoMapper;
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
         this.websiteConfigService = websiteConfigService;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     @PostConstruct
@@ -134,28 +137,28 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
      * @return 评论列表
      */
     @Override
-    public PageResultDTO<CommentDTO> listCommentDTOs(CommentVO commentVO) {
-        Long commentCount = baseMapper.selectCount(new LambdaQueryWrapper<Comment>()
-                .eq(Objects.nonNull(commentVO.getTopicId()), Comment::getTopicId, commentVO.getTopicId())
-                .eq(Comment::getType, commentVO.getType())
-                .isNull(Comment::getParentId)
-                .eq(Comment::getIsReview, TRUE));
-        if (commentCount == 0) {
-            return new PageResultDTO<>();
-        }
-        Page<CommentDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
-        List<CommentDTO> commentDTOs = baseMapper.listCommentDTOs(page, commentVO);
-        if (CollectionUtils.isEmpty(commentDTOs)) {
-            return new PageResultDTO<>();
-        }
-        List<Long> commentIds = commentDTOs.stream()
-                .map(CommentDTO::getId)
-                .collect(Collectors.toList());
-        List<ReplyDTO> replyDTOS = baseMapper.listReplyDTOs(commentIds);
-        Map<Long, List<ReplyDTO>> replyMap = replyDTOS.stream()
-                .collect(Collectors.groupingBy(ReplyDTO::getParentId));
-        commentDTOs.forEach(item -> item.setReplyDTOs(replyMap.get(item.getId())));
-        return new PageResultDTO<>(commentDTOs, commentCount);
+    public PageResult<CommentDTO> listCommentDTOs(CommentVO commentVO) {
+        return CompletableFuture.supplyAsync(
+                        () -> baseMapper.listCommentDTOs(
+                                new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize()), commentVO), asyncTaskExecutor)
+                .thenApply(commentDTOPage -> {
+                    List<CommentDTO> records = commentDTOPage
+                            .getRecords();
+                    List<Long> commentIds = records
+                            .stream()
+                            .map(CommentDTO::getId)
+                            .collect(Collectors.toList());
+                    List<ReplyDTO> replyDTOS = baseMapper.listReplyDTOs(commentIds);
+                    Map<Long, List<ReplyDTO>> replyMap = replyDTOS.stream()
+                            .collect(Collectors.groupingBy(ReplyDTO::getParentId));
+                    records.forEach(item -> item.setReplyDTOs(replyMap.get(item.getId())));
+                    return new PageResult<>(records, commentDTOPage.getTotal());
+                })
+                .exceptionally(e -> {
+                    log.error("获取评论列表失败", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**
@@ -186,16 +189,19 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
      * @return 评论列表
      */
     @Override
-    public PageResultDTO<CommentAdminDTO> listCommentsAdminDTOs(ConditionVO conditionVO) {
-        CompletableFuture<Long> asyncCount =
-                CompletableFuture.supplyAsync(() -> baseMapper.countComments(conditionVO));
-        Page<CommentAdminDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
-        List<CommentAdminDTO> commentAdminDTOS = baseMapper.listCommentAdminDTOs(page, conditionVO);
-        try {
-            return new PageResultDTO<>(commentAdminDTOS, asyncCount.get());
-        } catch (InterruptedException | ExecutionException e) {
-            throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
-        }
+    public PageResult<CommentAdminDTO> listCommentsAdminDTOs(ConditionVO conditionVO) {
+        return CompletableFuture.supplyAsync(
+                        () -> baseMapper.countComments(conditionVO), asyncTaskExecutor)
+                .thenCombine(CompletableFuture.supplyAsync(
+                                () -> baseMapper.listCommentAdminDTOs(
+                                        new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize()), conditionVO),
+                                asyncTaskExecutor),
+                        (count, commentAdminDTOs) -> new PageResult<>(commentAdminDTOs, count))
+                .exceptionally(e -> {
+                    log.error("获取后台评论列表失败", e);
+                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                })
+                .join();
     }
 
     /**

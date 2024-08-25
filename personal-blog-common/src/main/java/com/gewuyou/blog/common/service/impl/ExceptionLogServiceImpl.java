@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.common.dto.ExceptionLogDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.mapper.ExceptionLogMapper;
 import com.gewuyou.blog.common.model.ExceptionLog;
 import com.gewuyou.blog.common.service.IExceptionLogService;
@@ -37,7 +37,7 @@ public class ExceptionLogServiceImpl extends ServiceImpl<ExceptionLogMapper, Exc
      * @return 异常日志列表
      */
     @Override
-    public PageResultDTO<ExceptionLogDTO> listExceptionLogDTOs(ConditionVO conditionVO) {
+    public PageResult<ExceptionLogDTO> listExceptionLogDTOs(ConditionVO conditionVO) {
         Page<ExceptionLog> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
         Page<ExceptionLog> exceptionLogPage = this.page(page, new LambdaQueryWrapper<ExceptionLog>()
                 .like(StringUtils.isNoneBlank(conditionVO.getKeywords()),
@@ -55,7 +55,7 @@ public class ExceptionLogServiceImpl extends ServiceImpl<ExceptionLogMapper, Exc
                     return exceptionLogDTO;
                 })
                 .toList();
-        return new PageResultDTO<>(exceptionLogDTOS, exceptionLogPage.getTotal());
+        return new PageResult<>(exceptionLogDTOS, exceptionLogPage.getTotal());
     }
 
     /**

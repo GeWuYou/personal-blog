@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @SpringBootApplication
 // 大坑，当配置了扫描路径后需要显式的指定所有需要扫描的路径
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.ComponentScan;
 @MapperScan(basePackages = {"com.gewuyou.blog.admin.mapper", "com.gewuyou.blog.common.mapper", "com.gewuyou.blog.security.mapper"})
 @EnableConfigurationProperties({SecurityIgnoreUrl.class, MinioProperties.class, OssConfigProperties.class, QiNiuProperties.class, LocalProperties.class})
 @EnableFeignClients
+@EnableAspectJAutoProxy
 public class PersonalBlogAdminApplication {
 
     public static void main(String[] args) {

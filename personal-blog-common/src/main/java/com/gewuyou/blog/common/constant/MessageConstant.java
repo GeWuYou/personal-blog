@@ -85,6 +85,12 @@ public class MessageConstant {
      * 密码不能为空
      */
     public static final String PASSWORD_CANNOT_BE_EMPTY = "密码不能为空!";
+
+    public static final String OLD_PASSWORD_CANNOT_BE_EMPTY = "旧密码不能为空!";
+    public static final String NEW_PASSWORD_CANNOT_BE_EMPTY = "新密码不能为空!";
+    public static final String NEW_PASSWORD_LENGTH_ERROR = "新密码不能少于6位数，不能超过16位数";
+    public static final String PASSWORD_LENGTH_ERROR = "密码不能少于6位数，不能超过16位数";
+    public static final String PASSWORD_IS_INCORRECT = "密码错误!";
     /**
      * 重置密码成功
      */

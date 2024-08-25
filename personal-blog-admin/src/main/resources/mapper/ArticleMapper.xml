@@ -17,30 +17,6 @@
             <result column="tag_name" property="tagName"/>
         </collection>
     </resultMap>
-    <select id="countArticleAdmins" resultType="java.lang.Long">
-        SELECT COUNT(DISTINCT a.id)
-
-        FROM tb_article a
-        LEFT JOIN tb_article_tag at ON a.id = at.id
-        <where>
-            is_delete = #{conditionVO.isDelete}
-            <if test="conditionVO.keywords != null">
-                and article_title like concat('%',#{conditionVO.keywords},'%')
-            </if>
-            <if test="conditionVO.status != null">
-                and `status` = #{conditionVO.status}
-            </if>
-            <if test="conditionVO.categoryId != null">
-                and category_id = #{conditionVO.categoryId}
-            </if>
-            <if test="conditionVO.type != null">
-                and type = #{conditionVO.type}
-            </if>
-            <if test="conditionVO.tagId != null">
-                and at.tag_id = #{conditionVO.tagId}
-            </if>
-        </where>
-    </select>
     <select id="listArticlesAdmins" resultMap="ArticleAdminResultMap">
         SELECT
         a.id,

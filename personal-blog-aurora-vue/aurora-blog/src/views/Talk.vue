@@ -24,8 +24,8 @@
                   }}
                 </div>
                 <div class="talk-content" v-html="talk.content" />
-                <el-row class="talk-images" v-if="talk.imgs">
-                  <el-col :md="4" v-for="(img, index) of talk.imgs" :key="index">
+                <el-row class="talk-images" v-if="talk.imageList">
+                  <el-col :md="4" v-for="(img, index) of talk.imageList" :key="index">
                     <el-image
                       class="images-talks"
                       :src="img"

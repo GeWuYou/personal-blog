@@ -4,7 +4,6 @@ import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.UserInfoDTO;
 import com.gewuyou.blog.common.entity.Result;
-import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.model.UserInfo;
 import com.gewuyou.blog.common.vo.EmailVO;
 import com.gewuyou.blog.common.vo.SubscribeVO;
@@ -18,6 +17,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import static com.gewuyou.blog.common.enums.OperationType.UPDATE;
 
 /**
  * 用户信息表 前端控制器
@@ -63,7 +64,6 @@ public class UserInfoController {
         return Result.success(userInfoService.selectCount());
     }
 
-
     /**
      * 更新用户信息
      *
@@ -71,7 +71,7 @@ public class UserInfoController {
      * @return 更新结果
      */
     @Operation(summary = "更新用户信息", description = "更新用户信息")
-    @OperationLogging(type = OperationType.UPDATE)
+    @OperationLogging(type = UPDATE)
     @PutMapping
     public Result<?> updateUserInfo(@Valid @RequestBody UserInfoVO userInfoVO) {
         userInfoService.updateUserInfo(userInfoVO);
@@ -85,7 +85,7 @@ public class UserInfoController {
      * @return 绑定结果
      */
     @Operation(summary = "绑定邮箱", description = "绑定邮箱")
-    @OperationLogging(type = OperationType.UPDATE)
+    @OperationLogging(type = UPDATE)
     @PutMapping("/email")
     public Result<?> saveUserEmail(@Valid @RequestBody EmailVO emailVO) {
         userInfoService.saveUserEmail(emailVO);
@@ -99,7 +99,7 @@ public class UserInfoController {
      * @return 更新结果
      */
     @Operation(summary = "更新订阅状态", description = "更新订阅状态")
-    @OperationLogging(type = OperationType.UPDATE)
+    @OperationLogging(type = UPDATE)
     @PutMapping("/subscribe")
     public Result<?> updateUserSubscribe(@RequestBody SubscribeVO subscribeVO) {
         userInfoService.updateUserSubscribe(subscribeVO);

@@ -2,8 +2,8 @@ package com.gewuyou.blog.admin.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.PhotoAdminDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.Photo;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.DeleteVO;
@@ -28,7 +28,7 @@ public interface IPhotoService extends IService<Photo> {
      * @param conditionVO 条件
      * @return 分页结果
      */
-    PageResultDTO<PhotoAdminDTO> listPhotoAdminDTOs(ConditionVO conditionVO);
+    PageResult<PhotoAdminDTO> listPhotoAdminDTOs(ConditionVO conditionVO);
 
     /**
      * 更新照片信息

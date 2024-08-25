@@ -58,7 +58,7 @@ public enum ResponseInformation {
     WEIBO_LOGIN_ERROR(401, "微博登录失败"),
     WECHAT_LOGIN_ERROR(401, "微信登录失败"),
     REPEAT_REQUEST(400, "重复的请求"),
-
+    OLD_PASSWORD_ERROR(400, "旧密码错误"),
 
     NOT_FOUND(404, "未找到"),
     SERVER_ERROR(500, " 服务器内部出错 "),
@@ -112,6 +112,8 @@ public enum ResponseInformation {
     FAILED_TO_UPDATE_WEBSITE_CONFIGURATION(4002, "更新网站配置失败"),
     IMPORT_ARTICLE_FAILED(4003, "导入文章失败"),
     GET_COUNT_ERROR(4004, "获取计数失败"),
+    GET_INFO_ERROR(4005, "获取信息失败"),
+    GET_ARTICLE_LIST_FAILED(4006, "获取文章列表失败"),
     /**
      * 验证错误
      */
@@ -120,6 +122,7 @@ public enum ResponseInformation {
     JSON_PARSE_ERROR(500, "JSON解析失败"),
     JSON_SERIALIZE_ERROR(500, "JSON序列化失败"),
     JSON_DESERIALIZE_ERROR(500, "JSON反序列化失败"),
+    JSON_SERIALIZE_OR_DESERIALIZE_ERROR(500, "JSON序列化或反序列化失败"),
     RESPONSE_INFORMATION(500, "解析token失败"),
     OBJECT_COPY_FAILED(500, "对象拷贝失败"),
     FILE_UPLOAD_FAILED(500, "文件上传失败"),

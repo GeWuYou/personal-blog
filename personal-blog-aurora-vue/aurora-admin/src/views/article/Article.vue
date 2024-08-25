@@ -142,7 +142,7 @@
 
 <script>
 import * as imageConversion from 'image-conversion'
-import { _get, _post } from '@/api/api'
+import { _get, _post, _postFile } from '@/api/api'
 
 
 export default {
@@ -255,7 +255,7 @@ export default {
       let formData = new FormData()
       if (file.size / 1024 < this.config.UPLOAD_SIZE) {
         formData.append('file', file)
-        _post('/admin/article/images', formData, (data) => {
+        _postFile('/admin/article/images', formData, (data) => {
           this.$refs.md.$img2Url(pos, data)
         })
         // this.axios.post('/admin/article/images', formData).then(({ data }) => {
@@ -264,7 +264,7 @@ export default {
       } else {
         imageConversion.compressAccurately(file, this.config.UPLOAD_SIZE).then((res) => {
           formData.append('file', new window.File([res], file.name, { type: file.type }))
-          _post('/admin/article/images', formData, (data) => {
+          _postFile('/admin/article/images', formData, (data) => {
             this.$refs.md.$img2Url(pos, data)
           })
           // this.axios.post('/admin/articles/images', formData).then(({ data }) => {

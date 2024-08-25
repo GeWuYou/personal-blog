@@ -12,7 +12,11 @@ import com.gewuyou.blog.common.model.About;
 import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.vo.AboutVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import static com.gewuyou.blog.common.constant.CommonConstant.DEFAULT_ABOUT_ID;
 import static com.gewuyou.blog.common.constant.RedisConstant.ABOUT;
@@ -32,14 +36,16 @@ public class AboutServiceImpl extends ServiceImpl<AboutMapper, About> implements
     private final ObjectMapper objectMapper;
 
     private final IRedisService redisService;
+    private final Executor asyncTaskExecutor;
 
     @Autowired
     public AboutServiceImpl(
             ObjectMapper objectMapper,
-            IRedisService redisService
-    ) {
+            IRedisService redisService,
+            @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.objectMapper = objectMapper;
         this.redisService = redisService;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     /**
@@ -50,15 +56,17 @@ public class AboutServiceImpl extends ServiceImpl<AboutMapper, About> implements
     @Override
     public void updateAbout(AboutVO aboutVO) {
         try {
-            About about =
-                    About
-                            .builder()
-                            .id(DEFAULT_ABOUT_ID)
-                            .content(objectMapper.writeValueAsString(aboutVO.getContent()))
-                            .build();
-            baseMapper.updateById(about);
-            // 清除缓存
-            redisService.delete(ABOUT);
+            About about = About.builder()
+                    .id(DEFAULT_ABOUT_ID)
+                    .content(objectMapper.writeValueAsString(aboutVO.getContent()))
+                    .build();
+            CompletableFuture<Void> updateDbFuture = CompletableFuture.runAsync(() -> baseMapper.updateById(about), asyncTaskExecutor);
+            CompletableFuture<Void> deleteCacheFuture = CompletableFuture.runAsync(() -> redisService.delete(ABOUT), asyncTaskExecutor);
+            CompletableFuture<Void> allOf = CompletableFuture.allOf(updateDbFuture, deleteCacheFuture);
+            allOf
+                    .exceptionally(e -> {
+                        throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                    });
         } catch (JsonProcessingException e) {
             throw new GlobalException(ResponseInformation.JSON_SERIALIZE_ERROR);
         }

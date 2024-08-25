@@ -10,19 +10,22 @@ import com.gewuyou.blog.admin.service.IImageReferenceService;
 import com.gewuyou.blog.common.annotation.ReadLock;
 import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.dto.FriendLinkAdminDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
+import com.gewuyou.blog.common.enums.ResponseInformation;
+import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.FriendLink;
-import com.gewuyou.blog.common.service.IRedisService;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.DateUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.FriendLinkVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * 友链接服务 实现
@@ -33,10 +36,12 @@ import java.util.Objects;
 @Service
 public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendLink> implements IFriendLinkService {
     private final IImageReferenceService imageReferenceService;
+    private final Executor asyncTaskExecutor;
 
     @Autowired
-    public FriendLinkServiceImpl(IRedisService redisService, IImageReferenceService imageReferenceService) {
+    public FriendLinkServiceImpl(IImageReferenceService imageReferenceService, @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.imageReferenceService = imageReferenceService;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     /**
@@ -46,26 +51,29 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
      * @return 分页结果
      */
     @Override
-    public PageResultDTO<FriendLinkAdminDTO> listFriendLinksAdminDTOs(ConditionVO conditionVO) {
-        Page<FriendLink> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
-        Page<FriendLink> friendLinkPage = baseMapper.selectPage(page,
-                new LambdaQueryWrapper<FriendLink>()
-                        .like(StringUtils.isNotBlank(conditionVO.getKeywords()),
-                                FriendLink::getLinkName, conditionVO.getKeywords())
-        );
-        List<FriendLinkAdminDTO> friendLinkAdminDTOList = friendLinkPage
-                .getRecords()
-                .stream()
-                .map(friendLink -> {
-                    var friendLinkAdminDTO = BeanCopyUtil.copyObject(friendLink, FriendLinkAdminDTO.class);
-                    var createTime = friendLink.getCreateTime();
-                    if (Objects.nonNull(createTime)) {
-                        friendLinkAdminDTO.setCreateTime(DateUtil.convertToDate(createTime));
-                    }
-                    return friendLinkAdminDTO;
+    public PageResult<FriendLinkAdminDTO> listFriendLinksAdminDTOs(ConditionVO conditionVO) {
+        return CompletableFuture.supplyAsync(() -> baseMapper.selectPage(new Page<>(PageUtil.getCurrent(), PageUtil.getSize()),
+                        new LambdaQueryWrapper<FriendLink>()
+                                .like(StringUtils.isNotBlank(conditionVO.getKeywords()),
+                                        FriendLink::getLinkName, conditionVO.getKeywords())
+                ), asyncTaskExecutor)
+                .thenApply(friendLinkPage -> new PageResult<>(friendLinkPage
+                        .getRecords()
+                        .stream()
+                        .map(friendLink -> {
+                            var friendLinkAdminDTO = BeanCopyUtil.copyObject(friendLink, FriendLinkAdminDTO.class);
+                            var createTime = friendLink.getCreateTime();
+                            if (Objects.nonNull(createTime)) {
+                                friendLinkAdminDTO.setCreateTime(DateUtil.convertToDate(createTime));
+                            }
+                            return friendLinkAdminDTO;
+                        })
+                        .toList(), friendLinkPage.getTotal()))
+                .exceptionally(e -> {
+                    log.error("async exception", e);
+                    return new PageResult<>();
                 })
-                .toList();
-        return new PageResultDTO<>(friendLinkAdminDTOList, friendLinkPage.getTotal());
+                .join();
     }
 
     /**
@@ -77,12 +85,25 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @ReadLock(RedisConstant.IMAGE_LOCK)
     public void saveOrUpdateFriendLink(FriendLinkVO friendLinkVO) {
         FriendLink friendLink = BeanCopyUtil.copyObject(friendLinkVO, FriendLink.class);
-        String newLinkAvatar = friendLink.getLinkAvatar();
-        String oldLinkAvatar = baseMapper
-                .selectOne(new LambdaQueryWrapper<FriendLink>()
-                        .select(FriendLink::getLinkAvatar)
-                        .eq(FriendLink::getId, friendLinkVO.getId())).getLinkAvatar();
-        imageReferenceService.handleImageReference(newLinkAvatar, oldLinkAvatar);
-        this.saveOrUpdate(friendLink);
+        CompletableFuture<Void> asyncSaveOrUpdate = CompletableFuture.runAsync(
+                () -> this.saveOrUpdate(friendLink), asyncTaskExecutor);
+        CompletableFuture<Void> asyncHandleImageReference = CompletableFuture.supplyAsync(
+                        // 获取旧的图片地址
+                        () -> baseMapper
+                                .selectOne(new LambdaQueryWrapper<FriendLink>()
+                                        .select(FriendLink::getLinkAvatar)
+                                        .eq(FriendLink::getId, friendLinkVO.getId())).getLinkAvatar())
+                .thenCompose(oldLinkAvatar ->
+                        // 异步执行
+                        CompletableFuture.runAsync(
+                                () -> imageReferenceService
+                                        .handleImageReference(friendLink.getLinkAvatar(), oldLinkAvatar)
+                                , asyncTaskExecutor));
+        CompletableFuture
+                .allOf(asyncSaveOrUpdate, asyncHandleImageReference)
+                .exceptionally(e -> {
+                    log.error("save or update friend link error", e);
+                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
+                });
     }
 }

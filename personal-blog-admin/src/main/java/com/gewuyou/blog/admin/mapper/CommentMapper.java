@@ -9,8 +9,6 @@ import com.gewuyou.blog.common.vo.ConditionVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
-
 /**
  * <p>
  * 评论表 Mapper 接口
@@ -21,15 +19,6 @@ import java.util.List;
  */
 @Mapper
 public interface CommentMapper extends BaseMapper<Comment> {
-
-    /**
-     * 根据条件查询评论数量
-     *
-     * @param conditionVO 条件VO
-     * @return 评论数量
-     */
-    Long countComments(@Param("conditionVO") ConditionVO conditionVO);
-
     /**
      * 根据条件查询后台评论列表
      *
@@ -37,5 +26,5 @@ public interface CommentMapper extends BaseMapper<Comment> {
      * @param conditionVO 条件VO
      * @return 评论列表
      */
-    List<CommentAdminDTO> listCommentAdminDTOs(Page<CommentAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
+    Page<CommentAdminDTO> listCommentAdminDTOs(Page<CommentAdminDTO> page, @Param("conditionVO") ConditionVO conditionVO);
 }

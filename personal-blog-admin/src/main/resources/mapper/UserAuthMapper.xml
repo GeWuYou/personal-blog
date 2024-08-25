@@ -28,21 +28,6 @@
         FROM tb_user_auth
         WHERE username = #{username}
     </select>
-    <select id="countUsers" resultType="java.lang.Integer">
-        SELECT count(1)
-        FROM tb_user_auth ua
-        LEFT JOIN tb_user_info ui ON ua.user_info_id = ui.id
-        <where>
-            <!-- 如果搜索内容不为空则添加搜索条件并模糊查询 -->
-            <if test="conditionVO.keywords != null">
-                nick_name LIKE CONCAT('%', #{conditionVO.keywords}, '%')
-            </if>
-            <!--  如果登录类型不为空则添加登录类型的搜索条件-->
-            <if test="conditionVO.loginType != null">
-                AND login_type = #{conditionVO.loginType}
-            </if>
-        </where>
-    </select>
     <resultMap id="UserAdminMap" type="com.gewuyou.blog.common.dto.UserAdminDTO">
         <id property="id" column="id"/>
         <result property="userInfoId" column="user_info_id"/>

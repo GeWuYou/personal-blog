@@ -3,6 +3,9 @@ package com.gewuyou.blog.common.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import static com.gewuyou.blog.common.constant.CommonConstant.FALSE;
+import static com.gewuyou.blog.common.constant.CommonConstant.TRUE;
+
 /**
  * 作业状态枚举
  *
@@ -12,9 +15,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum JobStatusEnum {
-    NORMAL(Byte.valueOf("1")),
+    NORMAL(TRUE),
 
-    PAUSE(Byte.valueOf("0"));
+    PAUSE(FALSE);
 
     private final Byte value;
 }

@@ -9,14 +9,18 @@ import com.gewuyou.blog.admin.service.IArticleTagService;
 import com.gewuyou.blog.admin.service.ITagService;
 import com.gewuyou.blog.common.model.ArticleTag;
 import com.gewuyou.blog.common.model.Tag;
+import com.gewuyou.blog.common.utils.CompletableFutureUtil;
 import com.gewuyou.blog.common.vo.ArticleVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * <p>
@@ -30,13 +34,15 @@ import java.util.Objects;
 public class ArticleTagServiceImpl extends ServiceImpl<ArticleTagMapper, ArticleTag> implements IArticleTagService {
 
     private final ITagService tagService;
+    private final Executor asyncTaskExecutor;
 
 
     @Autowired
     public ArticleTagServiceImpl(
-            ITagService tagService
-    ) {
+            ITagService tagService,
+            @Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.tagService = tagService;
+        this.asyncTaskExecutor = asyncTaskExecutor;
     }
 
     /**
@@ -58,11 +64,13 @@ public class ArticleTagServiceImpl extends ServiceImpl<ArticleTagMapper, Article
         // 获取标签名列表
         List<String> tagNames = articleVO.getTagNames();
         if (CollectionUtils.isNotEmpty(tagNames)) {
-            // 先根据标签名获取数据库中对应且存在的标签列表
-            List<Tag> existTags = tagService.list(
+            // 异步查询数据库中已存在的标签
+            CompletableFuture<List<Tag>> existTagsFuture = CompletableFutureUtil.supplyAsyncWithExceptionAlly(() -> tagService.list(
                     new LambdaQueryWrapper<Tag>()
                             .in(Tag::getTagName, tagNames)
-            );
+            ), asyncTaskExecutor);
+            // 等待查询结果并获取已有标签的名称
+            List<Tag> existTags = existTagsFuture.join();
             // 获取对应的标签名列表
             List<String> existTagNames = existTags
                     .stream()
@@ -76,23 +84,30 @@ public class ArticleTagServiceImpl extends ServiceImpl<ArticleTagMapper, Article
                     .map(Tag::getId)
                     .toList());
             // 判断标签列表中此时是否有数据库中不存在的标签
-            if (CollectionUtils.isNotEmpty(tagNames)) {
-                // 为不存在的标签创建标签类
-                List<Tag> noExistTags = tagNames
-                        .stream()
-                        .map(tagName -> Tag
-                                .builder()
-                                .tagName(tagName)
-                                .build())
-                        .toList();
-                // 批量保存不存在的标签
-                tagService.saveBatch(noExistTags);
-                // 组合已存在的标签id列表与不存在的标签id列表
-                existTagIds.addAll(noExistTags
-                        .stream()
-                        .map(Tag::getId)
-                        .toList());
-            }
+            CompletableFuture<List<Tag>> asyncNoExistTags = CompletableFutureUtil.supplyAsyncWithExceptionAlly(() -> {
+                if (CollectionUtils.isNotEmpty(tagNames)) {
+                    // 为不存在的标签创建标签类
+                    List<Tag> noExistTags = tagNames
+                            .stream()
+                            .map(tagName -> Tag
+                                    .builder()
+                                    .tagName(tagName)
+                                    .build())
+                            .toList();
+                    // 批量保存不存在的标签
+                    tagService.saveBatch(noExistTags);
+                    return noExistTags;
+                } else {
+                    return List.of();
+                }
+            }, asyncTaskExecutor);
+            // 组合已存在的标签id列表与不存在的标签id列表
+            existTagIds.addAll(
+                    asyncNoExistTags
+                            .join()
+                            .stream()
+                            .map(Tag::getId)
+                            .toList());
             // 组合文章与标签的中间表
             List<ArticleTag> articleTags = existTagIds
                     .stream()

@@ -8,7 +8,6 @@ import com.gewuyou.blog.common.annotation.WriteLock;
 import com.gewuyou.blog.common.constant.RedisConstant;
 import com.gewuyou.blog.common.model.ImageReference;
 import com.gewuyou.blog.common.service.IRedisService;
-import com.gewuyou.blog.common.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -57,16 +55,16 @@ public class BlogQuartzJobServiceImpl implements IBlogQuartzJobService {
     @Override
     @WriteLock(RedisConstant.IMAGE_LOCK)
     public void clearTempImage() {
-        Set<Object> objects = redisService.sDiff(RedisConstant.TEMP_IMAGE_NAME, RedisConstant.DB_IMAGE_NAME);
-        if (objects.isEmpty()) {
-            return;
-        }
-        for (Object object : objects) {
-            uploadStrategyContext.executeDeleteStrategy((String) object);
-        }
-        // 清理缓存
+        Set<Object> diff = redisService.sDiff(RedisConstant.TEMP_IMAGE_NAME, RedisConstant.DB_IMAGE_NAME);
+        // 求完差集后 清理缓存
         redisService.delete(RedisConstant.TEMP_IMAGE_NAME);
         redisService.delete(RedisConstant.DB_IMAGE_NAME);
+        if (diff.isEmpty()) {
+            return;
+        }
+        for (Object object : diff) {
+            uploadStrategyContext.executeDeleteStrategy((String) object);
+        }
     }
 
     /**
@@ -82,7 +80,7 @@ public class BlogQuartzJobServiceImpl implements IBlogQuartzJobService {
         }
         // 删除图片文件
         for (ImageReference imageReference : notUsedImageReferences) {
-            uploadStrategyContext.executeDeleteStrategy(FileUtil.getFilePathByUrl(imageReference.getImageUrl()));
+            uploadStrategyContext.executeDeleteStrategy(imageReference.getImageUrl());
         }
         // 删除数据库记录
         imageReferenceMapper.deleteBatchIds(notUsedImageReferences.stream().map(ImageReference::getId).toList());
@@ -104,10 +102,9 @@ public class BlogQuartzJobServiceImpl implements IBlogQuartzJobService {
             if (response.getStatusCode().is2xxSuccessful()) {
                 log.info("刷新配置成功");
             } else {
-                log.debug("刷新配置失败");
                 throw new RuntimeException("刷新配置失败");
             }
-        } catch (RestClientException e) {
+        } catch (Exception e) {
             log.error("刷新配置失败", e);
             throw new RuntimeException("刷新配置失败", e);
         }

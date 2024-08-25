@@ -5,8 +5,8 @@ import com.gewuyou.blog.admin.strategy.context.UploadStrategyContext;
 import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TalkAdminDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.FilePathEnum;
 import com.gewuyou.blog.common.enums.OperationType;
@@ -99,7 +99,7 @@ public class TalkController {
      */
     @Operation(summary = "查看后台说说列表", description = "查看后台说说列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<TalkAdminDTO>> listBackTalks(ConditionVO conditionVO) {
+    public Result<PageResult<TalkAdminDTO>> listBackTalks(ConditionVO conditionVO) {
         return Result.success(talkService.listBackTalkAdminDTOs(conditionVO));
     }
 

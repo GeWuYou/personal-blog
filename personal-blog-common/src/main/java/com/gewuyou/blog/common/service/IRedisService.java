@@ -265,12 +265,20 @@ public interface IRedisService {
     Long sSize(String key);
 
     /**
-     * 获取两个集合的差集
+     * 获取集合的差集
      *
      * @param keys 键列表
      * @return 差集
      */
     Set<Object> sDiff(String... keys);
+
+    /**
+     * 获取集合的交集
+     *
+     * @param keys 键列表
+     * @return 交集
+     */
+    Set<Object> sInter(String... keys);
 
     Long sRemove(String key, Object... values);
 

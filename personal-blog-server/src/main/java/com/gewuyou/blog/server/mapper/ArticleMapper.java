@@ -36,7 +36,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
      * @param page 分页对象
      * @return 文章卡片列表DTO
      */
-    List<ArticleCardDTO> listArticleCardDTOs(Page<ArticleCardDTO> page);
+    Page<ArticleCardDTO> listArticleCardDTOs(Page<ArticleCardDTO> page);
 
     /**
      * 根据分类ID分页查询文章列表

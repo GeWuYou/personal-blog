@@ -6,19 +6,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.CommentMapper;
 import com.gewuyou.blog.admin.service.ICommentService;
 import com.gewuyou.blog.common.dto.CommentAdminDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
-import com.gewuyou.blog.common.enums.ResponseInformation;
-import com.gewuyou.blog.common.exception.GlobalException;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.Comment;
+import com.gewuyou.blog.common.utils.CompletableFutureUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.ReviewVO;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 
 /**
  * <p>
@@ -31,6 +30,12 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> implements ICommentService {
 
+    private final Executor asyncTaskExecutor;
+
+    public CommentServiceImpl(@Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
+        this.asyncTaskExecutor = asyncTaskExecutor;
+    }
+
     /**
      * 获取后台评论列表
      *
@@ -38,16 +43,16 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
      * @return 评论列表
      */
     @Override
-    public PageResultDTO<CommentAdminDTO> listCommentsAdminDTOs(ConditionVO conditionVO) {
-        CompletableFuture<Long> asyncCount =
-                CompletableFuture.supplyAsync(() -> baseMapper.countComments(conditionVO));
-        Page<CommentAdminDTO> page = new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize());
-        List<CommentAdminDTO> commentAdminDTOS = baseMapper.listCommentAdminDTOs(page, conditionVO);
-        try {
-            return new PageResultDTO<>(commentAdminDTOS, asyncCount.get());
-        } catch (InterruptedException | ExecutionException e) {
-            throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
-        }
+    public PageResult<CommentAdminDTO> listCommentsAdminDTOs(ConditionVO conditionVO) {
+        return CompletableFutureUtil.supplyAsyncWithExceptionAlly(
+                        () -> baseMapper.listCommentAdminDTOs(
+                                new Page<>(PageUtil.getLimitCurrent(), PageUtil.getSize()), conditionVO), asyncTaskExecutor)
+                .thenApply(PageResult::new)
+                .exceptionally(e -> {
+                    log.error("获取后台评论列表失败", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**

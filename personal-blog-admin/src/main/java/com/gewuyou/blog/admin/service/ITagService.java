@@ -2,9 +2,9 @@ package com.gewuyou.blog.admin.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.TagAdminDTO;
 import com.gewuyou.blog.common.dto.TagOptionDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.Tag;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.TagVO;
@@ -28,7 +28,7 @@ public interface ITagService extends IService<Tag> {
      * @param conditionVO 条件
      * @return 标签列表
      */
-    PageResultDTO<TagAdminDTO> listTagsAdminDTOs(ConditionVO conditionVO);
+    PageResult<TagAdminDTO> listTagsAdminDTOs(ConditionVO conditionVO);
 
     /**
      * 根据搜索条件查询标签列表

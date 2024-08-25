@@ -23,4 +23,9 @@ public class RegularConstant {
      * 文件路径正则
      */
     public static final String FILE_PATH_REGEX = "^https?://[^/]+/api/v1/admin(.*)$";
+
+    /**
+     * Markdown图片正则
+     */
+    public static final String MARKDOWN_IMAGE_REGEX = "\\!\\[.*\\]\\((.*)\\)";
 }

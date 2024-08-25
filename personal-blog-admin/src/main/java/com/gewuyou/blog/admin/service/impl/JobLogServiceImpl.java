@@ -8,15 +8,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gewuyou.blog.admin.mapper.JobLogMapper;
 import com.gewuyou.blog.admin.service.IJobLogService;
 import com.gewuyou.blog.common.dto.JobLogDTO;
-import com.gewuyou.blog.common.dto.PageResultDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.model.JobLog;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.JobLogSearchVO;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * <p>
@@ -29,6 +32,12 @@ import java.util.Objects;
 @Service
 public class JobLogServiceImpl extends ServiceImpl<JobLogMapper, JobLog> implements IJobLogService {
 
+    private final Executor asyncTaskExecutor;
+
+    public JobLogServiceImpl(@Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
+        this.asyncTaskExecutor = asyncTaskExecutor;
+    }
+
     /**
      * 分页查询定时任务调度日志
      *
@@ -36,22 +45,28 @@ public class JobLogServiceImpl extends ServiceImpl<JobLogMapper, JobLog> impleme
      * @return 分页结果
      */
     @Override
-    public PageResultDTO<JobLogDTO> listJobLogDTOs(JobLogSearchVO jobLogSearchVO) {
-        LambdaQueryWrapper<JobLog> queryWrapper = new LambdaQueryWrapper<JobLog>()
-                .eq(Objects.nonNull(jobLogSearchVO.getJobId()), JobLog::getJobId, jobLogSearchVO.getJobId())
-                .eq(Objects.nonNull(jobLogSearchVO.getStatus()), JobLog::getStatus, jobLogSearchVO.getStatus())
-                .like(StringUtils.isNotBlank(
-                        jobLogSearchVO.getJobName()), JobLog::getJobName, jobLogSearchVO.getJobName())
-                .like(StringUtils.isNotBlank(
-                        jobLogSearchVO.getJobGroup()), JobLog::getJobGroup, jobLogSearchVO.getJobGroup())
-                .between(Objects.nonNull(
-                                jobLogSearchVO.getStartTime()) && Objects.nonNull(jobLogSearchVO.getEndTime()),
-                        JobLog::getCreateTime, jobLogSearchVO.getStartTime(), jobLogSearchVO.getEndTime())
-                .orderByDesc(JobLog::getCreateTime);
-        Page<JobLog> page = new Page<>(PageUtil.getCurrent(), PageUtil.getSize());
-        Page<JobLog> jobLogPage = baseMapper.selectPage(page, queryWrapper);
-        List<JobLogDTO> jobLogDTOs = BeanCopyUtil.copyList(jobLogPage.getRecords(), JobLogDTO.class);
-        return new PageResultDTO<>(jobLogDTOs, jobLogPage.getTotal());
+    public PageResult<JobLogDTO> listJobLogDTOs(JobLogSearchVO jobLogSearchVO) {
+        return CompletableFuture.supplyAsync(() -> baseMapper.selectPage(
+                        new Page<>(PageUtil.getCurrent(), PageUtil.getSize()),
+                        new LambdaQueryWrapper<JobLog>()
+                                .eq(Objects.nonNull(jobLogSearchVO.getJobId()), JobLog::getJobId, jobLogSearchVO.getJobId())
+                                .eq(Objects.nonNull(jobLogSearchVO.getStatus()), JobLog::getStatus, jobLogSearchVO.getStatus())
+                                .like(StringUtils.isNotBlank(
+                                        jobLogSearchVO.getJobName()), JobLog::getJobName, jobLogSearchVO.getJobName())
+                                .like(StringUtils.isNotBlank(
+                                        jobLogSearchVO.getJobGroup()), JobLog::getJobGroup, jobLogSearchVO.getJobGroup())
+                                .between(Objects.nonNull(
+                                                jobLogSearchVO.getStartTime()) && Objects.nonNull(jobLogSearchVO.getEndTime()),
+                                        JobLog::getCreateTime, jobLogSearchVO.getStartTime(), jobLogSearchVO.getEndTime())
+                                .orderByDesc(JobLog::getCreateTime)), asyncTaskExecutor)
+                .thenApply(jobLogPage -> new PageResult<>(
+                        BeanCopyUtil.copyList(jobLogPage.getRecords(), JobLogDTO.class),
+                        jobLogPage.getTotal()))
+                .exceptionally(e -> {
+                    log.error("查询定时任务调度日志失败", e);
+                    return new PageResult<>();
+                })
+                .join();
     }
 
     /**

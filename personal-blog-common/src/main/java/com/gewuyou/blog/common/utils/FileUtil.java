@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,12 +75,32 @@ public class FileUtil {
     }
 
     /**
+     * 从Markdown中提取图片URL
+     *
+     * @param content Markdown内容
+     * @return 图片URL集合
+     */
+    public static Set<String> extractImageUrlsByMarkdown(String content) {
+        Pattern pattern = Pattern.compile(RegularConstant.MARKDOWN_IMAGE_REGEX);
+        Matcher matcher = pattern.matcher(content);
+        Set<String> urls = new HashSet<>();
+        while (matcher.find()) {
+            String url = matcher.group(1);
+            urls.add(url);
+        }
+        return urls;
+    }
+
+    /**
      * 获取文件的网络路径获取文件路径
      *
      * @param url 网络路径
      * @return 文件路径
      */
     public static String getFilePathByUrl(String url) {
+        if (StringUtils.isBlank(url)) {
+            return null;
+        }
         Pattern pattern = Pattern.compile(RegularConstant.FILE_PATH_REGEX);
         Matcher matcher = pattern.matcher(url);
         if (matcher.find()) {
@@ -109,7 +131,7 @@ public class FileUtil {
     }
 
     public static void main(String[] args) {
-        String url = "http://localhost:8082/api/v1/admin/blog/articles/1f5af4f1d3fa2229ee66f37bf95ef903.jpg";
+        String url = "/blog/articles/1f5af4f1d3fa2229ee66f37bf95ef903.jpg";
         String regex = "^https?://[^/]+/api/v1/admin(.*)$";
 
         Pattern pattern = Pattern.compile(regex);
@@ -121,6 +143,9 @@ public class FileUtil {
         } else {
             System.out.println("No match found");
         }
+        String content = "![120269913_p0.png]\n(http://localhost:8082/api/v1/admin/blog/articles/bb27271ef4589ea663603d5898c8070d-2024-08-24T21-15-32.406837500.png)";
+        Set<String> urls = extractImageUrlsByMarkdown(content);
+        System.out.println(urls);
     }
 
 }

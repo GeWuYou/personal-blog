@@ -5,10 +5,10 @@ import com.gewuyou.blog.common.annotation.AccessLimit;
 import com.gewuyou.blog.common.annotation.Idempotent;
 import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
-import com.gewuyou.blog.common.dto.PageResultDTO;
 import com.gewuyou.blog.common.dto.UserAdminDTO;
 import com.gewuyou.blog.common.dto.UserAreaDTO;
 import com.gewuyou.blog.common.dto.UserInfoDTO;
+import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.enums.ResponseInformation;
@@ -68,7 +68,7 @@ public class UserAuthController {
      */
     @Operation(summary = "获取后台用户列表", description = "获取后台用户列表")
     @GetMapping("/list")
-    public Result<PageResultDTO<UserAdminDTO>> listUsers(ConditionVO conditionVO) {
+    public Result<PageResult<UserAdminDTO>> listUsers(ConditionVO conditionVO) {
         return Result.success(userAuthService.listUsers(conditionVO));
     }
 
@@ -129,35 +129,32 @@ public class UserAuthController {
     }
 
     /**
-     * 重置密码接口
+     * 管理员重置密码接口
      *
-     * @param startResetPasswordVO 开始重置密码DTO
+     * @param adminPasswordVO 重置密码DTO
      * @return 重置密码结果
      */
     @Operation(summary = "重置密码接口", description = "重置密码接口")
-    @PostMapping("/reset-password/verify-code")
+    @PostMapping("/admin-password")
+    @OperationLogging(logResult = false, logParams = false, type = OperationType.UPDATE)
     @Idempotent
-    public Result<String> startResetPassword(@Validated @RequestBody StartResetPasswordVO startResetPasswordVO) {
-        if (userAuthService.verifyCode(startResetPasswordVO.getEmail(), startResetPasswordVO.getVerifyCode())) {
-            return Result.success(ResponseInformation.REGISTER_SUCCESS);
-        } else {
-            return Result.failure(ResponseInformation.VERIFICATION_CODE_ERROR);
-        }
+    public Result<String> doResetPassword(@Validated @RequestBody AdminPasswordVO adminPasswordVO) {
+        userAuthService.updateAdminPassword(adminPasswordVO);
+        return Result.success();
     }
 
     /**
-     * 重置密码接口
+     * 修改密码
      *
-     * @param doResetPasswordVO 重置密码DTO
-     * @return 重置密码结果
+     * @param userVO 用户视图信息
+     * @return 修改结果
      */
-    @Operation(summary = "重置密码接口", description = "重置密码接口")
-    @PostMapping("/reset-password")
-    @OperationLogging(logResult = false, logParams = false, type = OperationType.UPDATE)
-    @Idempotent
-    public Result<String> doResetPassword(@Validated @RequestBody DoResetPasswordVO doResetPasswordVO) {
-        // todo 重置密码接口
-        return null;
+    @Operation(summary = "修改密码", description = "修改密码")
+    @OperationLogging(type = OperationType.UPDATE)
+    @PutMapping("/user-password")
+    public Result<?> updatePassword(@Valid @RequestBody UserVO userVO) {
+        userAuthService.updatePassword(userVO);
+        return Result.success();
     }
 
     /**
@@ -189,6 +186,7 @@ public class UserAuthController {
      * @param qqLoginVO qq登录DTO
      * @return 登录结果
      */
+    @Operation(summary = "qq登录接口", description = "qq登录接口")
     @PostMapping("/oauth/qq")
     @Idempotent
     public Result<UserInfoDTO> qqLogin(@Valid @RequestBody QQLoginVO qqLoginVO) {
