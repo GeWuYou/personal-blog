@@ -1,12 +1,10 @@
 package com.gewuyou.blog.admin.controller;
 
 import com.gewuyou.blog.common.annotation.Idempotent;
-import com.gewuyou.blog.common.annotation.OperationLogging;
 import com.gewuyou.blog.common.constant.InterfacePermissionConstant;
 import com.gewuyou.blog.common.dto.ExceptionLogDTO;
 import com.gewuyou.blog.common.entity.PageResult;
 import com.gewuyou.blog.common.entity.Result;
-import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.service.IExceptionLogService;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,7 +53,6 @@ public class ExceptionLogController {
      * @return 成功或失败
      */
     @Operation(summary = "删除异常日志", description = "删除异常日志")
-    @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping
     @Idempotent
     public Result<?> deleteExceptionLogs(@RequestBody List<Integer> exceptionLogIds) {
@@ -69,7 +66,6 @@ public class ExceptionLogController {
      * @return 成功或失败
      */
     @Operation(summary = "清空异常日志", description = "清空异常日志")
-    @OperationLogging(type = OperationType.DELETE)
     @DeleteMapping("/clean")
     public Result<?> cleanExceptionLogs() {
         exceptionLogService.cleanExceptionLogs();
