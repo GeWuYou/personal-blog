@@ -90,15 +90,6 @@ export default defineComponent({
           reactiveData.noResult = true
         }
       })
-      // api.getPhotosBuAlbumId(reactiveData.albumId, params).then(({ data }) => {
-      //   if (data.data.photos.length > 0) {
-      //     reactiveData.current++
-      //     reactiveData.photoAlbumName = data.data.photoAlbumName
-      //     reactiveData.photos.push(...data.data.photos)
-      //   } else {
-      //     reactiveData.noResult = true
-      //   }
-      // })
     }
     return {
       ...toRefs(reactiveData),
