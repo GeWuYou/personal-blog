@@ -61,10 +61,11 @@ public abstract class AbstractUploadStrategyImpl implements UploadStrategy {
                 log.error("文件上传失败", e);
                 throw new GlobalException(ResponseInformation.FILE_UPLOAD_FAILED);
             }).thenApply(v -> {
+                String fileAccessUrl = getFileAccessUrl(path + fileName);
                 // 保存文件名到redis
-                redisService.sAdd(RedisConstant.TEMP_IMAGE_NAME, "/" + path + fileName);
+                redisService.sAdd(RedisConstant.TEMP_IMAGE_NAME, fileAccessUrl);
                 // 返回访问地址
-                return getFileAccessUrl(path + fileName);
+                return fileAccessUrl;
             });
         } catch (Exception e) {
             log.error("获取文件MD5失败", e);

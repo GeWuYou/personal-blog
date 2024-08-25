@@ -122,6 +122,7 @@ public enum ResponseInformation {
     JSON_PARSE_ERROR(500, "JSON解析失败"),
     JSON_SERIALIZE_ERROR(500, "JSON序列化失败"),
     JSON_DESERIALIZE_ERROR(500, "JSON反序列化失败"),
+    JSON_SERIALIZE_OR_DESERIALIZE_ERROR(500, "JSON序列化或反序列化失败"),
     RESPONSE_INFORMATION(500, "解析token失败"),
     OBJECT_COPY_FAILED(500, "对象拷贝失败"),
     FILE_UPLOAD_FAILED(500, "文件上传失败"),

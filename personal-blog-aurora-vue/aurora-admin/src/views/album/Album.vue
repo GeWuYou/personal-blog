@@ -135,7 +135,6 @@ export default {
   methods: {
     openModel(item) {
       if (item) {
-        console.log(item)
         this.albumForum = JSON.parse(item)
         this.$refs.albumTitle.innerHTML = '修改相册'
       } else {
@@ -166,19 +165,6 @@ export default {
         this.count = Number(data.count)
         this.loading = false
       })
-      // this.axios
-      //   .get('/api/admin/photos/albums', {
-      //     params: {
-      //       current: this.current,
-      //       size: this.size,
-      //       keywords: this.keywords
-      //     }
-      //   })
-      //   .then(({ data }) => {
-      //     this.albums = data.data.records
-      //     this.count = data.data.count
-      //     this.loading = false
-      //   })
     },
     addOrEditAlbum() {
       if (this.albumForum.albumName.trim() === '') {
@@ -205,20 +191,6 @@ export default {
           message: message
         })
       })
-      // this.axios.post('/api/admin/photos/albums', this.albumForum).then(({ data }) => {
-      //   if (data.flag) {
-      //     this.$notify.success({
-      //       title: '成功',
-      //       message: data.message
-      //     })
-      //     this.listAlbums()
-      //   } else {
-      //     this.$notify.error({
-      //       title: '失败',
-      //       message: data.message
-      //     })
-      //   }
-      // })
       this.addOrEdit = false
     },
     uploadCover(response) {
@@ -259,21 +231,6 @@ export default {
       }, null, () => {
         this.isDelete = false
       })
-      // this.axios.delete('/api/admin/photos/albums/' + this.albumForum.id).then(({ data }) => {
-      //   if (data.flag) {
-      //     this.$notify.success({
-      //       title: '成功',
-      //       message: data.message
-      //     })
-      //     this.listAlbums()
-      //   } else {
-      //     this.$notify.error({
-      //       title: '失败',
-      //       message: data.message
-      //     })
-      //   }
-      //   this.isDelete = false
-      // })
     },
     searchAlbums() {
       this.current = 1
