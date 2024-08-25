@@ -59,5 +59,5 @@ public interface IImageReferenceService {
      * @param newImageUrls 新的图片URL列表
      * @param oldImageUrls 旧的图片URL列表
      */
-    void handleImageReferences(List<String> newImageUrls, List<String> oldImageUrls);
+    void handleImageReference(List<String> newImageUrls, List<String> oldImageUrls);
 }

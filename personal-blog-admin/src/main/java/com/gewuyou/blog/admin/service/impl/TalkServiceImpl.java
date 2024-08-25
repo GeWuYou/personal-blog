@@ -18,7 +18,6 @@ import com.gewuyou.blog.common.enums.ResponseInformation;
 import com.gewuyou.blog.common.exception.GlobalException;
 import com.gewuyou.blog.common.model.Talk;
 import com.gewuyou.blog.common.utils.BeanCopyUtil;
-import com.gewuyou.blog.common.utils.FileUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.utils.UserUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
@@ -64,29 +63,28 @@ public class TalkServiceImpl extends ServiceImpl<TalkMapper, Talk> implements IT
      */
     @Override
     @ReadLock(RedisConstant.IMAGE_LOCK)
-    @Async("asyncTaskExecutor")
     public void saveOrUpdateTalk(TalkVO talkVO) {
         Talk talk = BeanCopyUtil.copyObject(talkVO, Talk.class);
         talk.setUserId(UserUtil.getUserDetailsDTO().getUserInfoId());
         String talkImages = talk.getImages();
         try {
-            List<String> newImages = objectMapper
+            List<String> newImages = StringUtils.isBlank(talkImages) ? List.of() : objectMapper
                     .readValue(talkImages, new TypeReference<List<String>>() {
                     })
                     .stream()
-                    .map(FileUtil::getFilePathByUrl)
                     .toList();
             // 判断是新增还是更新
             if (Objects.nonNull(talk.getId())) {
-                List<String> oldImages = objectMapper.readValue(baseMapper
+                String oldImagesStr = baseMapper
                         .selectOne(new LambdaQueryWrapper<Talk>()
                                 .select(Talk::getImages)
                                 .eq(Talk::getId, talk.getId()))
-                        .getImages(), new TypeReference<>() {
+                        .getImages();
+                List<String> oldImages = StringUtils.isBlank(oldImagesStr) ? List.of() : objectMapper.readValue(oldImagesStr, new TypeReference<>() {
                 });
-                imageReferenceService.handleImageReferences(newImages, oldImages);
+                imageReferenceService.handleImageReference(newImages, oldImages);
             } else {
-                imageReferenceService.handleImageReferences(newImages, List.of());
+                imageReferenceService.handleImageReference(newImages, null);
             }
         } catch (JsonProcessingException e) {
             throw new GlobalException(ResponseInformation.JSON_PARSE_ERROR);

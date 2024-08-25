@@ -9,6 +9,8 @@ import com.gewuyou.blog.common.enums.FilePathEnum;
 import com.gewuyou.blog.common.enums.OperationType;
 import com.gewuyou.blog.common.vo.WebsiteConfigVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,9 @@ public class WebsiteConfigController {
      * @param file 图片文件
      * @return 上传结果
      */
+    @Parameter(name = "file", description = "图片文件", in = ParameterIn.QUERY, required = true)
+    @Operation(summary = "上传配置图片", description = "上传配置图片")
+    @OperationLogging(type = OperationType.UPDATE, logResult = false, logParams = false)
     @PostMapping("/config/images")
     public Result<String> savePhotoAlbumCover(MultipartFile file) {
         return Result.success(uploadStrategyContext

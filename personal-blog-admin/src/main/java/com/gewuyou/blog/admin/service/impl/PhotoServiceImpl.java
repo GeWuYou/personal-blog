@@ -122,10 +122,12 @@ public class PhotoServiceImpl extends ServiceImpl<PhotoMapper, Photo> implements
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                CompletableFutureUtil.runAsyncWithExceptionAlly(
-                        () -> imageReferenceService.addImageReference(photoUrls), asyncTaskExecutor);
-                CompletableFutureUtil.runAsyncWithExceptionAlly(() ->
-                        redisService.sAdd(RedisConstant.DB_IMAGE_NAME, photoUrls.stream().map(FileUtil::getFilePathByUrl).toArray()), asyncTaskExecutor);
+                CompletableFutureUtil.runAsyncWithExceptionAlly(asyncTaskExecutor,
+                        () -> imageReferenceService.addImageReference(photoUrls),
+                        () -> redisService.sAdd(RedisConstant.DB_IMAGE_NAME, photoUrls
+                                .stream()
+                                .map(FileUtil::getFilePathByUrl)
+                                .toArray()));
             }
         });
     }
@@ -186,7 +188,7 @@ public class PhotoServiceImpl extends ServiceImpl<PhotoMapper, Photo> implements
      */
     @Override
     public void deletePhotos(List<Integer> photoIds) {
-        CompletableFutureUtil.supplyAsyncWithExceptionAlly(() -> baseMapper
+        CompletableFuture.supplyAsync(() -> baseMapper
                         .selectList(
                                 new LambdaQueryWrapper<Photo>()
                                         .select(Photo::getPhotoSrc)
@@ -196,7 +198,11 @@ public class PhotoServiceImpl extends ServiceImpl<PhotoMapper, Photo> implements
                         .toList(), asyncTaskExecutor)
                 .thenCompose(
                         imageUrls -> CompletableFuture.runAsync(
-                                () -> imageReferenceService.deleteImageReference(imageUrls), asyncTaskExecutor));
-        CompletableFutureUtil.runAsyncWithExceptionAlly(() -> baseMapper.deleteBatchIds(photoIds), asyncTaskExecutor);
+                                () -> imageReferenceService.deleteImageReference(imageUrls), asyncTaskExecutor))
+                .exceptionally(e -> {
+                    log.error("批量删除照片失败", e);
+                    return null;
+                });
+        CompletableFutureUtil.runAsyncWithExceptionAlly(asyncTaskExecutor, () -> baseMapper.deleteBatchIds(photoIds));
     }
 }

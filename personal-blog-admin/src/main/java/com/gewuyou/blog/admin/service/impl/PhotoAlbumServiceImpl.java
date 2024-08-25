@@ -67,33 +67,20 @@ public class PhotoAlbumServiceImpl extends ServiceImpl<PhotoAlbumMapper, PhotoAl
     public void saveOrUpdatePhotoAlbum(PhotoAlbumVO photoAlbumVO) {
         PhotoAlbum existPhotoAlbum = baseMapper.selectOne(
                 new LambdaQueryWrapper<PhotoAlbum>()
-                        .select(PhotoAlbum::getId)
+                        .select(PhotoAlbum::getId, PhotoAlbum::getAlbumCover)
                         .eq(PhotoAlbum::getAlbumName, photoAlbumVO.getAlbumName())
         );
         if (Objects.nonNull(existPhotoAlbum) && !existPhotoAlbum.getId().equals(photoAlbumVO.getId())) {
             throw new GlobalException(ResponseInformation.ALBUM_NAME_EXIST);
         }
         PhotoAlbum photoAlbum = BeanCopyUtil.copyObject(photoAlbumVO, PhotoAlbum.class);
-        String oldPhotoAlbumCover;
-        String newPhotoAlbumCover = photoAlbum.getAlbumCover();
-        if (Objects.isNull(existPhotoAlbum)) {
-            oldPhotoAlbumCover = null;
-        } else {
-            oldPhotoAlbumCover = existPhotoAlbum.getAlbumCover();
-        }
-        CompletableFuture<Void> asyncHandleImageReference = CompletableFuture
-                .runAsync(
-                        () -> imageReferenceService
-                                .handleImageReference(newPhotoAlbumCover, oldPhotoAlbumCover));
-        CompletableFuture<Void> asyncSaveOrUpdate = CompletableFuture
-                .runAsync(
-                        () -> this.saveOrUpdate(photoAlbum), asyncTaskExecutor);
-        CompletableFuture
-                .allOf(asyncHandleImageReference, asyncSaveOrUpdate)
-                .exceptionally(e -> {
-                    log.error("async exception", e);
-                    throw new GlobalException(ResponseInformation.ASYNC_EXCEPTION);
-                });
+        String oldPhotoAlbumCover = Objects.isNull(existPhotoAlbum) ? null : existPhotoAlbum.getAlbumCover();
+        String newPhotoAlbumCover = photoAlbumVO.getAlbumCover();
+        CompletableFutureUtil.runAsyncWithExceptionAlly(asyncTaskExecutor,
+                () -> imageReferenceService
+                        .handleImageReference(newPhotoAlbumCover, oldPhotoAlbumCover),
+                () -> this.saveOrUpdate(photoAlbum)
+        );
     }
 
     /**
@@ -142,9 +129,9 @@ public class PhotoAlbumServiceImpl extends ServiceImpl<PhotoAlbumMapper, PhotoAl
                         () -> baseMapper.selectById(albumId), asyncTaskExecutor)
                 .thenCombine(CompletableFuture.supplyAsync(
                         () -> baseMapper.selectCount(new LambdaQueryWrapper<PhotoAlbum>()
-                        .eq(PhotoAlbum::getId, albumId)
-                        .eq(PhotoAlbum::getIsDelete, FALSE)
-                ), asyncTaskExecutor), (photoAlbum, count) -> {
+                                .eq(PhotoAlbum::getId, albumId)
+                                .eq(PhotoAlbum::getIsDelete, FALSE)
+                        ), asyncTaskExecutor), (photoAlbum, count) -> {
                     PhotoAlbumAdminDTO photoAlbumAdminDTO = BeanCopyUtil.copyObject(photoAlbum, PhotoAlbumAdminDTO.class);
                     photoAlbumAdminDTO.setPhotoCount(count);
                     return photoAlbumAdminDTO;
@@ -169,19 +156,25 @@ public class PhotoAlbumServiceImpl extends ServiceImpl<PhotoAlbumMapper, PhotoAl
         );
         // 判断相册下是否有照片存在,如果存在则逻辑删除，不存在说明是空相册物理删除
         if (count > 0) {
-            CompletableFutureUtil.runAsyncWithExceptionAlly(() -> baseMapper
-                    .updateById(
-                            PhotoAlbum.builder()
-                                    .id(albumId)
-                                    .isDelete(TRUE)
-                                    .build()
-                    ), asyncTaskExecutor);
-            CompletableFutureUtil.runAsyncWithExceptionAlly(() -> photoMapper.update(new Photo(), new LambdaUpdateWrapper<Photo>()
-                    .set(Photo::getIsDelete, TRUE)
-                    .eq(Photo::getAlbumId, albumId)), asyncTaskExecutor);
+            CompletableFutureUtil.runAsyncWithExceptionAlly(asyncTaskExecutor,
+                    () ->
+                            baseMapper
+                                    .updateById(
+                                            PhotoAlbum.builder()
+                                                    .id(albumId)
+                                                    .isDelete(TRUE)
+                                                    .build()
+                                    ),
+                    () -> photoMapper.update(new Photo(), new LambdaUpdateWrapper<Photo>()
+                            .set(Photo::getIsDelete, TRUE)
+                            .eq(Photo::getAlbumId, albumId))
+            );
         } else {
-            CompletableFutureUtil.runAsyncWithExceptionAlly(() -> imageReferenceService.deleteImageReference(baseMapper.selectById(albumId).getAlbumCover()), asyncTaskExecutor);
-            CompletableFutureUtil.runAsyncWithExceptionAlly(() -> baseMapper.deleteById(albumId), asyncTaskExecutor);
+            CompletableFutureUtil.runAsyncWithExceptionAlly(asyncTaskExecutor,
+                    () ->
+                            imageReferenceService.deleteImageReference(baseMapper.selectById(albumId).getAlbumCover()),
+                    () -> baseMapper.deleteById(albumId)
+            );
         }
     }
 }
