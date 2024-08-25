@@ -140,9 +140,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     @Override
     public void saveOrUpdateResource(ResourceVO resourceVO) {
         Resource resource = BeanCopyUtil.copyObject(resourceVO, Resource.class);
-        CompletableFutureUtil.runAsyncWithExceptionAlly(() -> this.saveOrUpdate(resource), asyncTaskExecutor);
-        CompletableFutureUtil.runAsyncWithExceptionAlly(dynamicSecurityMetadataSource::clearDataSource, asyncTaskExecutor);
-        CompletableFutureUtil.runAsyncWithExceptionAlly(serverClient::clearConfigAttributeMap, asyncTaskExecutor);
+        CompletableFutureUtil.runAsyncWithExceptionAlly(asyncTaskExecutor,
+                () -> this.saveOrUpdate(resource),
+                dynamicSecurityMetadataSource::clearDataSource,
+                serverClient::clearConfigAttributeMap
+        );
     }
 
     /**

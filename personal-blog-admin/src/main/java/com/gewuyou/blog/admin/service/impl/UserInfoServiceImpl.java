@@ -190,13 +190,14 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 .id(UserUtil.getUserDetailsDTO().getUserInfoId())
                 .avatar(newAvatar)
                 .build();
-        CompletableFutureUtil.runAsyncWithExceptionAlly(() ->
-                imageReferenceService.handleImageReference(userInfo.getAvatar(), baseMapper
-                        .selectOne(new LambdaQueryWrapper<UserInfo>()
-                                .select(UserInfo::getAvatar)
-                                .eq(UserInfo::getId, userInfo.getId()))
-                        .getAvatar()), asyncTaskExecutor);
-        CompletableFutureUtil.runAsyncWithExceptionAlly(() -> baseMapper.updateById(userInfo), asyncTaskExecutor);
+        CompletableFutureUtil.runAsyncWithExceptionAlly(asyncTaskExecutor,
+                () ->
+                        imageReferenceService.handleImageReference(userInfo.getAvatar(), baseMapper
+                                .selectOne(new LambdaQueryWrapper<UserInfo>()
+                                        .select(UserInfo::getAvatar)
+                                        .eq(UserInfo::getId, userInfo.getId()))
+                                .getAvatar()),
+                () -> baseMapper.updateById(userInfo));
         return newAvatar;
     }
 

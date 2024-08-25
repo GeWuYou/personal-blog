@@ -202,7 +202,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth> i
      * @param registerVO 注册数据传输类
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void verifyEmailAndRegister(RegisterVO registerVO) {
         Optional<UserAuth> optionalUser = baseMapper.selectByEmail(registerVO.getEmail());
         // 如果邮箱已注册，则抛出异常

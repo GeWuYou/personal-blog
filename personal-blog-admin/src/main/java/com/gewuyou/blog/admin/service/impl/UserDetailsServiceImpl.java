@@ -51,7 +51,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserDetails loadUserByUsername(String usernameOrEmail) {
         log.info("loadUserByUsername: {}", usernameOrEmail);
         UserAuth userAuth;

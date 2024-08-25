@@ -202,7 +202,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
         }
         // 更新文章访问量
-        CompletableFutureUtil.runAsyncWithExceptionAlly(() -> this.updateArticleViewsCount(articleId), asyncTaskExecutor);
+        CompletableFutureUtil.runAsyncWithExceptionAlly(asyncTaskExecutor, () -> this.updateArticleViewsCount(articleId));
         // 获取当前文章和与下一篇文章
         ArticleDTO articleDTO = baseMapper.getArticleCardDTOById(articleId);
         if (Objects.isNull(articleDTO)) {

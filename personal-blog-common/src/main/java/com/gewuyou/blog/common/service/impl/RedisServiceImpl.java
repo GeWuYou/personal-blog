@@ -368,6 +368,11 @@ public class RedisServiceImpl implements IRedisService {
     }
 
     @Override
+    public Set<Object> sInter(String... keys) {
+        return redisTemplate.opsForSet().intersect(List.of(keys));
+    }
+
+    @Override
     public Long sRemove(String key, Object... values) {
         return redisTemplate.opsForSet().remove(key, values);
     }
