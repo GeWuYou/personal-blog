@@ -13,6 +13,7 @@ import com.gewuyou.blog.common.vo.CategoryVO;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +32,7 @@ public class CategoryController {
 
     private final ICategoryService categoryService;
 
+    @Autowired
     public CategoryController(ICategoryService categoryService) {
         this.categoryService = categoryService;
     }

@@ -2,7 +2,7 @@
 
 ## 一、简介
 
-本项目是一个多模块的个人博客项目，参考项目https://github.com/linhaojun857/aurora 编写的，个人水平有限，有问题可以提iss
+本项目是一个多模块的个人博客项目，参考项目[aurora](https://github.com/linhaojun857/aurora) 编写的，个人水平有限，有问题可以提iss
 
 ## 二、架构
 
@@ -30,6 +30,12 @@
 8. **personal-blog-config**
     - 作为服务的配置中心，管理和维护所有微服务的配置信息
     - 减少所有配置的修改成本，确保了项目的可维护性、可扩展性和运行时的安全性
+9. **personal-blog-security**
+   - 作为项目的公共安全模块用于认证与授权
+   - 提供博客项目的安全功能
+
+10. **personal-blog-aurora-vue**
+   - 项目的前端模块分为admin和blog
 
 ## 三、技术
 

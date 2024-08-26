@@ -12,6 +12,7 @@ import com.gewuyou.blog.common.utils.CompletableFutureUtil;
 import com.gewuyou.blog.common.utils.PageUtil;
 import com.gewuyou.blog.common.vo.ConditionVO;
 import com.gewuyou.blog.common.vo.ReviewVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
 
     private final Executor asyncTaskExecutor;
 
+    @Autowired
     public CommentServiceImpl(@Qualifier("asyncTaskExecutor") Executor asyncTaskExecutor) {
         this.asyncTaskExecutor = asyncTaskExecutor;
     }
