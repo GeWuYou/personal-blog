@@ -15,7 +15,6 @@ export default {
     }
     _post('/admin/report', {}, () => {
     })
-    // this.axios.post('/api/report')
   }
 }
 </script>

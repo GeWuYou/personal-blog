@@ -56,6 +56,7 @@
 import * as imageConversion from 'image-conversion'
 import Editor from '@/components/Editor.vue'
 import { _get, _post } from '@/api/api'
+import { API_BASE_URL } from '@/config/config'
 
 export default {
   components: {
@@ -96,8 +97,7 @@ export default {
         { status: 2, desc: '私密' }
       ],
       uploads: [],
-      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
-      baseUrl: 'http://localhost:8082/api/v1'
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') }
     }
   },
   methods: {
@@ -181,7 +181,7 @@ export default {
       return desc
     },
     upLoadAction() {
-      return this.baseUrl + '/admin/talk/images'
+      return API_BASE_URL + '/admin/talk/images'
     }
   }
 }

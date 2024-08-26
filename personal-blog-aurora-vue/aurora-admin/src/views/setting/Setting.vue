@@ -58,6 +58,7 @@
 
 <script>
 import { _put } from '@/api/api'
+import { API_BASE_URL } from '@/config/config'
 
 export default {
   data: function() {
@@ -73,8 +74,7 @@ export default {
         confirmPassword: ''
       },
       activeName: 'info',
-      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
-      baseUrl: 'http://localhost:8082/api/v1'
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') }
     }
   },
   methods: {
@@ -179,7 +179,7 @@ export default {
       return this.$store.state.userInfo.avatar
     },
     avatarUpload() {
-      return this.baseUrl + '/admin/user-info/avatar'
+      return API_BASE_URL + '/admin/user-info/avatar'
     }
   }
 }

@@ -1,5 +1,3 @@
-server:
-  port: 10086
 spring:
   application:
     name: personal-blog-eureka

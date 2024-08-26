@@ -9,16 +9,16 @@ module.exports = defineConfig({
   transpileDependencies: true,
   productionSourceMap: false,
   devServer: {
-    port: 8085,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8080/api/v1',
-        changeOrigin: true,
-        pathRewrite: {
-          '^/api': ''
-        }
-      }
-    }
+    port: 8087
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://localhost:8080/api/v1',
+    //     changeOrigin: true,
+    //     pathRewrite: {
+    //       '^/api': ''
+    //     }
+    //   }
+    // }
   },
   configureWebpack: {
     resolve: {

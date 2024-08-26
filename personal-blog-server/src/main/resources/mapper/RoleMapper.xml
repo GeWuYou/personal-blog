@@ -17,16 +17,9 @@
             </constructor>
         </collection>
     </resultMap>
-    <resultMap id="resourceRoleResultMap" type="com.gewuyou.blog.common.dto.ResourceRoleDTO">
-        <id property="id" column="id"/>
-        <result property="url" column="url"/>
-        <result property="requestMethod" column="request_method"/>
-        <collection property="roleList" ofType="java.lang.String">
-            <constructor>
-                <arg column="role_name"/>
-            </constructor>
-        </collection>
-    </resultMap>
+    <resultMap id="resourceRoleResultMap"
+               extends="com.gewuyou.blog.common.mapper.CommonMapper.resourceRoleResultMap"
+               type="com.gewuyou.blog.common.dto.ResourceRoleDTO"/>
     <select id="listRolesByUserInfoId" resultType="java.lang.String">
         select role.role_name
         from tb_role role

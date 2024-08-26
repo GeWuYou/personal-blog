@@ -1,8 +1,8 @@
+server:
+  port: 10086
 spring:
   config:
     import: common-log.yml
-  application:
-    name: personal-blog-eureka
 eureka:
   client:
     service-url:

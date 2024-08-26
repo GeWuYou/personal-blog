@@ -143,6 +143,7 @@
 <script>
 import * as imageConversion from 'image-conversion'
 import { _get, _post, _postFile } from '@/api/api'
+import { API_BASE_URL } from '@/config/config'
 
 
 export default {
@@ -204,8 +205,7 @@ export default {
         type: 1,
         status: 1
       },
-      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
-      baseUrl: 'http://localhost:8082/api/v1'
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') }
     }
   },
   methods: {
@@ -501,7 +501,7 @@ export default {
       }
     },
     uploadAction() {
-      return this.baseUrl + '/admin/article/images'
+      return API_BASE_URL + '/admin/article/images'
     }
   }
 }

@@ -1,5 +1,6 @@
 export default {
   qqLogin: {
+    // fixme: QQ_APP_ID 和 QQ_REDIRECT_URI 应该替换为你自己的值
     QQ_APP_ID: '101999415',
     QQ_REDIRECT_URI: 'http://localhost:8082/admin/oauth/login/qq'
   },

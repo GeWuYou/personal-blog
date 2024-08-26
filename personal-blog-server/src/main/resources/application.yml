@@ -1,5 +1,3 @@
-server:
-  port: 8084
 spring:
   application:
     name: personal-blog-server  # 模块名，与配置文件夹名一致

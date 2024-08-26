@@ -166,6 +166,7 @@
 <script>
 import * as imageConversion from 'image-conversion'
 import { _get, _post, _put } from '@/api/api'
+import { API_BASE_URL } from '@/config/config'
 
 export default {
   created() {
@@ -213,13 +214,12 @@ export default {
       current: 1,
       size: 18,
       count: 0,
-      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
-      baseUrl: 'http://localhost:8082/api/v1'
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') }
     }
   },
   computed: {
     uploadPhotoAction() {
-      return this.baseUrl + '/admin/photo/upload'
+      return API_BASE_URL + '/admin/photo/upload'
     }
   },
   methods: {

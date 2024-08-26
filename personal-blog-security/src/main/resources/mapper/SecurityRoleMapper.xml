@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gewuyou.blog.security.mapper.SecurityRoleMapper">
-    <resultMap id="resourceRoleResultMap" type="com.gewuyou.blog.common.dto.ResourceRoleDTO">
+    <resultMap id="securityResourceRoleResultMap" type="com.gewuyou.blog.common.dto.ResourceRoleDTO">
         <id property="id" column="id"/>
         <result property="url" column="url"/>
         <result property="requestMethod" column="request_method"/>
@@ -12,7 +12,7 @@
             </constructor>
         </collection>
     </resultMap>
-    <select id="getResourceRoleDTOs" resultMap="resourceRoleResultMap">
+    <select id="getResourceRoleDTOs" resultMap="securityResourceRoleResultMap">
         SELECT re.id AS id,
                url,
                request_method,
@@ -22,6 +22,5 @@
                  LEFT JOIN tb_role_resource rr ON re.id = rr.resource_id
                  LEFT JOIN tb_role ro ON rr.role_id = ro.id
         WHERE re.parent_id IS NOT NULL
-#           AND is_anonymous = 0
     </select>
 </mapper>

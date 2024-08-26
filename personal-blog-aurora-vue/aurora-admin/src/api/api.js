@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
 import { requestInterceptor } from '@/api/interceptor/interceptor'
+import { API_BASE_URL } from '@/config/config'
 
 // 默认的错误信息
 const defaultErrorMessage = (error) => {
@@ -12,7 +13,7 @@ const defaultErrorMessage = (error) => {
 const defaultFailureMessage = (message) => Message.warning(message)
 // 创建一个axios实例
 const instance = axios.create({
-  baseURL: 'http://localhost:8082/api/v1',  // 请求的基础路径
+  baseURL: API_BASE_URL,  // 请求的基础路径
   timeout: 10000  // 超时，401
 })
 // // 添加请求拦截器

@@ -228,6 +228,7 @@
 <script>
 import * as imageConversion from 'image-conversion'
 import { _get, _put } from '@/api/api'
+import { API_BASE_URL } from '@/config/config'
 
 export default {
   created() {
@@ -237,13 +238,12 @@ export default {
     return {
       websiteConfigForm: {},
       activeName: 'info',
-      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
-      baseUrl: 'http://localhost:8082/api/v1'
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') }
     }
   },
   computed: {
     avatarUpload() {
-      return this.baseUrl + '/admin/website/config/images'
+      return API_BASE_URL + '/admin/website/config/images'
     }
   },
   methods: {

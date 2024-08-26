@@ -2,6 +2,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { requestInterceptor } from '@/api/interceptor'
 
+
 // 默认的错误信息
 const defaultErrorMessage = (error: any): Promise<never> => {
   return Promise.reject(error)
@@ -12,10 +13,12 @@ const defaultFailureMessage = (message: string): void => console.log(message)
 
 // 创建一个axios实例
 const instance: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:8082/api/v1/',  // 请求的基础路径
+  baseURL: 'http://localhost:8082/api/v1',  // fixme 请求的基础路径
+  // baseURL: "http://192.168.200.129:8082/api/v1",
   timeout: 10000  // 超时，401
 })
 instance.interceptors.request.use(requestInterceptor)
+
 // 定义响应数据类型
 interface ResponseData<T = any> {
   success: boolean;
