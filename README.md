@@ -115,7 +115,7 @@ git clone https://gitee.com/gewuyou/personal-blog.git
 
 1. 由于大部分配置都放到了配置中心，如果遇到需要自定义的配置的情况建议在目标模块中配置好再移动到config模块对应的配置中
 2. 图片文件上传默认使用本地策略，目前支持七牛云、Minio、Oss，请注意，如果使用对象存储，可以删除项目根目录下的**/assets/blog**
-   文件夹，里面是我预先存放的图片文件，所有上传的图片会存放在其中，请使用带https的图片url，http的远程访问不知道为什么默认会变成https，如果有知道怎么解决的可以跟我说一下
+   文件夹，里面是我预先存放的图片文件，所有上传的图片会存放在其中
 3. 配置中心默认使用本地配置路径在personal-blog-config/src/main/resources/conf，当然你也可以使用git作为配置文件提供者
 4. 默认的管理员账号和密码是admin 和 123456
 
@@ -123,6 +123,52 @@ git clone https://gitee.com/gewuyou/personal-blog.git
 
 启动顺序
 
-1. config
-2. eureka gateway
-3. admin server
+1. config(8888)
+2. eureka(10086) gateway(8082)
+3. admin(8081) server(8084)
+
+## 六、Docker部署教程
+
+1. 首先我们先点开Maven点击父模块的clean清理构建结果
+
+2. 安装common模块，点开common子模块点击install
+
+3. 安装security模块，点开security子模块点击install
+
+4. 然后打包其余具有Application的模块，点击package
+
+5. 在你的Linux上创建一个文件夹(personal-blog)并创建对应子模块的文件夹(例如：server、config)
+
+6. 找到对应子模块的根目录有一个DockerFile将其上传至文件夹中，还有target目录下对应的jar包(
+   例如personal-blog-admin-0.1.0.jar)
+
+7. 进入到对应子模块目录执行命令
+
+8. 示例
+
+   ```sh
+   # 进入对应子模块的目录 目录中必须有DockerFile 和子模块对应的jar包
+   cd /usr/src/personal-blog/server/
+   # personal-blog-server为你想要设置的模块构建后的镜像名字
+   docker build -t personal-blog-server .
+   # 执行结果形如
+   #[+] Building 5.8s (8/8) FINISHED                                                                                 docker:default
+   # => [internal] load build definition from Dockerfile                                                                       0.0s
+   # => => transferring dockerfile: 777B                                                                                       0.0s
+   # => [internal] load metadata for docker.io/library/openjdk:17                                                              0.0s
+   # => [internal] load .dockerignore                                                                                          0.0s
+   # => => transferring context: 2B                                                                                            0.0s
+   # => [1/3] FROM docker.io/library/openjdk:17                                                                                0.0s
+   # => [internal] load build context                                                                                          2.7s
+   # => => transferring context: 257.12MB                                                                                      2.7s
+   # => CACHED [2/3] WORKDIR /app                                                                                              0.0s
+   # => [3/3] COPY personal-blog-server-0.1.0.jar /app/personal-blog-server.jar                                                2.1s
+   # => exporting to image                                                                                                     1.0s
+   # => => exporting layers                                                                                                    1.0s
+   # => => writing image sha256:f9708fab858291438232881489903fdb036dce07c987e59081f0c4baa627abea                               0.0s
+   # => => naming to docker.io/library/personal-blog-server    
+   # 8084:8084端口映射 server启动后的容器名 personal-blog-server构建的镜像名
+   docker run -d -p 8084:8084 --name server personal-blog-server
+   ```
+
+后续会出更方便的部署操作目前先这样
