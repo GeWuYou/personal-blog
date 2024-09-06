@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * BeanCopyUtil
@@ -29,7 +30,7 @@ public class BeanCopyUtil {
         T temp;
         try {
             temp = target.getDeclaredConstructor().newInstance();
-            if (null != source) {
+            if (Objects.nonNull(source)) {
                 org.springframework.beans.BeanUtils.copyProperties(source, temp);
             }
         } catch (Exception e) {
@@ -50,7 +51,7 @@ public class BeanCopyUtil {
      */
     public static <T, S> List<T> copyList(List<S> source, Class<T> target) {
         List<T> list = new ArrayList<>();
-        if (null != source && !source.isEmpty()) {
+        if (Objects.nonNull(source) && !source.isEmpty()) {
             for (Object obj : source) {
                 list.add(BeanCopyUtil.copyObject(obj, target));
             }

@@ -35,7 +35,7 @@
    - 提供博客项目的安全功能
 
 10. **personal-blog-aurora-vue**
-   - 项目的前端模块分为admin和blog
+    - 项目的前端模块分为admin和blog
 
 ## 三、技术
 

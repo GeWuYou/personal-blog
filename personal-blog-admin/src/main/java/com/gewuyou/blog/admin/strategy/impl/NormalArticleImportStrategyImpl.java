@@ -45,7 +45,7 @@ public class NormalArticleImportStrategyImpl implements ArticleImportStrategy {
         try (
                 BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             while (reader.ready()) {
-                articleContent.append(reader.read());
+                articleContent.append((char) reader.read());
             }
         } catch (Exception e) {
             log.error("导入文章失败", e);

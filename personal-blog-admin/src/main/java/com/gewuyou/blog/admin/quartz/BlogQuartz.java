@@ -71,7 +71,7 @@ public class BlogQuartz {
     /**
      * 清理临时图片
      *
-     * @apiNote 这个方法只能保证清理了垃圾图片，但可能会出现将上传图片给清理了的操作
+     * @apiNote 这个方法只能保证清理了临时图片，但可能会出现将上传图片给清理了的操作
      */
     public void clearTempImage() {
         blogQuartzJobService.clearTempImage();

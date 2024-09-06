@@ -168,7 +168,6 @@ public class ArticleController {
             @Parameter(name = "type", description = "类型", in = ParameterIn.QUERY)
     })
     @Operation(summary = "导入文章", description = "导入文章")
-    @OperationLogging(type = UPLOAD, logParams = false)
     @PostMapping("/import")
     @Idempotent
     public Result<?> importArticles(MultipartFile file, @RequestParam(required = false) String type) {

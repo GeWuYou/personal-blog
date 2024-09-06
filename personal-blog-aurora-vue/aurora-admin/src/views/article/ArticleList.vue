@@ -38,7 +38,7 @@
         批量导出
       </el-button>
       <el-upload
-        action="/api/admin/articles/import"
+        :action=uploadAction
         multiple
         :limit="9"
         :show-file-list="false"
@@ -226,6 +226,7 @@
 
 <script>
 import { _delete, _get, _post, _put } from '@/api/api'
+import { API_BASE_URL } from '@/config/config'
 
 export default {
   created() {
@@ -305,21 +306,6 @@ export default {
           message: message
         })
       })
-      // this.axios.put('/api/admin/articles', param).then(({ data }) => {
-      //   if (data.flag) {
-      //     this.$notify.success({
-      //       title: '成功',
-      //       message: data.message
-      //     })
-      //     this.listArticles()
-      //   } else {
-      //     this.$notify.error({
-      //       title: '失败',
-      //       message: data.message
-      //     })
-      //   }
-      //   this.updateIsDelete = false
-      // })
     },
     deleteArticles(id) {
       let param = {}
@@ -345,21 +331,6 @@ export default {
           this.remove = false
         }
       )
-      // this.axios.delete('/api/admin/articles/delete', param).then(({ data }) => {
-      //   if (data.flag) {
-      //     this.$notify.success({
-      //       title: '成功',
-      //       message: data.message
-      //     })
-      //     this.listArticles()
-      //   } else {
-      //     this.$notify.error({
-      //       title: '失败',
-      //       message: data.message
-      //     })
-      //   }
-      //   this.remove = false
-      // })
     },
     exportArticles(id) {
       let param = {}
@@ -385,24 +356,6 @@ export default {
       }, null, () => {
         this.isExport = false
       })
-      // this.axios.post('/api/admin/articles/export', param).then(({ data }) => {
-      //   if (data.flag) {
-      //     this.$notify.success({
-      //       title: '成功',
-      //       message: data.message
-      //     })
-      //     data.data.forEach((item) => {
-      //       this.downloadFile(item)
-      //     })
-      //     this.listArticles()
-      //   } else {
-      //     this.$notify.error({
-      //       title: '失败',
-      //       message: data.message
-      //     })
-      //   }
-      //   this.isExport = false
-      // })
     },
     downloadFile(url) {
       const iframe = document.createElement('iframe')
@@ -482,26 +435,6 @@ export default {
         }, null, () => {
           this.remove = false
         })
-      // this.axios
-      //   .put('/api/admin/article/topAndFeatured', {
-      //     id: article.id,
-      //     isTop: article.isTop,
-      //     isFeatured: article.isFeatured
-      //   })
-      //   .then(({ data }) => {
-      //     if (data.flag) {
-      //       this.$notify.success({
-      //         title: '成功',
-      //         message: '修改成功'
-      //       })
-      //     } else {
-      //       this.$notify.error({
-      //         title: '失败',
-      //         message: data.message
-      //       })
-      //     }
-      //     this.remove = false
-      //   })
     },
     listArticles() {
       _get('/admin/article/list', {
@@ -520,40 +453,16 @@ export default {
           this.loading = false
         }
       )
-      // this.axios
-      //   .get('/api/admin/articles', {
-      //     params: {
-      //       current: this.current,
-      //       size: this.size,
-      //       keywords: this.keywords,
-      //       categoryId: this.categoryId,
-      //       status: this.status,
-      //       tagId: this.tagId,
-      //       type: this.type,
-      //       isDelete: this.isDelete
-      //     }
-      //   })
-      //   .then(({ data }) => {
-      //     this.articles = data.data.records
-      //     this.count = data.data.count
-      //     this.loading = false
-      //   })
     },
     listCategories() {
       _get('/admin/category/search', {}, (data) => {
         this.categories = data
       })
-      // this.axios.get('/api/admin/categories/search').then(({ data }) => {
-      //   this.categories = data.data
-      // })
     },
     listTags() {
       _get('/admin/tag/search', {}, (data) => {
         this.tags = data
       })
-      // this.axios.get('/api/admin/tag/search').then(({ data }) => {
-      //   this.tags = data.data
-      // })
     }
   },
   watch: {
@@ -579,10 +488,13 @@ export default {
     }
   },
   computed: {
+    uploadAction() {
+      return API_BASE_URL + '/admin/article/import'
+    },
     articleType() {
       return function(type) {
-        var tagType = ''
-        var name = ''
+        let tagType = ''
+        let name = ''
         switch (type) {
           case 1:
             tagType = 'danger'

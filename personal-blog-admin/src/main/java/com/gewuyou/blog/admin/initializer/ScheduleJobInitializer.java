@@ -40,7 +40,7 @@ public class ScheduleJobInitializer {
                 // 注册定时任务
                 ScheduleUtil.createScheduleJob(scheduler, job);
             }
-            log.info("初始化定时任务完成!");
+            log.info("==>>初始化定时任务完成<<==");
         } catch (Exception e) {
             // 处理异常
             throw new GlobalException(ResponseInformation.INIT_SCHEDULE_JOB_FAILED);

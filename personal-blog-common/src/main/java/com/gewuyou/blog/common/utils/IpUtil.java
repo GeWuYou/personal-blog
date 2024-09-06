@@ -13,7 +13,6 @@ import org.lionsoul.ip2region.DbConfig;
 import org.lionsoul.ip2region.DbSearcher;
 import org.lionsoul.ip2region.Util;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.InputStream;
@@ -28,7 +27,6 @@ import java.net.UnknownHostException;
  * @since 2024-04-17 下午8:33:33
  */
 @Slf4j
-@Component
 public class IpUtil {
     private static DbSearcher searcher;
 
@@ -142,5 +140,6 @@ public class IpUtil {
         DbConfig dbConfig = new DbConfig();
         searcher = new DbSearcher(dbConfig, dbBinStr);
         method = searcher.getClass().getMethod("memorySearch", String.class);
+        log.info("==>>ip2region 资源初始化成功<<==");
     }
 }

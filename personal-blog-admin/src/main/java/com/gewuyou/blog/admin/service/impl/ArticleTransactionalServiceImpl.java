@@ -103,29 +103,34 @@ public class ArticleTransactionalServiceImpl extends ServiceImpl<ArticleMapper, 
         if (Objects.nonNull(category)) {
             article.setCategoryId(category.getId());
         }
-        // 处理图片引用
-        // 查询数据库中该文章的图片image_url 和content
-        Article selectArticle = baseMapper.selectOne(new LambdaQueryWrapper<Article>()
-                .select(Article::getArticleCover, Article::getArticleContent)
-                .eq(Article::getId, articleVO.getId())
-        );
-        List<String> newImageUrls = new ArrayList<>();
-        List<String> oldImageUrls = new ArrayList<>();
-        String newArticleCover = article.getArticleCover();
-        String oldArticleCover;
-        if (Objects.nonNull(selectArticle)) {
-            oldArticleCover = selectArticle.getArticleCover();
-        } else {
-            oldArticleCover = null;
+        try {
+            // 处理图片引用
+            // 查询数据库中该文章的图片image_url 和content
+            Article selectArticle = baseMapper.selectOne(new LambdaQueryWrapper<Article>()
+                    .select(Article::getArticleCover, Article::getArticleContent)
+                    .eq(Article::getId, articleVO.getId())
+            );
+            List<String> newImageUrls = new ArrayList<>();
+            List<String> oldImageUrls = new ArrayList<>();
+            String newArticleCover = article.getArticleCover();
+            String oldArticleCover;
+            if (Objects.nonNull(selectArticle)) {
+                oldArticleCover = selectArticle.getArticleCover();
+            } else {
+                oldArticleCover = null;
+            }
+            newImageUrls.add(newArticleCover);
+            oldImageUrls.add(oldArticleCover);
+            // 提取文章中的图片url
+            Set<String> oldImageUrlsSet = FileUtil.extractImageUrlsByMarkdown(selectArticle.getArticleContent());
+            oldImageUrls.addAll(oldImageUrlsSet);
+            Set<String> newImageUrlsSet = FileUtil.extractImageUrlsByMarkdown(article.getArticleContent());
+            newImageUrls.addAll(newImageUrlsSet);
+            imageReferenceService.handleImageReference(newImageUrls, oldImageUrls);
+        } catch (Exception e) {
+            // 如果抛出异常则说明是通过导入文章接口导入的文章，则不处理图片引用
+            log.error("处理图片引用失败", e);
         }
-        newImageUrls.add(newArticleCover);
-        oldImageUrls.add(oldArticleCover);
-        // 提取文章中的图片url
-        Set<String> oldImageUrlsSet = FileUtil.extractImageUrlsByMarkdown(selectArticle.getArticleContent());
-        oldImageUrls.addAll(oldImageUrlsSet);
-        Set<String> newImageUrlsSet = FileUtil.extractImageUrlsByMarkdown(article.getArticleContent());
-        newImageUrls.addAll(newImageUrlsSet);
-        imageReferenceService.handleImageReference(newImageUrls, oldImageUrls);
         // 保存
         this.saveOrUpdate(article);
         // 保存文章标签

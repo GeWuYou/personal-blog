@@ -5,7 +5,10 @@ import com.gewuyou.blog.admin.config.entity.MinioProperties;
 import com.gewuyou.blog.admin.config.entity.OssConfigProperties;
 import com.gewuyou.blog.admin.config.entity.QiNiuProperties;
 import com.gewuyou.blog.security.config.SecurityIgnoreUrl;
+import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,10 +23,20 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableConfigurationProperties({SecurityIgnoreUrl.class, MinioProperties.class, OssConfigProperties.class, QiNiuProperties.class, LocalProperties.class})
 @EnableFeignClients
 @EnableAspectJAutoProxy
-public class PersonalBlogAdminApplication {
+@Slf4j
+public class PersonalBlogAdminApplication implements ApplicationRunner {
 
     public static void main(String[] args) {
         SpringApplication.run(PersonalBlogAdminApplication.class, args);
     }
 
+    /**
+     * Callback used to run the bean.
+     *
+     * @param args incoming application arguments
+     */
+    @Override
+    public void run(ApplicationArguments args) {
+        log.info("==>>personal blog admin 启动成功<<==");
+    }
 }
