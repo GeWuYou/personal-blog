@@ -1,5 +1,6 @@
 package com.gewuyou.blog.common.config;
 
+import com.gewuyou.blog.common.decorator.SecurityContextDecorator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.InitializingBean;
@@ -44,6 +45,8 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setThreadNamePrefix("async-task-thread-");
         // 设置拒绝策略    当前策略:AbortPolicy 超出执行队列会被舍弃并抛出异常
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+        // 设置线程装饰器
+        executor.setTaskDecorator(new SecurityContextDecorator());
         executor.initialize();
         return new DelegatingSecurityContextAsyncTaskExecutor(executor);
     }

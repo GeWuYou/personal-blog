@@ -20,6 +20,7 @@ public class BeanCopyUtil {
     /**
      * 将源对象的属性复制到目标类的新实例中
      *
+     * @apiNote 该方法使用 Spring 的 BeanUtils.copyProperties 方式进行属性赋值，不建议用来拷贝相同对象或者对象中存在其它对象引用的情况。
      * @param source 要从中复制的对象
      * @param target 要创建并复制到的对象的类
      * @param <T>    目标对象的类型
