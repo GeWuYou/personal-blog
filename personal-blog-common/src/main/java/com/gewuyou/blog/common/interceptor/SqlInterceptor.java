@@ -53,7 +53,7 @@ public class SqlInterceptor implements Interceptor {
         } catch (Exception e) {
             log.error("解析SQL语句出错", e);
         } finally {
-            log.info("SQL执行耗时：{}ms\nSQL语句：{}", executionTime, sql);
+            log.info("\nSQL执行耗时：{}ms\nSQL语句：{}", executionTime, sql);
         }
         return proceed;
     }

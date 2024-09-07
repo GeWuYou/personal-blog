@@ -139,9 +139,35 @@ public class OperationLoggingAspect {
             requestParam = objectMapper.writeValueAsString(joinPoint.getArgs());
         }
         // 是否记录返回结果
-        if (operationLogging.logResult()) {
+        if (!operationLogging.logResult()) {
             resultStr = null;
         }
+        // 打印日志在控制台
+        log.info("""
+                        
+                        \r=======================================
+                        \r\
+                        请求地址:{}\s
+                        \r\
+                        请求方式:{}\s
+                        \r\
+                        请求类方法:{}\s
+                        \r\
+                        请求方法参数:{}\s
+                        \r\
+                        返回报文:{}\s
+                        \r\
+                        处理耗时:{} ms\s
+                        \r\
+                        =======================================
+                        \r""",
+                request.getRequestURI(),
+                request.getMethod(),
+                joinPoint.getSignature(),
+                requestParam,
+                resultStr,
+                Duration.between(startTime.get(), LocalDateTime.now()).toMillis()
+        );
         return OperationLog
                 .builder()
                 .optModule(tag.name())
