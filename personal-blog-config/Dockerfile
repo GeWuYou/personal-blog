@@ -9,8 +9,8 @@ WORKDIR /app
 # 设置环境变量 设置激活环境配置 激活native模式
 ENV SPRING_PROFILES_ACTIVE=native
 # 将项目的jar包复制到镜像中
-#COPY target/personal-blog-admin-$version.jar.jar /app/personal-blog-admin.jar
-COPY personal-blog-config-$version.jar /app/personal-blog-config.jar
+COPY target/personal-blog-config-$version.jar /app/personal-blog-config.jar
+#COPY personal-blog-config-$version.jar /app/personal-blog-config.jar
 # 设置数据卷
 VOLUME /tmp
 # 暴露应用端口

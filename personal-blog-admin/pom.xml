@@ -161,6 +161,13 @@
                                         <exclude>META-INF/*.RSA</exclude>
                                     </excludes>
                                 </filter>
+                                <filter>
+                                    <!-- Exclude module-info.class from shading -->
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
                             </filters>
                             <!--移除项目中没有用到的依赖-->
                             <minimizeJar>true</minimizeJar>
