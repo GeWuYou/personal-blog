@@ -135,6 +135,8 @@ git clone https://gitee.com/gewuyou/personal-blog.git
 
 ## 六、Docker部署教程
 
+### 操作一(不推荐)
+
 1. 首先我们先点开Maven点击父模块的clean清理构建结果
 
 2. 安装common模块，点开common子模块点击install
@@ -146,7 +148,30 @@ git clone https://gitee.com/gewuyou/personal-blog.git
 5. 在你的Linux上创建一个文件夹(personal-blog)并创建对应子模块的文件夹(例如：server、config)
 
 6. 找到对应子模块的根目录有一个DockerFile将其上传至文件夹中，还有target目录下对应的jar包(
-   例如personal-blog-admin-0.1.0.jar)
+   例如personal-blog-admin-0.1.0.jar) 注意复制路径
+
+   ```sh
+   # 从openjdk:17镜像开始构建
+   FROM openjdk:17
+   # 作者信息
+   LABEL authors="gewuyou"
+   # 版本
+   ENV version="0.1.0"
+   # 设置工作目录
+   WORKDIR /app
+   # 设置环境变量 设置激活生产环境配置
+   ENV SPRING_PROFILES_ACTIVE=prod
+   # 将项目的jar包复制到镜像中
+   #COPY target/personal-blog-admin-$version.jar.jar /app/personal-blog-admin.jar
+   COPY personal-blog-admin-$version.jar /app/personal-blog-admin.jar
+   # 设置数据卷
+   VOLUME /tmp
+   # 暴露应用端口
+   EXPOSE 8081
+   # 设置容器创建时的主要命令
+   ENTRYPOINT ["java", "-Xms256m","-Xmx512m","-XX:+UseContainerSupport","-Duser.timezone=Asia/Shanghai","-jar","/app/personal-blog-admin.jar"]
+   ```
+
 
 7. 进入到对应子模块目录执行命令
 
@@ -177,4 +202,72 @@ git clone https://gitee.com/gewuyou/personal-blog.git
    docker run -d -p 8084:8084 --name server personal-blog-server
    ```
 
-后续会出更方便的部署操作目前先这样
+### 操作二
+
+#### 准备工作:
+
+在idea中构建dockerFile需要在本机安装docker，通常我们会下载Docker for
+Windows，但不推荐这种方法，我电脑安装之后VM就歇逼了，而且我电脑太拉跨，安装后docker启动了就关不了了，得关进程，因此我们选择另外一种方法
+
+首先下载[docker.exe](https://download.docker.com/win/static/stable/x86_64/)
+
+解压后，在idea - 设置 - 构建、执行、部署 - Docker中找到工具，选择docker.exe解压的位置，点击确定
+
+![image-20240908110713885](./assets/README/image-20240908110713885.png)
+
+设置完后，执行大概率会出现buildx工具找不到的问题
+
+接着我们需要安装buildx工具
+
+在你的用户文件夹下（或在文件管理地址栏输入 %USERPROFILE% 定位）
+
+新建 .docker 文件夹（注意有个“.”,如果已经有了那就不用新建）
+
+在 .docker 下面再新建一个 cli-plugins文件夹(这个应该是没有)
+
+![image-20240908111056989](./assets/README/image-20240908111056989.png)
+
+下载文件[docker-buildx.exe](https://github.com/docker/buildx/releases/download)
+
+进去后自己根据自己的电脑选版本
+
+下载下来，然后重命名为 docker-buildx.exe，然后放入cli-plugins文件夹中
+
+效果如下图
+
+![image-20240908111127285](./assets/README/image-20240908111127285.png)
+
+#### 构建配置：
+
+这边我使用admin模块举例
+
+这是配置，注意这个COPY路径根据你的打包后jar包的位置设置
+
+![image-20240908111358991](./assets/README/image-20240908111358991.png)
+
+点开运行/调试配置，拉到最下面点击编辑配置
+
+![image-20240908111531071](./assets/README/image-20240908111531071.png)
+
+接着我们新增一个配置
+
+![image-20240908111617602](./assets/README/image-20240908111617602.png)
+
+这是初步设置
+
+![image-20240908111816461](./assets/README/image-20240908111816461.png)
+
+接着我们创建执行前的maven构建任务
+
+指定好目标目录和清理与打包命令，注意如果依赖模块有修改，需要清理并安装依赖模块
+
+![image-20240908111922781](./assets/README/image-20240908111922781.png)
+
+#### 运行结果：
+
+![image-20240908145455118](./assets/README/image-20240908145455118.png)
+
+#### 参考资料:
+
+- [使用Idea创建一键部署项目到Docker(保姆级教程)](https://blog.csdn.net/weixin_42782429/article/details/131848057)
+- [IDEA 2024无法远程构建dockerfile，报错cannot run program](https://www.colortimbre.com/archives/1720704825386)
