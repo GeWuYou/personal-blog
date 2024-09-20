@@ -3,14 +3,11 @@ package com.gewuyou.blog.common.config;
 import com.gewuyou.blog.common.decorator.SecurityContextDecorator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -48,18 +45,19 @@ public class AsyncConfig implements AsyncConfigurer {
         // 设置线程装饰器
         executor.setTaskDecorator(new SecurityContextDecorator());
         executor.initialize();
-        return new DelegatingSecurityContextAsyncTaskExecutor(executor);
+        // return new DelegatingSecurityContextAsyncTaskExecutor(executor);
+        return executor;
     }
 
-    /**
-     * 模式：设置SecurityContextHolder策略为继承ThreadLocal 用于 异步任务中获取当前用户信息
-     *
-     * @return org.springframework.beans.factory.InitializingBean
-     */
-    @Bean
-    public InitializingBean initializingBean() {
-        return () -> SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-    }
+    // /**
+    //  * 模式：设置SecurityContextHolder策略为继承ThreadLocal 用于 异步任务中获取当前用户信息
+    //  *
+    //  * @return org.springframework.beans.factory.InitializingBean
+    //  */
+    // @Bean
+    // public InitializingBean initializingBean() {
+    //     return () -> SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+    // }
 
     /**
      * The {@link AsyncUncaughtExceptionHandler} instance to be used

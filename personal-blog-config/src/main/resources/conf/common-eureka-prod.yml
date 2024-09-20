@@ -4,7 +4,7 @@ eureka:
     hostname: ${spring.application.name}
   client:
     service-url:
-      defaultZone: http://192.168.200.129:10086/eureka
+      defaultZone: http://192.168.200.131:10086/eureka
     fetch-registry: true
     register-with-eureka: true # fetch-registry 与 register-with-eureka 都为 true 表示即为提供者, 亦为消费者
 

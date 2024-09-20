@@ -23,6 +23,14 @@
                     <artifactId>sensitive-word</artifactId>
                     <groupId>com.github.houbb</groupId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.thoughtworks.xstream</groupId>
+                    <artifactId>xstream</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.woodstox</groupId>
+                    <artifactId>woodstox-core</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

@@ -3,7 +3,7 @@ spring:
     redis:
       # 数据库设置为0号数据库
       database: 0
-      host: 192.168.200.129
+      host: 192.168.200.131
       port: 6379
   cache:
     redis:

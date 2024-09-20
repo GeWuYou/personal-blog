@@ -12,7 +12,7 @@ ENV SPRING_PROFILES_ACTIVE=prod
 COPY target/personal-blog-eureka-$version.jar /app/personal-blog-eureka.jar
 #COPY personal-blog-eureka-$version.jar /app/personal-blog-eureka.jar
 # 设置数据卷
-VOLUME /tmp
+VOLUME /app/logs
 # 暴露应用端口
 EXPOSE 10086
 # 设置容器创建时的主要命令

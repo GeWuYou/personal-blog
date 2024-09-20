@@ -5,4 +5,7 @@ spring:
     config:
       server:
         native:
-          search-locations: "classpath:/conf,classpath:/conf/personal-blog-admin,classpath:/conf/personal-blog-server,classpath:/conf/personal-blog-eureka,classpath:/conf/personal-blog-gateway"
+          search-locations: >
+            classpath:/conf,classpath:/conf/personal-blog-admin,
+            classpath:/conf/personal-blog-server,classpath:/conf/personal-blog-eureka,
+            classpath:/conf/personal-blog-gateway

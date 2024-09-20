@@ -12,7 +12,7 @@ ENV SPRING_PROFILES_ACTIVE=native
 COPY target/personal-blog-config-$version.jar /app/personal-blog-config.jar
 #COPY personal-blog-config-$version.jar /app/personal-blog-config.jar
 # 设置数据卷
-VOLUME /tmp
+VOLUME /app/logs
 # 暴露应用端口
 EXPOSE 8888
 # 设置容器创建时的主要命令

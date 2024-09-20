@@ -12,7 +12,7 @@ ENV SPRING_PROFILES_ACTIVE=prod
 COPY target/personal-blog-admin-$version.jar /app/personal-blog-admin.jar
 #COPY personal-blog-admin-$version.jar /app/personal-blog-admin.jar
 # 设置数据卷
-VOLUME /tmp
+VOLUME /app/logs
 # 暴露应用端口
 EXPOSE 8081
 # 设置容器创建时的主要命令
