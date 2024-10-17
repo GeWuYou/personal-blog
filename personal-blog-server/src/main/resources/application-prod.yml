@@ -1,6 +1,6 @@
 spring:
   config:
-    import: configserver:http://192.168.200.129:8888
+    import: configserver:http://192.168.200.131:8889
   cloud:
     config:
       profile: prod                # 使用的配置文件环境

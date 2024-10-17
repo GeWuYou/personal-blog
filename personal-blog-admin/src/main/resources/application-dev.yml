@@ -1,6 +1,6 @@
 spring:
   config:
-    import: configserver:http://localhost:8888
+    import: configserver:http://localhost:8889
   cloud:
     config:
       profile: dev                # 使用的配置文件环境

@@ -159,7 +159,7 @@ Then open the sql folder in the project root directory and execute the sql scrip
 
 Startup sequence
 
-1. config(8888)
+1. config(8889)
 2. eureka(10086) gateway(8082)
 3. admin(8081) server(8084)
 
