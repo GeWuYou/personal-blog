@@ -57,7 +57,6 @@ public class EmailUtil {
      * @param to      收件人邮箱
      * @param subject 主题
      * @param content 内容
-     * @return 发送成功返回true，失败返回false
      * @since 2024/4/16 下午8:26
      */
     public void sendSimpleEmail(String to, String subject, String content) {

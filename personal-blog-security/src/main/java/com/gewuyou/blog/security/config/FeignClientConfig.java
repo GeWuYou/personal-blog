@@ -15,11 +15,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Slf4j
 public class FeignClientConfig {
-    @Value("${jwt.internal-token}")
-    private String internalTokens;
+    @Value("${jwt.internal.secretKey}")
+    private String internalSecretKey;
 
     @Bean
     public RequestInterceptor jwtTokenInterceptor() {
-        return template -> template.header("Authorization", "Bearer " + internalTokens);
+        return template -> template.header("Internal-Request-SecretKey", internalSecretKey);
     }
 }

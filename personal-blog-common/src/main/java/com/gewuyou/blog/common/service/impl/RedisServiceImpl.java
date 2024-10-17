@@ -300,9 +300,6 @@ public class RedisServiceImpl implements IRedisService {
                     throw new IllegalStateException("Duplicate key");
                 });
         return map;
-        // return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end)
-        //         .stream()
-        //         .collect(Collectors.toMap(ZSetOperations.TypedTuple::getValue, ZSetOperations.TypedTuple::getScore));
     }
 
     @Override
@@ -317,9 +314,6 @@ public class RedisServiceImpl implements IRedisService {
             map.putIfAbsent(objectTypedTuple.getValue(), objectTypedTuple.getScore());
         }
         return map;
-        // return Objects.requireNonNull(redisTemplate.opsForZSet().rangeWithScores(key, 0, -1))
-        //         .stream()
-        //         .collect(Collectors.toMap(ZSetOperations.TypedTuple::getValue, ZSetOperations.TypedTuple::getScore));
     }
 
     @Override

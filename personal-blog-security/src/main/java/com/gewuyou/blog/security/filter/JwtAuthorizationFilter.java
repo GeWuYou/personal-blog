@@ -42,6 +42,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Value("${jwt.prefix}")
     private String prefix;
 
+    @Value("${jwt.internal.secretKey}")
+    private String internalSecretKey;
+
     private final SecurityIgnoreUrl securityIgnoreUrl;
 
     private final JwtService jwtService;
@@ -62,7 +65,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         Stream<AntPathRequestMatcher> matchers = Arrays.stream(securityIgnoreUrl.getUrls()).map(AntPathRequestMatcher::new);
         // 如果匹配到需要放行的路径，则直接放行
-        if (matchers.anyMatch(matcher -> matcher.matches(request))) {
+        if (matchers.anyMatch(matcher -> matcher.matches(request)) || internalSecretKey.equals(request.getHeader("Internal-Request-SecretKey"))) {
             log.info("已放行路径：{}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;

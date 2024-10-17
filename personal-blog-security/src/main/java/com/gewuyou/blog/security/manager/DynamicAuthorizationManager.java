@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -48,6 +49,10 @@ public class DynamicAuthorizationManager implements AuthorizationManager<Request
         HttpServletRequest request = requestAuthorizationContext.getRequest();
         // 判断是否是options请求
         if (HttpMethod.OPTIONS.matches(request.getMethod())) {
+            return new AuthorizationDecision(true);
+        }
+        // 判断是否是内部请求
+        if (Objects.nonNull(request.getHeader("Internal-Request-SecretKey"))) {
             return new AuthorizationDecision(true);
         }
         log.info("检查的URL：{}", request.getRequestURI());
